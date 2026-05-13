@@ -495,6 +495,7 @@ body{font-family:'Poppins',sans-serif;background:var(--cream);color:var(--ink);m
     <button class="fbtn" onclick="setFilter('marketing',this)">📣 Marketing</button>
     <button class="fbtn" onclick="setFilter('lab',this)">🧪 Labs</button>
     <button class="fbtn" onclick="setFilter('hr',this)">👥 HR</button>
+    <button class="fbtn" onclick="setFilter('supp',this)">💊 Supplement Ordering</button>
     <button class="fbtn" onclick="setFilter('daily',this)">📅 Daily</button>
     <button class="fbtn" onclick="setFilter('pay',this)">💳 Payments</button>
     <button class="fbtn" onclick="setFilter('ghl',this)">GHL</button>
@@ -906,6 +907,224 @@ body{font-family:'Poppins',sans-serif;background:var(--cream);color:var(--ink);m
         <div class="sop-body"><div class="sop-w"><a class="btn-link" href="https://drive.google.com/file/d/1HOCzQ5ha4RJ69eXur8L6nX0QM9HGq-FW/view" target="_blank" style="display:inline-block">View PDF ↗</a></div></div>
       </div>
 
+
+      <!-- ═══ SUPPLEMENT ORDERING ═══ -->
+      <div class="s-div" id="div-supp">💊 Supplement Ordering</div>
+
+      <!-- MASTER WORKFLOW -->
+      <div class="sop-card" id="sop-master-ordering" data-tags="supp t1">
+        <div class="sop-hdr" onclick="toggleCard(this)">
+          <div class="sop-hdr-l">
+            <div class="tags"><span class="tag t-t1">★ T1</span><span class="tag" style="background:#f0fdf4;color:#166534">💊 Supplement Ordering</span></div>
+            <div class="sop-title">Master Inventory Ordering Workflow</div>
+            <div class="sop-trig">Start here before every ordering session — pull low stock report, work through vendors, close out POs</div>
+          </div>
+          <div class="sop-acts">
+            <a class="btn-link" href="https://docs.google.com/document/d/1m76yX-e1KTVOK-7HKe7I03bg6akZ79RcHJsg5nR9owM/edit" target="_blank">Doc ↗</a>
+            <a class="btn-link" href="https://www.loom.com/share/324e86c15c3c463a8e070c5e6f666f17" target="_blank">Video ↗</a>
+            <div class="tog">+</div>
+          </div>
+        </div>
+        <div class="sop-body">
+          <div class="va"><div class="va-tog" onclick="toggleVA(this)"><span>📊</span><span style="color:var(--teal);font-weight:600">Visual Aid — Full Ordering Workflow</span><span>▼ expand</span></div>
+            <div class="va-content"><div style="background:var(--white);border-radius:9px;border:1px solid var(--border);padding:14px 16px;">
+              <div class="ci-steps">
+                <div class="ci-step"><div class="ci-n" style="background:var(--teal)">1</div><div class="ci-t"><strong>Open Shopify → duplicate the Stocky tab</strong><span>Right-click → Duplicate so you can reference it while ordering without losing your place.</span></div></div>
+                <div class="ci-step"><div class="ci-n" style="background:var(--teal)">2</div><div class="ci-t"><strong>Set report: Individual Vendors · Sort by Depletion Ascending · Show All</strong><span>Leave all other settings as-is. Review Available column and Depletion dates.</span></div></div>
+                <div class="ci-step"><div class="ci-n" style="background:var(--teal)">3</div><div class="ci-t"><strong>Apply the 60-day rule</strong><span>Order anything depleting within 60 days. Keep a minimum of 5 units on hand at all times.</span></div></div>
+                <div class="ci-step"><div class="ci-n" style="background:var(--teal)">4</div><div class="ci-t"><strong>Create a PO per vendor — switch suggestion to 60 days</strong><span>Confirm pricing before saving the PO. Check for in-transit orders to avoid over-ordering.</span></div></div>
+                <div class="ci-step"><div class="ci-n" style="background:var(--teal)">5</div><div class="ci-t"><strong>Work through vendors one at a time using their individual SOP docs</strong><span>For each vendor: Log in → Add items → Verify quantities → Check free shipping → Confirm 925 Charlotte → Place order → Record confirmation number.</span></div></div>
+                <div class="ci-step"><div class="ci-n" style="background:var(--teal)">6</div><div class="ci-t"><strong>Round up to nearest box/case size</strong><span>Boxes of 12, 24, 30, 36. Keeps inventory counts clean.</span></div></div>
+                <div class="ci-step"><div class="ci-n" style="background:var(--green)">✓</div><div class="ci-t"><strong>After each order: Record confirmation # → Mark PO as Fully Paid → Mark as Ordered</strong><span>Do not skip these steps — they maintain inventory accuracy across the system.</span></div></div>
+              </div>
+              <div class="callout c-warn" style="margin-top:10px"><strong>⚠️ Do NOT order from</strong>Lab companies · Discontinued brands · Bundles · Testing kit suppliers — skip these if they appear in the low stock report.</div>
+            </div></div>
+          </div>
+          <div class="sop-w">
+            <div class="vembed"><div class="vi">▶</div><div class="vt"><strong>Master Workflow Loom</strong><p>Full video walkthrough of the ordering process</p></div><a class="vl" href="https://www.loom.com/share/324e86c15c3c463a8e070c5e6f666f17" target="_blank">Watch ↗</a></div>
+            <h2>Shipping Address (all vendors)</h2>
+            <p><strong>925 Charlotte</strong> — use for every vendor order.</p>
+            <h2>Quantity Rounding Rule</h2>
+            <p>Round up to the nearest countable box or case size whenever possible: boxes of 12, 24, 30, or 36. Keeps inventory counts clean.</p>
+            <h2>Order Closeout Checklist</h2>
+            <ul class="checklist">
+              <li><span class="cb" onclick="chk(this)"></span>Confirmation number recorded in Stocky PO</li>
+              <li><span class="cb" onclick="chk(this)"></span>PO marked as Fully Paid</li>
+              <li><span class="cb" onclick="chk(this)"></span>PO marked as Ordered</li>
+              <li><span class="cb" onclick="chk(this)"></span>In-transit orders checked before reordering</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- SPECIAL CASES & DO NOT ORDER -->
+      <div class="sop-card" id="sop-do-not-order" data-tags="supp t1">
+        <div class="sop-hdr" onclick="toggleCard(this)">
+          <div class="sop-hdr-l">
+            <div class="tags"><span class="tag t-t1">★ T1</span><span class="tag t-crit">⚠ Critical</span><span class="tag" style="background:#f0fdf4;color:#166534">💊 Supplement Ordering</span></div>
+            <div class="sop-title">Special Cases & Do-Not-Order List</div>
+            <div class="sop-trig">Read this before every ordering session — restricted vendors, special handling, and ordering quirks</div>
+          </div>
+          <div class="sop-acts">
+            <a class="btn-link" href="https://docs.google.com/document/d/1ASLMts-Ful_aZ0dC-5Sf6v3M_HPEAQZOyBGszQXp568/edit" target="_blank">Doc ↗</a>
+            <a class="btn-link" href="https://www.loom.com/share/011f2643b3674a11ab8ae69c360f2d01" target="_blank">Video ↗</a>
+            <div class="tog">+</div>
+          </div>
+        </div>
+        <div class="sop-body">
+          <div class="sop-w">
+            <div class="callout c-warn"><strong>🛑 NEVER order (without owner direction)</strong>Lab companies · Discontinued brands · Bundles · Testing kit suppliers — skip entirely if they appear in low stock report.</div>
+            <h2>Special Handling Required</h2>
+            <div class="ci-steps">
+              <div class="ci-step"><div class="ci-n" style="background:var(--red)">!</div><div class="ci-t"><strong>Barlow Herbal</strong><span>Create a DRAFT PO only. Do NOT mark as ordered. Notify owner — they place this order personally.</span></div></div>
+              <div class="ci-step"><div class="ci-n" style="background:var(--ink-muted)">—</div><div class="ci-t"><strong>Global Healing</strong><span>Account setup pending. Do NOT order yet.</span></div></div>
+              <div class="ci-step"><div class="ci-n" style="background:var(--ink-muted)">—</div><div class="ci-t"><strong>Botanica</strong><span>Account setup pending. Do NOT order yet.</span></div></div>
+              <div class="ci-step"><div class="ci-n" style="background:var(--ink-muted)">—</div><div class="ci-t"><strong>Wild Holistic</strong><span>Account setup pending. Do NOT order yet.</span></div></div>
+            </div>
+            <h2>Ordering Quirks</h2>
+            <div class="ci-steps">
+              <div class="ci-step"><div class="ci-n" style="background:var(--gold)">!</div><div class="ci-t"><strong>Evo — Case-only ordering</strong><span>Can only order by the full case. Plan quantities accordingly — no individual units.</span></div></div>
+              <div class="ci-step"><div class="ci-n" style="background:var(--gold)">!</div><div class="ci-t"><strong>Designs for Health</strong><span>Use the single correct Shopify entry — not any duplicate or alternate entry.</span></div></div>
+              <div class="ci-step"><div class="ci-n" style="background:var(--gold)">!</div><div class="ci-t"><strong>Queen of the Thrones</strong><span>Use the PLURAL entry ("Queen of the Thrones") not the singular version.</span></div></div>
+            </div>
+            <h2>Pre-Session Checklist</h2>
+            <ul class="checklist">
+              <li><span class="cb" onclick="chk(this)"></span>Any lab co., discontinued brand, bundle, or test kit in low stock? → Skip it</li>
+              <li><span class="cb" onclick="chk(this)"></span>Barlow Herbal low? → Draft PO only, notify owner, do NOT mark ordered</li>
+              <li><span class="cb" onclick="chk(this)"></span>Global Healing / Botanica / Wild Holistic in report? → Skip — accounts not active</li>
+              <li><span class="cb" onclick="chk(this)"></span>Evo on the list? → Case-only ordering</li>
+              <li><span class="cb" onclick="chk(this)"></span>Using correct Shopify entry for Designs for Health and Queen of the Thrones?</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- VENDOR SOPs — helper macro for all vendors -->
+      <div class="sop-card" id="sop-vendor-aegis" data-tags="supp">
+        <div class="sop-hdr" onclick="toggleCard(this)"><div class="sop-hdr-l"><div class="tags"><span class="tag" style="background:#f0fdf4;color:#166534">💊 Vendor SOP</span></div><div class="sop-title">Aegis — Ordering SOP</div><div class="sop-trig">Use when ordering Aegis products</div></div><div class="sop-acts"><a class="btn-link" href="https://docs.google.com/document/d/1sIZv31m4Lu8TG6ctbwwgBqVf0n3FM7E1RBqsc-Bpw2g/edit" target="_blank">Doc ↗</a><div class="tog">+</div></div></div>
+        <div class="sop-body"><div class="sop-w"><div class="callout c-info"><strong>Shipping Address</strong>925 Charlotte · Login via LastPass · Record confirmation number · Mark PO as Fully Paid and Ordered after placing.</div><a class="btn-link" href="https://docs.google.com/document/d/1sIZv31m4Lu8TG6ctbwwgBqVf0n3FM7E1RBqsc-Bpw2g/edit" target="_blank" style="display:inline-block;margin-top:6px">View Full SOP ↗</a></div></div>
+      </div>
+
+      <div class="sop-card" id="sop-vendor-apex" data-tags="supp">
+        <div class="sop-hdr" onclick="toggleCard(this)"><div class="sop-hdr-l"><div class="tags"><span class="tag" style="background:#f0fdf4;color:#166534">💊 Vendor SOP</span></div><div class="sop-title">Apex Energetics — Ordering SOP</div><div class="sop-trig">Use when ordering Apex Energetics products</div></div><div class="sop-acts"><a class="btn-link" href="https://docs.google.com/document/d/1-iY105eTUGXsjvtJkmg5fSOYr7tmRAiExlgwbBxMzYk/edit" target="_blank">Doc ↗</a><div class="tog">+</div></div></div>
+        <div class="sop-body"><div class="sop-w"><a class="btn-link" href="https://docs.google.com/document/d/1-iY105eTUGXsjvtJkmg5fSOYr7tmRAiExlgwbBxMzYk/edit" target="_blank" style="display:inline-block">View Full SOP ↗</a></div></div>
+      </div>
+
+      <div class="sop-card" id="sop-vendor-best365" data-tags="supp">
+        <div class="sop-hdr" onclick="toggleCard(this)"><div class="sop-hdr-l"><div class="tags"><span class="tag" style="background:#f0fdf4;color:#166534">💊 Vendor SOP</span></div><div class="sop-title">Best 365 Labs — Ordering SOP</div><div class="sop-trig">Use when ordering Best 365 Labs products</div></div><div class="sop-acts"><a class="btn-link" href="https://docs.google.com/document/d/1kcYRUsCvfE2CSQOwdwd0OJtRKgStQU8DeutwR3G-_Lo/edit" target="_blank">Doc ↗</a><div class="tog">+</div></div></div>
+        <div class="sop-body"><div class="sop-w"><a class="btn-link" href="https://docs.google.com/document/d/1kcYRUsCvfE2CSQOwdwd0OJtRKgStQU8DeutwR3G-_Lo/edit" target="_blank" style="display:inline-block">View Full SOP ↗</a></div></div>
+      </div>
+
+      <div class="sop-card" id="sop-vendor-biopure" data-tags="supp">
+        <div class="sop-hdr" onclick="toggleCard(this)"><div class="sop-hdr-l"><div class="tags"><span class="tag" style="background:#f0fdf4;color:#166534">💊 Vendor SOP</span></div><div class="sop-title">BioPure — Ordering SOP</div><div class="sop-trig">Use when ordering BioPure products</div></div><div class="sop-acts"><a class="btn-link" href="https://docs.google.com/document/d/1jSnImv4JC5OEaNmH7DaVcDAXcP5gGhhDlmV-RmCYI5A/edit" target="_blank">Doc ↗</a><div class="tog">+</div></div></div>
+        <div class="sop-body"><div class="sop-w"><a class="btn-link" href="https://docs.google.com/document/d/1jSnImv4JC5OEaNmH7DaVcDAXcP5gGhhDlmV-RmCYI5A/edit" target="_blank" style="display:inline-block">View Full SOP ↗</a></div></div>
+      </div>
+
+      <div class="sop-card" id="sop-vendor-biotics" data-tags="supp">
+        <div class="sop-hdr" onclick="toggleCard(this)"><div class="sop-hdr-l"><div class="tags"><span class="tag" style="background:#f0fdf4;color:#166534">💊 Vendor SOP</span></div><div class="sop-title">Biotics Research — Ordering SOP</div><div class="sop-trig">Use when ordering Biotics Research products</div></div><div class="sop-acts"><a class="btn-link" href="https://docs.google.com/document/d/1Lnc4j38yBB07rg0aGQHYPE1F2xCDaHODMO6YPPdVK5o/edit" target="_blank">Doc ↗</a><div class="tog">+</div></div></div>
+        <div class="sop-body"><div class="sop-w"><a class="btn-link" href="https://docs.google.com/document/d/1Lnc4j38yBB07rg0aGQHYPE1F2xCDaHODMO6YPPdVK5o/edit" target="_blank" style="display:inline-block">View Full SOP ↗</a></div></div>
+      </div>
+
+      <div class="sop-card" id="sop-vendor-bodybio" data-tags="supp">
+        <div class="sop-hdr" onclick="toggleCard(this)"><div class="sop-hdr-l"><div class="tags"><span class="tag" style="background:#f0fdf4;color:#166534">💊 Vendor SOP</span></div><div class="sop-title">BodyBio — Ordering SOP</div><div class="sop-trig">Use when ordering BodyBio products</div></div><div class="sop-acts"><a class="btn-link" href="https://docs.google.com/document/d/1Kf2TldA-qW4N-6eqjGe0Ic7Tkkl-wHyIxRExP-fKuFs/edit" target="_blank">Doc ↗</a><div class="tog">+</div></div></div>
+        <div class="sop-body"><div class="sop-w"><a class="btn-link" href="https://docs.google.com/document/d/1Kf2TldA-qW4N-6eqjGe0Ic7Tkkl-wHyIxRExP-fKuFs/edit" target="_blank" style="display:inline-block">View Full SOP ↗</a></div></div>
+      </div>
+
+      <div class="sop-card" id="sop-vendor-byron" data-tags="supp">
+        <div class="sop-hdr" onclick="toggleCard(this)"><div class="sop-hdr-l"><div class="tags"><span class="tag" style="background:#f0fdf4;color:#166534">💊 Vendor SOP</span></div><div class="sop-title">Byron White — Ordering SOP</div><div class="sop-trig">Use when ordering Byron White products</div></div><div class="sop-acts"><a class="btn-link" href="https://docs.google.com/document/d/1shSFHL5TROQQ5gAQgnV6osXM7RuQr5n-6Ljz6Q5fy9s/edit" target="_blank">Doc ↗</a><div class="tog">+</div></div></div>
+        <div class="sop-body"><div class="sop-w"><a class="btn-link" href="https://docs.google.com/document/d/1shSFHL5TROQQ5gAQgnV6osXM7RuQr5n-6Ljz6Q5fy9s/edit" target="_blank" style="display:inline-block">View Full SOP ↗</a></div></div>
+      </div>
+
+      <div class="sop-card" id="sop-vendor-cellcore" data-tags="supp">
+        <div class="sop-hdr" onclick="toggleCard(this)">
+          <div class="sop-hdr-l"><div class="tags"><span class="tag" style="background:#f0fdf4;color:#166534">💊 Vendor SOP</span></div><div class="sop-title">CellCore — Ordering SOP</div><div class="sop-trig">Use when ordering CellCore products — check sale calendar FIRST</div></div>
+          <div class="sop-acts"><a class="btn-link" href="https://docs.google.com/document/d/1fvuZ2pB4UpY6r8l91lzvOpb5YLbmmjI9DbwrZBtJPks/edit" target="_blank">Doc ↗</a><a class="btn-link" href="https://www.loom.com/share/a99fd8cfca9540a18d4da3dad29fd093" target="_blank">Video ↗</a><div class="tog">+</div></div>
+        </div>
+        <div class="sop-body"><div class="sop-w">
+          <div class="callout c-warn"><strong>⚠️ Check sale calendar FIRST</strong>CellCore runs major sale events. If a sale is within ~2 weeks: set PO window to 15 days only, deplete current stock, then place a larger bulk order at the discounted price during the sale.</div>
+          <h2>Products We Carry</h2>
+          <p>KL Support · Biotoxin Binder · Thyroid Chem (check current stock for others)</p>
+          <h2>Steps</h2>
+          <ol><li>Check CellCore's sale calendar BEFORE building the PO</li><li>If sale within ~2 weeks: set PO to 15-day window only</li><li>Log in to CellCore portal</li><li>Add KL Support, Biotoxin Binder, Thyroid Chem as needed</li><li>Confirm shipping address: 925 Charlotte</li><li>Place order. Record confirmation number</li><li>Mark Stocky PO as Ordered</li></ol>
+          <div class="vembed"><div class="vi">▶</div><div class="vt"><strong>CellCore Ordering Video</strong><p>Loom walkthrough</p></div><a class="vl" href="https://www.loom.com/share/a99fd8cfca9540a18d4da3dad29fd093" target="_blank">Watch ↗</a></div>
+        </div></div>
+      </div>
+
+      <div class="sop-card" id="sop-vendor-desbio" data-tags="supp">
+        <div class="sop-hdr" onclick="toggleCard(this)"><div class="sop-hdr-l"><div class="tags"><span class="tag" style="background:#f0fdf4;color:#166534">💊 Vendor SOP</span></div><div class="sop-title">DesBio — Ordering SOP</div><div class="sop-trig">Use when ordering DesBio products</div></div><div class="sop-acts"><a class="btn-link" href="https://docs.google.com/document/d/1YMkBmh8O7tqtBKjrps6IKGIMk8I2rSNBA9z8_MFcPeE/edit" target="_blank">Doc ↗</a><div class="tog">+</div></div></div>
+        <div class="sop-body"><div class="sop-w"><a class="btn-link" href="https://docs.google.com/document/d/1YMkBmh8O7tqtBKjrps6IKGIMk8I2rSNBA9z8_MFcPeE/edit" target="_blank" style="display:inline-block">View Full SOP ↗</a></div></div>
+      </div>
+
+      <div class="sop-card" id="sop-vendor-designs" data-tags="supp">
+        <div class="sop-hdr" onclick="toggleCard(this)"><div class="sop-hdr-l"><div class="tags"><span class="tag" style="background:#f0fdf4;color:#166534">💊 Vendor SOP</span></div><div class="sop-title">Designs for Health — Ordering SOP</div><div class="sop-trig">Use when ordering Designs for Health products — use the correct Shopify entry</div></div><div class="sop-acts"><a class="btn-link" href="https://docs.google.com/document/d/1ACfgTq6p_jt_3ll4ZOxjdVqu2Hb9fAvmf5Qrhl6VCOo/edit" target="_blank">Doc ↗</a><div class="tog">+</div></div></div>
+        <div class="sop-body"><div class="sop-w"><div class="callout c-warn"><strong>Shopify quirk</strong>Multiple entries may exist. Always use the single CORRECT "Designs for Health" entry — not any duplicate.</div><a class="btn-link" href="https://docs.google.com/document/d/1ACfgTq6p_jt_3ll4ZOxjdVqu2Hb9fAvmf5Qrhl6VCOo/edit" target="_blank" style="display:inline-block;margin-top:6px">View Full SOP ↗</a></div></div>
+      </div>
+
+      <div class="sop-card" id="sop-vendor-enzyme" data-tags="supp">
+        <div class="sop-hdr" onclick="toggleCard(this)"><div class="sop-hdr-l"><div class="tags"><span class="tag" style="background:#f0fdf4;color:#166534">💊 Vendor SOP</span></div><div class="sop-title">Enzyme Science — Ordering SOP</div><div class="sop-trig">Use when ordering Enzyme Science products</div></div><div class="sop-acts"><a class="btn-link" href="https://docs.google.com/document/d/1gOn4F3h1BHPTUXC_Zp8eiUfBY6lUVFH_VgCxWg3i3WA/edit" target="_blank">Doc ↗</a><div class="tog">+</div></div></div>
+        <div class="sop-body"><div class="sop-w"><a class="btn-link" href="https://docs.google.com/document/d/1gOn4F3h1BHPTUXC_Zp8eiUfBY6lUVFH_VgCxWg3i3WA/edit" target="_blank" style="display:inline-block">View Full SOP ↗</a></div></div>
+      </div>
+
+      <div class="sop-card" id="sop-vendor-envirobiomics" data-tags="supp">
+        <div class="sop-hdr" onclick="toggleCard(this)"><div class="sop-hdr-l"><div class="tags"><span class="tag" style="background:#f0fdf4;color:#166534">💊 Vendor SOP</span></div><div class="sop-title">EnviroBiomics — Ordering SOP</div><div class="sop-trig">Use when ordering EnviroBiomics products</div></div><div class="sop-acts"><a class="btn-link" href="https://docs.google.com/document/d/1zRuEXoy3Ormh3yraCisj5kVCIJf1QCP40Ub-3SeZDyA/edit" target="_blank">Doc ↗</a><div class="tog">+</div></div></div>
+        <div class="sop-body"><div class="sop-w"><a class="btn-link" href="https://docs.google.com/document/d/1zRuEXoy3Ormh3yraCisj5kVCIJf1QCP40Ub-3SeZDyA/edit" target="_blank" style="display:inline-block">View Full SOP ↗</a></div></div>
+      </div>
+
+      <div class="sop-card" id="sop-vendor-microbiome" data-tags="supp">
+        <div class="sop-hdr" onclick="toggleCard(this)"><div class="sop-hdr-l"><div class="tags"><span class="tag" style="background:#f0fdf4;color:#166534">💊 Vendor SOP</span></div><div class="sop-title">Microbiome Labs — Ordering SOP</div><div class="sop-trig">Use when ordering Microbiome Labs products</div></div><div class="sop-acts"><a class="btn-link" href="https://docs.google.com/document/d/1B1JFhGU5kIoZV7O89glPDWKKytHzURby5A-jHN-CItU/edit" target="_blank">Doc ↗</a><div class="tog">+</div></div></div>
+        <div class="sop-body"><div class="sop-w"><a class="btn-link" href="https://docs.google.com/document/d/1B1JFhGU5kIoZV7O89glPDWKKytHzURby5A-jHN-CItU/edit" target="_blank" style="display:inline-block">View Full SOP ↗</a></div></div>
+      </div>
+
+      <div class="sop-card" id="sop-vendor-motherearthlabs" data-tags="supp">
+        <div class="sop-hdr" onclick="toggleCard(this)"><div class="sop-hdr-l"><div class="tags"><span class="tag" style="background:#f0fdf4;color:#166534">💊 Vendor SOP</span></div><div class="sop-title">Mother Earth Labs — Ordering SOP</div><div class="sop-trig">Use when ordering Mother Earth Labs products</div></div><div class="sop-acts"><a class="btn-link" href="https://docs.google.com/document/d/1Y5E6ILfiPjV-WDJjDLjUYWKdfM2xXpkPGb8uPe_Tc-E/edit" target="_blank">Doc ↗</a><div class="tog">+</div></div></div>
+        <div class="sop-body"><div class="sop-w"><a class="btn-link" href="https://docs.google.com/document/d/1Y5E6ILfiPjV-WDJjDLjUYWKdfM2xXpkPGb8uPe_Tc-E/edit" target="_blank" style="display:inline-block">View Full SOP ↗</a></div></div>
+      </div>
+
+      <div class="sop-card" id="sop-vendor-net" data-tags="supp">
+        <div class="sop-hdr" onclick="toggleCard(this)"><div class="sop-hdr-l"><div class="tags"><span class="tag" style="background:#f0fdf4;color:#166534">💊 Vendor SOP</span></div><div class="sop-title">NET Mind Body — Ordering SOP</div><div class="sop-trig">Use when ordering NET Mind Body products</div></div><div class="sop-acts"><a class="btn-link" href="https://docs.google.com/document/d/1K8aoCTaO7yvE50OXT8qUXmYHfmoSeK_CRxpohWYrD_4/edit" target="_blank">Doc ↗</a><div class="tog">+</div></div></div>
+        <div class="sop-body"><div class="sop-w"><a class="btn-link" href="https://docs.google.com/document/d/1K8aoCTaO7yvE50OXT8qUXmYHfmoSeK_CRxpohWYrD_4/edit" target="_blank" style="display:inline-block">View Full SOP ↗</a></div></div>
+      </div>
+
+      <div class="sop-card" id="sop-vendor-standard" data-tags="supp">
+        <div class="sop-hdr" onclick="toggleCard(this)"><div class="sop-hdr-l"><div class="tags"><span class="tag" style="background:#f0fdf4;color:#166534">💊 Vendor SOP</span></div><div class="sop-title">Standard Process — Ordering SOP</div><div class="sop-trig">Use when ordering Standard Process products</div></div><div class="sop-acts"><a class="btn-link" href="https://docs.google.com/document/d/1Bzy87F-MM15R28cwlo1aR9TovLRSnNHj1SIE70QCG00/edit" target="_blank">Doc ↗</a><div class="tog">+</div></div></div>
+        <div class="sop-body"><div class="sop-w"><a class="btn-link" href="https://docs.google.com/document/d/1Bzy87F-MM15R28cwlo1aR9TovLRSnNHj1SIE70QCG00/edit" target="_blank" style="display:inline-block">View Full SOP ↗</a></div></div>
+      </div>
+
+      <div class="sop-card" id="sop-vendor-supreme" data-tags="supp">
+        <div class="sop-hdr" onclick="toggleCard(this)"><div class="sop-hdr-l"><div class="tags"><span class="tag" style="background:#f0fdf4;color:#166534">💊 Vendor SOP</span></div><div class="sop-title">Supreme Nutrition — Ordering SOP</div><div class="sop-trig">Use when ordering Supreme Nutrition products</div></div><div class="sop-acts"><a class="btn-link" href="https://docs.google.com/document/d/1520hGCPrUHnRRwGQMiNdmW3nz-gTU1n0gbCg9e2DRg4/edit" target="_blank">Doc ↗</a><div class="tog">+</div></div></div>
+        <div class="sop-body"><div class="sop-w"><a class="btn-link" href="https://docs.google.com/document/d/1520hGCPrUHnRRwGQMiNdmW3nz-gTU1n0gbCg9e2DRg4/edit" target="_blank" style="display:inline-block">View Full SOP ↗</a></div></div>
+      </div>
+
+      <div class="sop-card" id="sop-vendor-systemic" data-tags="supp">
+        <div class="sop-hdr" onclick="toggleCard(this)">
+          <div class="sop-hdr-l"><div class="tags"><span class="tag" style="background:#f0fdf4;color:#166534">💊 Vendor SOP</span></div><div class="sop-title">Systemic Formulas — Ordering SOP</div><div class="sop-trig">Use when ordering Systemic Formulas — watch for address validation and CVC quirks</div></div>
+          <div class="sop-acts"><a class="btn-link" href="https://docs.google.com/document/d/187-2dOH4-rWLYmtdtyCLnu2QRcLGEijwdj56p3YRklE/edit" target="_blank">Doc ↗</a><a class="btn-link" href="https://www.loom.com/share/82c50ff01a654854816e98090128c73b" target="_blank">Video ↗</a><div class="tog">+</div></div>
+        </div>
+        <div class="sop-body"><div class="sop-w">
+          <div class="callout c-warn"><strong>⚠️ Two known quirks</strong>1) Checkout uses address validation — if 925 Charlotte fails, stop and notify owner. 2) CVC often does NOT autofill — copy-paste from LastPass manually if blank.</div>
+          <h2>Products We Carry</h2>
+          <p>Body Phase · Brain Phase · Ecoviram (check availability — goes out of stock) · Ecobirome (check availability)</p>
+          <h2>Steps</h2>
+          <ol><li>Check whether Ecobirome and Ecoviram are in stock BEFORE building order</li><li>Log in via LastPass</li><li>Add items, adjust quantities to hit free shipping threshold</li><li>Address validation may run at checkout — confirm 925 Charlotte passes</li><li>If CVC does not autofill, copy manually from LastPass</li><li>Place order. Record confirmation number</li><li>Mark Stocky PO as Fully Paid and Ordered</li></ol>
+          <div class="vembed"><div class="vi">▶</div><div class="vt"><strong>Systemic Formulas Ordering Video</strong><p>Loom walkthrough</p></div><a class="vl" href="https://www.loom.com/share/82c50ff01a654854816e98090128c73b" target="_blank">Watch ↗</a></div>
+        </div></div>
+      </div>
+
+      <div class="sop-card" id="sop-vendor-ultrabiome" data-tags="supp">
+        <div class="sop-hdr" onclick="toggleCard(this)"><div class="sop-hdr-l"><div class="tags"><span class="tag" style="background:#f0fdf4;color:#166534">💊 Vendor SOP</span></div><div class="sop-title">Ultra-Biome / Nutritional Scripts — Ordering SOP</div><div class="sop-trig">Use when ordering Ultra-Biome or Nutritional Scripts products</div></div><div class="sop-acts"><a class="btn-link" href="https://docs.google.com/document/d/12NBFXV7w8NCl8YtUBNUs7_Zl0tIRkhRbeANZSYAZFyo/edit" target="_blank">Doc ↗</a><div class="tog">+</div></div></div>
+        <div class="sop-body"><div class="sop-w"><a class="btn-link" href="https://docs.google.com/document/d/12NBFXV7w8NCl8YtUBNUs7_Zl0tIRkhRbeANZSYAZFyo/edit" target="_blank" style="display:inline-block">View Full SOP ↗</a></div></div>
+      </div>
+
+      <div class="sop-card" id="sop-vendor-weed" data-tags="supp">
+        <div class="sop-hdr" onclick="toggleCard(this)"><div class="sop-hdr-l"><div class="tags"><span class="tag" style="background:#f0fdf4;color:#166534">💊 Vendor SOP</span></div><div class="sop-title">Weed Botanical — Ordering SOP</div><div class="sop-trig">Use when ordering Weed Botanical products</div></div><div class="sop-acts"><a class="btn-link" href="https://docs.google.com/document/d/12IIhv1iGpJyxUvLZkhoWluAK1u21mJKCUVyt9h3ePOY/edit" target="_blank">Doc ↗</a><div class="tog">+</div></div></div>
+        <div class="sop-body"><div class="sop-w"><a class="btn-link" href="https://docs.google.com/document/d/12IIhv1iGpJyxUvLZkhoWluAK1u21mJKCUVyt9h3ePOY/edit" target="_blank" style="display:inline-block">View Full SOP ↗</a></div></div>
+      </div>
+
+      <div class="sop-card" id="sop-vendor-xymogen" data-tags="supp">
+        <div class="sop-hdr" onclick="toggleCard(this)"><div class="sop-hdr-l"><div class="tags"><span class="tag" style="background:#f0fdf4;color:#166534">💊 Vendor SOP</span></div><div class="sop-title">Xymogen / Wholescripts — Ordering SOP</div><div class="sop-trig">Use when ordering Xymogen products through Wholescripts</div></div><div class="sop-acts"><a class="btn-link" href="https://docs.google.com/document/d/1oOola6TjtMGPytwtJkRa3n13e56vWlmPWXE7IGei7W8/edit" target="_blank">Doc ↗</a><div class="tog">+</div></div></div>
+        <div class="sop-body"><div class="sop-w"><a class="btn-link" href="https://docs.google.com/document/d/1oOola6TjtMGPytwtJkRa3n13e56vWlmPWXE7IGei7W8/edit" target="_blank" style="display:inline-block">View Full SOP ↗</a></div></div>
+      </div>
+
       <div class="empty-state hidden" id="emptyState"><h3>No SOPs found</h3><p>Try a different search or clear your filters</p></div>
     </div>
   </div>
@@ -1056,6 +1275,57 @@ EEOC FACT SHEET: EEOC fact sheet on sexual harassment, employee rights. PDF: htt
 === KEY RESOURCES ===
 ORG CHART: https://claude.ai/public/artifacts/d8b11d08-3521-4497-829c-c6c54425f8ff
 SALES PLAYBOOK (Google Sheet): https://docs.google.com/spreadsheets/d/1GlnMNvGQpzLcLPpwi8OSYYucUcDOjLwo7Xdc6VMBggQ/edit
+
+
+=== SUPPLEMENT ORDERING SOPs ===
+
+MASTER ORDERING WORKFLOW (T1 — start here every session):
+Before you start: Open Shopify → duplicate the Stocky tab. Set report to Individual Vendors, sort Depletion Ascending, Show All.
+60-day rule: Order anything depleting within 60 days. Keep minimum 5 units at all times.
+Create a PO per vendor, switch suggestion to 60 days, confirm pricing before saving.
+IMPORTANT: Low stock report does NOT include in-transit orders — factor those in manually to avoid over-ordering.
+For each vendor: Log in → Add items per PO → Verify quantities → Check free shipping threshold → Confirm shipping address 925 Charlotte → Place order → Record confirmation number → Mark PO as Fully Paid → Mark as Ordered.
+Quantity rounding rule: Round up to nearest box/case size (12, 24, 30, 36).
+Loom: https://www.loom.com/share/324e86c15c3c463a8e070c5e6f666f17
+Doc: https://docs.google.com/document/d/1m76yX-e1KTVOK-7HKe7I03bg6akZ79RcHJsg5nR9owM/edit
+
+SPECIAL CASES & DO-NOT-ORDER LIST (T1 — read before every session):
+NEVER ORDER (without owner direction): Lab companies, discontinued brands, bundles, testing kit suppliers — skip if they appear in low stock report.
+Barlow Herbal: Create DRAFT PO only. Do NOT mark as ordered. Notify owner — they place this order personally.
+Global Healing: Account pending. Do NOT order.
+Botanica: Account pending. Do NOT order.
+Wild Holistic: Account pending. Do NOT order.
+Evo: Case-only ordering — can only order by full case.
+Designs for Health: Use single correct Shopify entry — not any duplicate.
+Queen of the Thrones: Use PLURAL entry ("Queen of the Thrones") not singular.
+Loom: https://www.loom.com/share/011f2643b3674a11ab8ae69c360f2d01
+
+CELLCORE: Check sale calendar FIRST. If sale within ~2 weeks: set PO window to 15 days only, deplete current stock, then bulk order during sale at discount. Products: KL Support, Biotoxin Binder, Thyroid Chem. Login via portal (LastPass). Loom: https://www.loom.com/share/a99fd8cfca9540a18d4da3dad29fd093
+
+SYSTEMIC FORMULAS: Login via LastPass. Products: Body Phase, Brain Phase, Ecoviram, Ecobirome (check stock before ordering — go out of stock regularly). QUIRKS: Address validation runs at checkout — if 925 Charlotte fails stop and notify owner. CVC often does not autofill — copy manually from LastPass. Loom: https://www.loom.com/share/82c50ff01a654854816e98090128c73b
+
+AEGIS: Doc: https://docs.google.com/document/d/1sIZv31m4Lu8TG6ctbwwgBqVf0n3FM7E1RBqsc-Bpw2g/edit
+APEX ENERGETICS: Doc: https://docs.google.com/document/d/1-iY105eTUGXsjvtJkmg5fSOYr7tmRAiExlgwbBxMzYk/edit
+BEST 365 LABS: Doc: https://docs.google.com/document/d/1kcYRUsCvfE2CSQOwdwd0OJtRKgStQU8DeutwR3G-_Lo/edit
+BIOPURE: Doc: https://docs.google.com/document/d/1jSnImv4JC5OEaNmH7DaVcDAXcP5gGhhDlmV-RmCYI5A/edit
+BIOTICS RESEARCH: Doc: https://docs.google.com/document/d/1Lnc4j38yBB07rg0aGQHYPE1F2xCDaHODMO6YPPdVK5o/edit
+BODYBIO: Doc: https://docs.google.com/document/d/1Kf2TldA-qW4N-6eqjGe0Ic7Tkkl-wHyIxRExP-fKuFs/edit
+BYRON WHITE: Doc: https://docs.google.com/document/d/1shSFHL5TROQQ5gAQgnV6osXM7RuQr5n-6Ljz6Q5fy9s/edit
+DESBIO: Doc: https://docs.google.com/document/d/1YMkBmh8O7tqtBKjrps6IKGIMk8I2rSNBA9z8_MFcPeE/edit
+DESIGNS FOR HEALTH: Use correct single Shopify entry. Doc: https://docs.google.com/document/d/1ACfgTq6p_jt_3ll4ZOxjdVqu2Hb9fAvmf5Qrhl6VCOo/edit
+ENZYME SCIENCE: Doc: https://docs.google.com/document/d/1gOn4F3h1BHPTUXC_Zp8eiUfBY6lUVFH_VgCxWg3i3WA/edit
+ENVIROBIOMICS: Doc: https://docs.google.com/document/d/1zRuEXoy3Ormh3yraCisj5kVCIJf1QCP40Ub-3SeZDyA/edit
+MICROBIOME LABS: Doc: https://docs.google.com/document/d/1B1JFhGU5kIoZV7O89glPDWKKytHzURby5A-jHN-CItU/edit
+MOTHER EARTH LABS: Doc: https://docs.google.com/document/d/1Y5E6ILfiPjV-WDJjDLjUYWKdfM2xXpkPGb8uPe_Tc-E/edit
+NET MIND BODY: Doc: https://docs.google.com/document/d/1K8aoCTaO7yvE50OXT8qUXmYHfmoSeK_CRxpohWYrD_4/edit
+STANDARD PROCESS: Doc: https://docs.google.com/document/d/1Bzy87F-MM15R28cwlo1aR9TovLRSnNHj1SIE70QCG00/edit
+SUPREME NUTRITION: Doc: https://docs.google.com/document/d/1520hGCPrUHnRRwGQMiNdmW3nz-gTU1n0gbCg9e2DRg4/edit
+ULTRA-BIOME / NUTRITIONAL SCRIPTS: Doc: https://docs.google.com/document/d/12NBFXV7w8NCl8YtUBNUs7_Zl0tIRkhRbeANZSYAZFyo/edit
+WEED BOTANICAL: Doc: https://docs.google.com/document/d/12IIhv1iGpJyxUvLZkhoWluAK1u21mJKCUVyt9h3ePOY/edit
+XYMOGEN / WHOLESCRIPTS: Doc: https://docs.google.com/document/d/1oOola6TjtMGPytwtJkRa3n13e56vWlmPWXE7IGei7W8/edit
+
+ALL VENDOR SHIPPING ADDRESS: 925 Charlotte
+ALL VENDOR LOGIN METHOD: LastPass (unless otherwise noted in vendor doc)
 
 === DR. JABAN BRAND VOICE & PHILOSOPHY ===
 
@@ -1215,6 +1485,9 @@ THE ONE SENTENCE THAT CLOSES MORE THAN ANY OTHER:
 7. NERVOUS SYSTEM & TRAUMA AS BIOLOGY: "Trauma is not just in your head — it leaves imprints on the body." Stored trauma and nervous system dysregulation are literal physical conditions that block healing. Limbic retraining (Primal Trust) is part of every protocol.`;
 
 // GHL form is used for gap submissions — no external webhook needed
+
+// getSopKB — returns the full knowledge base for the AI assistant
+function getSopKB() { return SOP_KB; }
 let history = [];
 let loading = false;
 let lastQ = '';
@@ -1230,7 +1503,7 @@ async function sendMsg(){
   addUserMsg(msg);history.push({role:'user',content:msg});
   const tyEl=addTyping();scrollBot();
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,system:SOP_KB,messages:history})});
+    const res=await fetch('/.netlify/functions/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:getSopKB(),messages:history,max_tokens:1200})});
     const data=await res.json();tyEl.remove();
     let reply=data.content?.[0]?.text||"I'm having trouble connecting. Please use the SOP Browser or contact your supervisor.";
     const gm=reply.match(/\[GAP_DETECTED:\s*(.*?)\]/);
