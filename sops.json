@@ -1,0 +1,538 @@
+{
+  "lastUpdated": "2026-05-12T00:00:00Z",
+  "version": "1.0",
+  "sops": [
+    {
+      "id": "deposit-sheet",
+      "title": "Updating the 2026 Deposit Sheet",
+      "department": "Front Desk",
+      "tier": 1,
+      "tags": ["daily","pay","pb","ghl"],
+      "trigger": "Every day — record yesterday's deposits from eStore, Practice Better, and GoHighLevel",
+      "summary": "Open the 2026 Deposit Sheet, go to the correct month tab, and confirm you are entering yesterday's date.",
+      "steps": [
+        "Open 2026 Deposit Sheet → correct month tab → yesterday's date",
+        "eStore (Iris CRM): Deposits → Custom Range → Yesterday → copy Totals by Card Type → paste under eStore",
+        "Practice Better (Dr. Jaban): Billings & Payments → Paid → Yesterday → enter total ($0 if none)",
+        "GHL (Dr. Jaban): Transactions → Yesterday → Succeeded → Download → Column P AutoSum → paste total",
+        "Other companies monthly totals only using + method: Jess (PB+GHL excl $19.99), Motley (GHL only excl $19.99), Alyssa (GHL only)",
+        "Message Emma to confirm completion"
+      ],
+      "warning": "Include $19.99 discovery calls for Dr. Jaban ONLY. Exclude for all other providers.",
+      "videoUrl": "https://www.loom.com/share/9d90a32ec39248f4aa00c5712959f60d",
+      "url": "https://docs.google.com/document/d/1HOjBsjm7-jxoMQ9RTMnA2BJfva-3WK7sHa-wSS0rmKo/edit",
+      "driveId": "1HOjBsjm7-jxoMQ9RTMnA2BJfva-3WK7sHa-wSS0rmKo",
+      "folderId": "1HsHVCpUAoBn8E5hX074b9zb5sOJEob2G"
+    },
+    {
+      "id": "reconciliation",
+      "title": "End-of-Day Transaction Reconciliation",
+      "department": "Front Desk",
+      "tier": 1,
+      "tags": ["daily","pay"],
+      "trigger": "At end of each business day — reconcile Stripe, Practice Better, and GHL",
+      "summary": "Reconcile all payment platforms at end of day: Stripe, Practice Better, and GoHighLevel. Ensures nothing is missed or double-counted.",
+      "url": "https://drive.google.com/file/d/1bSAb0g0AoasisgPRjRpA7tRy7mpi-SqV/view",
+      "folderId": "1HsHVCpUAoBn8E5hX074b9zb5sOJEob2G"
+    },
+    {
+      "id": "sales-tally",
+      "title": "Update Monthly Sales Tally in Slack",
+      "department": "Front Desk",
+      "tier": 2,
+      "tags": ["daily"],
+      "trigger": "When posting the running monthly sales count to the Sales Team Slack channel",
+      "summary": "Keep the Sales Team Slack channel updated with the actively counted monthly sales tally.",
+      "url": "https://drive.google.com/file/d/10RVcxOsGQG8kfa2ppa4V0yCpr2jIJvKX/view",
+      "folderId": "1HsHVCpUAoBn8E5hX074b9zb5sOJEob2G"
+    },
+    {
+      "id": "recurring-payment",
+      "title": "Recording a Recurring Payment for New Clients",
+      "department": "Front Desk",
+      "tier": 1,
+      "tags": ["pay","ghl"],
+      "trigger": "When setting up a new client's subscription in GHL",
+      "steps": [
+        "GHL → Payments → Subscriptions → Add Subscription",
+        "Paste client email under Add Customer",
+        "Set billing start date → choose plan",
+        "Use saved card or add new card → click Schedule",
+        "Confirm subscription shows as active"
+      ],
+      "url": "https://drive.google.com/file/d/1Qfjm6VLsQ0lF1015yJvcv3fQVMLIKuww/view",
+      "folderId": "1HsHVCpUAoBn8E5hX074b9zb5sOJEob2G"
+    },
+    {
+      "id": "refunds",
+      "title": "Issuing Refunds in GoHighLevel",
+      "department": "Front Desk",
+      "tier": 1,
+      "tags": ["pay","ghl"],
+      "trigger": "When a client requests a refund or a charge needs to be reversed",
+      "warning": "Under $100 = you can process. Over $100 = supervisor approval required FIRST. Always document reason in client record.",
+      "url": "https://drive.google.com/file/d/1tFfmFyJxkSyauihKz1HdvobqUeDL4rfD/view",
+      "folderId": "1HsHVCpUAoBn8E5hX074b9zb5sOJEob2G"
+    },
+    {
+      "id": "pause-payment",
+      "title": "How to Pause a Payment in GoHighLevel",
+      "department": "Front Desk",
+      "tier": 2,
+      "tags": ["pay","ghl"],
+      "trigger": "When a client needs to temporarily pause their subscription without cancelling",
+      "notes": "Pausing keeps account active — client can resume without new setup. Always confirm pause duration with client first.",
+      "url": "https://drive.google.com/file/d/1UWv81DAFSwYYXeavF60OsTBF0J0oEwEi/view",
+      "folderId": "1HsHVCpUAoBn8E5hX074b9zb5sOJEob2G"
+    },
+    {
+      "id": "supplements-staff",
+      "title": "Ordering Supplements with Staff Discount",
+      "department": "Front Desk",
+      "tier": 2,
+      "tags": ["pay"],
+      "trigger": "When ordering supplements through the eStore using your staff discount",
+      "summary": "Staff members receive a discount on all supplement orders through the Synergized eStore. Apply discount at checkout.",
+      "url": "https://drive.google.com/file/d/1fbSjgWymxktuj1IR3ATkRHd5S-TtJOBW/view",
+      "folderId": "1HsHVCpUAoBn8E5hX074b9zb5sOJEob2G"
+    },
+    {
+      "id": "pb-overview",
+      "title": "Navigating Practice Better — General Overview",
+      "department": "Front Desk",
+      "tier": 1,
+      "tags": ["pb"],
+      "trigger": "Start here if you're new to Practice Better or need a platform refresher",
+      "summary": "Practice Better is the primary platform for scheduling, billing, packages, and client communication. Key sections: Scheduling, My Practice → Billings & Payments, Bookings & Packages, Client Profiles + Tags.",
+      "url": "https://drive.google.com/file/d/1AGMxNXrobJ6ITzTZ0SiuonoQ7jmp5rPj/view",
+      "folderId": "1HsHVCpUAoBn8E5hX074b9zb5sOJEob2G"
+    },
+    {
+      "id": "pb-followup",
+      "title": "Ensure Clients Can Book Follow-Up Appointments",
+      "department": "Front Desk",
+      "tier": 1,
+      "tags": ["pb"],
+      "trigger": "When a client can't find or book their follow-up appointments in Practice Better",
+      "url": "https://drive.google.com/file/d/19XR7b2FSNB7ttl66TYy7YjydS5NVhn9H/view",
+      "folderId": "1HsHVCpUAoBn8E5hX074b9zb5sOJEob2G"
+    },
+    {
+      "id": "pb-autoconfirm",
+      "title": "Fixing Appointment Requests That Should Auto-Confirm",
+      "department": "Front Desk",
+      "tier": 2,
+      "tags": ["pb"],
+      "trigger": "Appointments stuck in request status instead of auto-confirming",
+      "notes": "This is a settings issue in the appointment type configuration in Practice Better.",
+      "url": "https://drive.google.com/file/d/17cnW96WEt2yCZM1qGc7EqVvUYz_1Yw1N/view",
+      "folderId": "1HsHVCpUAoBn8E5hX074b9zb5sOJEob2G"
+    },
+    {
+      "id": "continuity",
+      "title": "Post-Care Plan Continuity Enrollment",
+      "department": "Front Desk",
+      "tier": 1,
+      "tags": ["pb","ghl"],
+      "trigger": "When transitioning a client from their care plan to continuity or a la carte",
+      "summary": "Pricing: Jaban Momentum $499/mo (1x appt + 2x coach + chat + discounts). Mid Tier $399/mo. Jaban A La Carte $250/appt. Mid Tier A La Carte $165/appt.",
+      "steps": [
+        "Monthly: GHL → Payments → Subscriptions → Add Subscription → email → date → plan → Schedule",
+        "Then PB: Book Package → Momentum → Save. Repeat for Claire (health coach)",
+        "A La Carte: PB client profile → Manage Tags → add tag: Continuity"
+      ],
+      "videoUrl": "https://www.loom.com/share/b24a2809fea24edf93b70d23ae0dd64e",
+      "url": "https://docs.google.com/document/d/1i4ewWapXKJhuvyGZYnJFsc3u1slYWt_0kGEhBU-h2_Y/edit",
+      "folderId": "1HsHVCpUAoBn8E5hX074b9zb5sOJEob2G"
+    },
+    {
+      "id": "momentum-script",
+      "title": "Momentum Call Script — Post-Care Plan Follow-Up",
+      "department": "Front Desk",
+      "tier": 1,
+      "tags": [],
+      "trigger": "During the 20-minute continuity phone call at end of care plan",
+      "steps": [
+        "Open with empathy: check in on care plan completion",
+        "Bridge: Nicole is out, you're covering next steps",
+        "Fork question: 'High-touch ongoing support or book as needed?'",
+        "Monthly path: $499/mo, month-to-month, no long contract",
+        "A la carte path: $250/appt, self-serve booking in PB",
+        "Close: supplements via Word Health portal, can switch plans anytime"
+      ],
+      "url": "https://docs.google.com/document/d/198fFK_VCSvN5aq7IIbkD_7IpgPHJbs4TF5tZeJsB42c/edit",
+      "folderId": "1HsHVCpUAoBn8E5hX074b9zb5sOJEob2G"
+    },
+    {
+      "id": "delphi",
+      "title": "How to Use Delphi (Internal Knowledge Tool)",
+      "department": "Front Desk",
+      "tier": 2,
+      "tags": [],
+      "trigger": "When looking up internal protocols before escalating to a provider",
+      "summary": "Delphi is the internal AI tool trained on RWC protocols. Use it before escalating to a supervisor.",
+      "url": "https://drive.google.com/file/d/1CvXnb1h7BKpxJdAmYGK3zUFb5bUMCcdf/view",
+      "folderId": "1HsHVCpUAoBn8E5hX074b9zb5sOJEob2G"
+    },
+    {
+      "id": "estore",
+      "title": "Using the Synergized eStore (Gift Cards + Ordering)",
+      "department": "Front Desk",
+      "tier": 2,
+      "tags": ["pay"],
+      "trigger": "When helping clients order supplements or process gift cards",
+      "url": "https://drive.google.com/file/d/1TPRpybYNFlKGT7DVq-Y9-qGy_KUXysfQ/view",
+      "folderId": "1HsHVCpUAoBn8E5hX074b9zb5sOJEob2G"
+    },
+    {
+      "id": "escalation",
+      "title": "Escalation SOP",
+      "department": "Front Desk",
+      "tier": 1,
+      "tags": ["crit"],
+      "trigger": "When a situation exceeds your authority or requires supervisor involvement",
+      "warning": "Escalate immediately for: client safety, refunds over $100, legal complaints, provider-client conflict, anything uncertain.",
+      "url": "https://drive.google.com/file/d/1xw7BE2y0trhU2Nx43NwfG660DLXXqIqb/view",
+      "folderId": "1HsHVCpUAoBn8E5hX074b9zb5sOJEob2G"
+    },
+    {
+      "id": "suicidal-clients",
+      "title": "Handling Suicidal Clients",
+      "department": "Front Desk",
+      "tier": 1,
+      "tags": ["crit"],
+      "trigger": "Use immediately if a client makes any statement about self-harm or suicidal ideation",
+      "steps": [
+        "911 = immediate danger. 988 = Crisis Lifeline 24/7",
+        "Listen without judgment — do not counsel directly",
+        "State clinic role: 'Our clinic is not equipped to handle mental health crisis support'",
+        "Provide 911 and 988 immediately",
+        "If active harm plan: keep them on call while contacting emergency services",
+        "Document everything: date, time, statements, resources provided",
+        "Notify supervisor immediately"
+      ],
+      "warning": "Do NOT attempt counseling. Do NOT make promises about safety. Do NOT skip documentation.",
+      "url": "https://docs.google.com/document/d/1ZRO92Z89e7DwDlL4EubuTr0_sDTE2ND_xU9IyO4kdg4/edit",
+      "folderId": "1HsHVCpUAoBn8E5hX074b9zb5sOJEob2G"
+    },
+    {
+      "id": "sales-process",
+      "title": "Sales Process Standard Operating Procedure",
+      "department": "Sales",
+      "tier": 1,
+      "tags": ["ghl","pb"],
+      "trigger": "Full end-to-end process after closing a sale",
+      "steps": [
+        "GHL Dashboard → money sign (Payments) → Transactions → choose template",
+        "Templates: Pay in Full / Payment Plan / OAT / HTMA / Custom",
+        "Select customer → add products → Record Payment → Charge Card",
+        "PB: Bookings & Packages → Book Package → 5-month Full or Plan → schedule Initial Care Consult",
+        "Post-sale: Slim and Sarah handle automatically"
+      ],
+      "notes": "$4k range = Dr. Bronwyn's package. $7k range = Dr. Jaban's package.",
+      "videoUrl": "https://www.loom.com/share/42348cf7e7bf4d8f9925469bdbc55ded",
+      "url": "https://docs.google.com/document/d/1iu2lGXMmblRHGvkX3O8MexEQKQBzs0snYxxyXgSaqY4/edit",
+      "folderId": "1exnQI7dt4mCisyASQPjZg8T4OkX8gt9D"
+    },
+    {
+      "id": "sales-call",
+      "title": "How to Run a Sales Call (Balance the Biome)",
+      "department": "Sales",
+      "tier": 1,
+      "tags": [],
+      "trigger": "When conducting a discovery or sales call",
+      "steps": [
+        "Pre-call prep: review client details and prior interactions",
+        "Warm empathetic opening — acknowledge their situation",
+        "Problem ID using biome analogy: body like a forest, imbalance causes symptoms",
+        "Present test results: inflammation test, system evaluations",
+        "3-step method: Testing → Safety → Balance",
+        "Close: 'Are you ready to take the next step toward improved health?'"
+      ],
+      "url": "https://docs.google.com/document/d/1tRaMMED_4Keh0Dz472uL5fMTk3znSyPabcMu2mw6N7Q/edit",
+      "folderId": "1exnQI7dt4mCisyASQPjZg8T4OkX8gt9D"
+    },
+    {
+      "id": "no-show",
+      "title": "No-Show Follow-Up for Sales Team",
+      "department": "Sales",
+      "tier": 2,
+      "tags": [],
+      "trigger": "When a prospect doesn't show up to their scheduled discovery call",
+      "url": "https://drive.google.com/file/d/1B5rgD0e8-2I4UXYoXSc6rVJuxiLpGHwg/view",
+      "folderId": "1exnQI7dt4mCisyASQPjZg8T4OkX8gt9D"
+    },
+    {
+      "id": "transfer-call",
+      "title": "Transferring a Call to Another Sales Rep",
+      "department": "Sales",
+      "tier": 2,
+      "tags": [],
+      "trigger": "When you need to hand off a live call to a colleague",
+      "url": "https://drive.google.com/file/d/1ZhOwWcQkcZK1Y0RbCFeCUHY-n1wTSkEy/view",
+      "folderId": "1exnQI7dt4mCisyASQPjZg8T4OkX8gt9D"
+    },
+    {
+      "id": "fear-handling",
+      "title": "Fear Handling Framework",
+      "department": "Sales",
+      "tier": 1,
+      "tags": [],
+      "trigger": "When a prospect expresses fear, hesitation, or objections on a sales call",
+      "url": "https://drive.google.com/file/d/1OGjpU5Jq3QKnuoQ4CUyO1w_3MTpYp9zw/view",
+      "folderId": "1exnQI7dt4mCisyASQPjZg8T4OkX8gt9D"
+    },
+    {
+      "id": "package-renewal",
+      "title": "Client Package Updates & Renewal Process",
+      "department": "Sales",
+      "tier": 2,
+      "tags": ["pb"],
+      "trigger": "When updating or renewing a client's package in Practice Better",
+      "url": "https://drive.google.com/file/d/1XgK0oHLM3DwqhK9fEhEosfr5_SfQT28x/view",
+      "folderId": "1exnQI7dt4mCisyASQPjZg8T4OkX8gt9D"
+    },
+    {
+      "id": "5-appt-bundle",
+      "title": "Selling & Processing the 5-Appointment Bundle",
+      "department": "Sales",
+      "tier": 2,
+      "tags": ["ghl","pay"],
+      "trigger": "When selling and setting up a 5-appointment bundle for a client",
+      "url": "https://drive.google.com/file/d/13LSgkAtf8kKpJeX0dHstI_5lGlyoYJAt/view",
+      "folderId": "1exnQI7dt4mCisyASQPjZg8T4OkX8gt9D"
+    },
+    {
+      "id": "commission-split",
+      "title": "Sales Commission Split SOP",
+      "department": "Sales",
+      "tier": 2,
+      "tags": ["pay"],
+      "trigger": "For calculating and distributing sales commissions",
+      "url": "https://drive.google.com/file/d/17HNSJpdeF7fcC8AwfWIEdeoXYNPheI0_/view",
+      "folderId": "1exnQI7dt4mCisyASQPjZg8T4OkX8gt9D"
+    },
+    {
+      "id": "ghl-discovery",
+      "title": "Using GHL During Discovery Calls",
+      "department": "Sales",
+      "tier": 1,
+      "tags": ["ghl"],
+      "trigger": "How to use GoHighLevel while on a discovery call and document the result",
+      "url": "https://drive.google.com/file/d/1pR5ffvFOUM8WW2mR3pfZagUvUc7dtHnU/view",
+      "folderId": "1exnQI7dt4mCisyASQPjZg8T4OkX8gt9D"
+    },
+    {
+      "id": "labs-shipping",
+      "title": "Labs We Offer + State & International Shipping Rules",
+      "department": "Sales",
+      "tier": 1,
+      "tags": ["lab"],
+      "trigger": "Reference for which labs are available and where they can be shipped",
+      "url": "https://drive.google.com/file/d/1vELnZue-dBfO6jVoAlYNwCceVKo9DsM0/view",
+      "folderId": "1exnQI7dt4mCisyASQPjZg8T4OkX8gt9D"
+    },
+    {
+      "id": "ig-dm-convert",
+      "title": "Converting Instagram Followers into Leads",
+      "department": "Social Media",
+      "tier": 1,
+      "tags": [],
+      "trigger": "When nurturing IG followers toward booking a discovery call",
+      "url": "https://docs.google.com/document/d/1yXKx-H94zmgT9e5EzMdKBrw184fj1EpyrIzCPrgr3l4/edit",
+      "folderId": "1dlD9_OeBzuh1oO0KQCbQ6K2hsEy5RhHa"
+    },
+    {
+      "id": "dm-pricing",
+      "title": "How to Handle Pricing Questions in DMs",
+      "department": "Social Media",
+      "tier": 1,
+      "tags": [],
+      "trigger": "When a prospect asks about pricing in Instagram DMs",
+      "summary": "Do not give price in DMs. Redirect to discovery call booking.",
+      "url": "https://docs.google.com/document/d/1E3iSzfyv06feaMVnoi_2lQAH0RRL3VPxQg7STsDM_lI/edit",
+      "folderId": "1dlD9_OeBzuh1oO0KQCbQ6K2hsEy5RhHa"
+    },
+    {
+      "id": "reel-scripting",
+      "title": "Instagram Reel Scripting Process",
+      "department": "Social Media",
+      "tier": 1,
+      "tags": [],
+      "trigger": "When writing and producing scripts for Dr. Jaban Instagram reels",
+      "url": "https://docs.google.com/document/d/17GoHNJvuEon4L8FMiudFDZAjF2AmhZO2TYhWqJg7Y78/edit",
+      "folderId": "1dlD9_OeBzuh1oO0KQCbQ6K2hsEy5RhHa"
+    },
+    {
+      "id": "reel-editing",
+      "title": "Reel Editing Workflow with Stock Media",
+      "department": "Social Media",
+      "tier": 2,
+      "tags": [],
+      "trigger": "When editing reels with stock photos, videos, and graphics",
+      "url": "https://docs.google.com/document/d/19sqpTdkFl4wbNlKyotsg31oAB_kXUGLMwuZO9ddVbnY/edit",
+      "folderId": "1dlD9_OeBzuh1oO0KQCbQ6K2hsEy5RhHa"
+    },
+    {
+      "id": "schedule-posts",
+      "title": "Scheduling Social Media Posts (Meta Planner)",
+      "department": "Social Media",
+      "tier": 2,
+      "tags": [],
+      "trigger": "When scheduling posts using Meta's native planner",
+      "url": "https://docs.google.com/document/d/1N_UaNDEkZ2QjJ5Jsxbx-yyAjW5f-5y2qhhye7y9cocc/edit",
+      "folderId": "1dlD9_OeBzuh1oO0KQCbQ6K2hsEy5RhHa"
+    },
+    {
+      "id": "manychat",
+      "title": "Building and Scheduling ManyChat Flows",
+      "department": "Social Media",
+      "tier": 1,
+      "tags": [],
+      "trigger": "When building DM automation flows in ManyChat for Instagram",
+      "url": "https://docs.google.com/document/d/1VjgcwtRHBXpf1QMDLxBnhnqWGpQAm1NwLqy7B2fRQwk/edit",
+      "folderId": "1dlD9_OeBzuh1oO0KQCbQ6K2hsEy5RhHa"
+    },
+    {
+      "id": "youtube-posting",
+      "title": "Long Form YouTube Posting SOP",
+      "department": "Social Media",
+      "tier": 2,
+      "tags": [],
+      "trigger": "When uploading and publishing long-form YouTube content for Dr. Jaban",
+      "url": "https://docs.google.com/document/d/1HaLqpxbSIVtye81DkWLFLi2HvVvZ8cLDwdyLLf-5m5U/edit",
+      "folderId": "1dlD9_OeBzuh1oO0KQCbQ6K2hsEy5RhHa"
+    },
+    {
+      "id": "community-engagement",
+      "title": "Community Engagement for Dr. Jaban",
+      "department": "Social Media",
+      "tier": 2,
+      "tags": [],
+      "trigger": "When managing comments, DMs, and community interaction on social platforms",
+      "url": "https://docs.google.com/document/d/1LT0KWmlDekR8nlQM6LbRBtNB3XyRRtUlSpFptvpF0b4/edit",
+      "folderId": "1dlD9_OeBzuh1oO0KQCbQ6K2hsEy5RhHa"
+    },
+    {
+      "id": "ig-captions",
+      "title": "SOP: IG Captions",
+      "department": "Social Media",
+      "tier": 2,
+      "tags": [],
+      "trigger": "When writing Instagram captions for Dr. Jaban posts",
+      "url": "https://docs.google.com/document/d/1a5wnmqVDvvZvS4s2R-BHIrfC_KTPUspqPA_CNTkXwBk/edit",
+      "folderId": "1dlD9_OeBzuh1oO0KQCbQ6K2hsEy5RhHa"
+    },
+    {
+      "id": "ai-marketing",
+      "title": "AI Marketing Mastery SOP",
+      "department": "Marketing",
+      "tier": 1,
+      "tags": [],
+      "trigger": "AI-driven marketing strategies using Meta ASC, Google PMAX, and ChatGPT",
+      "steps": [
+        "Set up Meta Advantage+ Shopping Campaign (ASC) with 15+ creatives",
+        "Launch separate testing campaign — promote winners to BAU",
+        "Use ChatGPT to analyze audience data and generate new creative hooks",
+        "Schedule peak-hour budgets using Meta Smart Scheduling",
+        "Deploy Brand Bastion for comment automation and social proof"
+      ],
+      "notes": "Goal: reduce CPMs by up to 70%, scale ROAS using AI-driven optimization.",
+      "url": "https://docs.google.com/document/d/1EkYClaaA0w4qCZcD9qxSNKrH2ohQIhFOrI8d6-lwkOw/edit",
+      "folderId": "1kul69eefsDMijMumDNTMVAnbGFRSSq7p"
+    },
+    {
+      "id": "presentations",
+      "title": "SOP: Presentations",
+      "department": "Marketing",
+      "tier": 2,
+      "tags": [],
+      "trigger": "When creating or updating presentations for RWC",
+      "url": "https://drive.google.com/file/d/10NocaRSJ1rzQLufH6-lWPkozAESFgtV2/view",
+      "folderId": "1kul69eefsDMijMumDNTMVAnbGFRSSq7p"
+    },
+    {
+      "id": "simplero",
+      "title": "Editing Guides on Chasing Health Website (Simplero)",
+      "department": "Marketing",
+      "tier": 2,
+      "tags": [],
+      "trigger": "When editing or publishing guides on the Simplero platform",
+      "url": "https://drive.google.com/file/d/1F6qGHCzz0BUwBIlCch3PGodnjc3gDujV/view",
+      "folderId": "1kul69eefsDMijMumDNTMVAnbGFRSSq7p"
+    },
+    {
+      "id": "specialty-labs",
+      "title": "Ordering Specialty Labs",
+      "department": "Labs",
+      "tier": 1,
+      "tags": [],
+      "trigger": "When ordering specialty lab kits for clients",
+      "url": "https://drive.google.com/file/d/1gADRPNyp9cxGhDhXgO0VNamOje3IrsT3/view",
+      "folderId": "1pUFutpTSKem8A_KnGo4Epka1dNwRy6_u"
+    },
+    {
+      "id": "disco-notes",
+      "title": "Entering Lab Information into DISCO Notes",
+      "department": "Labs",
+      "tier": 1,
+      "tags": [],
+      "trigger": "When entering client lab results into DISCO notes",
+      "url": "https://drive.google.com/file/d/1DK2MvyNVFow4voL3gNuqXjSUPrpJlZZj/view",
+      "folderId": "1pUFutpTSKem8A_KnGo4Epka1dNwRy6_u"
+    },
+    {
+      "id": "eurokey",
+      "title": "Ordering a EuroKey from MicroGenDX",
+      "department": "Labs",
+      "tier": 2,
+      "tags": [],
+      "trigger": "When a client needs a EuroKey ordered through MicroGenDX",
+      "url": "https://drive.google.com/file/d/1nrE03xx0OsivmDcFGECQRZ3fSR0txVG8/view",
+      "folderId": "1pUFutpTSKem8A_KnGo4Epka1dNwRy6_u"
+    },
+    {
+      "id": "lab-visual-tool",
+      "title": "Lab Visual Reference Tool",
+      "department": "Labs",
+      "tier": 1,
+      "tags": [],
+      "trigger": "Interactive lab reference artifact for providers and front desk",
+      "summary": "A visual, interactive lab reference tool. Click Open Tool to access.",
+      "url": "https://claude.ai/public/artifacts/c140b4ae-c6f3-4d72-b0ca-1dc3a8ac98bf",
+      "folderId": "1pUFutpTSKem8A_KnGo4Epka1dNwRy6_u"
+    },
+    {
+      "id": "harassment-training",
+      "title": "Sexual Harassment Training for Supervisors",
+      "department": "HR",
+      "tier": 1,
+      "tags": [],
+      "trigger": "Attendance record and training materials for supervisor harassment training",
+      "summary": "Includes attendance record, training presentation evaluation, and EEOC compliance resources. Required for all supervisors.",
+      "url": "https://drive.google.com/file/d/1Tqu4miwVIcuGTgpeChNI70aV1XBc6GXg/view",
+      "folderId": "114di_Zgd3YM0K4n2ReyuptOGn-1Eo7U9"
+    },
+    {
+      "id": "eeoc-guidance",
+      "title": "EEOC Summary Guidance on Harassment",
+      "department": "HR",
+      "tier": 1,
+      "tags": [],
+      "trigger": "Reference document — EEOC official guidance on workplace harassment",
+      "summary": "Official EEOC guidelines on harassment in the workplace. Required reading for all supervisors.",
+      "url": "https://drive.google.com/file/d/1AKLRz1a5S1eW9DsSehNZZHCQ1glgAIVb/view",
+      "folderId": "114di_Zgd3YM0K4n2ReyuptOGn-1Eo7U9"
+    },
+    {
+      "id": "eeoc-fact-sheet",
+      "title": "EEOC Fact Sheet — Sexual Harassment",
+      "department": "HR",
+      "tier": 2,
+      "tags": [],
+      "trigger": "Quick reference fact sheet on sexual harassment definitions and employee rights",
+      "url": "https://drive.google.com/file/d/1HOCzQ5ha4RJ69eXur8L6nX0QM9HGq-FW/view",
+      "folderId": "114di_Zgd3YM0K4n2ReyuptOGn-1Eo7U9"
+    }
+  ]
+}
