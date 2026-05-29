@@ -1511,7 +1511,7 @@ async function sendMsg(){
     const reply=data.reply||"I'm having trouble connecting. Please use the SOP Browser or contact your supervisor.";
     const gm=reply.match(/\[GAP_DETECTED:\s*(.*?)\]/);
     const hasGap=!!gm;const cleanReply=reply.replace(/\[GAP_DETECTED:.*?\]/g,'').trim();
-    const gapQ=gm?gm[1]:lastQ;history.push({role:'assistant',content:cleanReply});
+    const gapQ=lastQ;history.push({role:'assistant',content:cleanReply});
     addBotMsg(cleanReply,hasGap,gapQ);
   }catch(err){console.error('SOP Assistant error:',err);tyEl.remove();addBotMsg("I'm having trouble connecting. Please use the SOP Browser or contact your supervisor.",false,'');}
   loading=false;document.getElementById('sendBtn').disabled=false;scrollBot();
