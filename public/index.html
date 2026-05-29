@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RWC Knowledge Hub</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+
 <style>
 :root {
   --teal:#04979c; --aqua:#00c4cc; --aqua-light:#79ced8;
@@ -23,7 +23,7 @@
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
-body{font-family:'Poppins',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;}
 
 /* HEADER */
 .header{background:linear-gradient(135deg,var(--ink) 0%,#163a3f 60%,#0d5257 100%);padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:300;border-bottom:2px solid var(--teal);box-shadow:0 2px 20px rgba(0,0,0,.3);}
@@ -53,7 +53,7 @@ body{font-family:'Poppins',sans-serif;background:var(--cream);color:var(--ink);m
 .hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:1fr auto;gap:40px;align-items:center;max-width:1100px;}
 .hero-eyebrow{font-size:10px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--aqua);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
 .hero-eyebrow::before{content:'';width:24px;height:1.5px;background:var(--aqua);}
-.hero h1{font-family:'DM Serif Display',serif;font-size:36px;font-weight:400;color:#fff;line-height:1.15;margin-bottom:12px;letter-spacing:-.5px;}
+.hero h1{font-family:Georgia,'Times New Roman',serif;font-size:36px;font-weight:400;color:#fff;line-height:1.15;margin-bottom:12px;letter-spacing:-.5px;}
 .hero h1 em{font-style:italic;color:var(--aqua-light);}
 .hero-desc{font-size:13px;color:rgba(255,255,255,.5);line-height:1.7;max-width:460px;}
 .date-card{background:rgba(255,255,255,.06);border:1px solid rgba(0,196,204,.2);border-radius:16px;padding:22px 26px;text-align:center;backdrop-filter:blur(10px);min-width:150px;}
@@ -120,16 +120,16 @@ body{font-family:'Poppins',sans-serif;background:var(--cream);color:var(--ink);m
 .ai-cta-icon{width:48px;height:48px;background:linear-gradient(135deg,var(--teal),var(--aqua));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 0 20px rgba(0,196,204,.3);}
 .ai-cta-text h3{font-size:15px;font-weight:600;color:#fff;margin-bottom:3px;}
 .ai-cta-text p{font-size:12px;color:rgba(255,255,255,.5);line-height:1.5;}
-.ai-cta-btn{margin-left:auto;background:var(--teal);color:#fff;border:none;padding:10px 20px;border-radius:10px;font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;}
+.ai-cta-btn{margin-left:auto;background:var(--teal);color:#fff;border:none;padding:10px 20px;border-radius:10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;}
 .ai-cta-btn:hover{background:var(--aqua);}
 
 /* ═══ SOP BROWSER ═══ */
 .browser-bar{background:var(--white);border-bottom:1px solid var(--border);padding:12px 36px;display:flex;align-items:center;gap:10px;position:sticky;top:113px;z-index:150;}
-.browser-bar input{flex:1;border:none;outline:none;font-family:'Poppins',sans-serif;font-size:13px;color:var(--ink);background:transparent;}
+.browser-bar input{flex:1;border:none;outline:none;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-size:13px;color:var(--ink);background:transparent;}
 .browser-bar input::placeholder{color:var(--ink-muted);}
 .s-count{font-size:11px;color:var(--ink-muted);white-space:nowrap;}
 .filter-bar{padding:8px 36px;display:flex;gap:6px;flex-wrap:wrap;background:var(--cream);border-bottom:1px solid var(--border);position:sticky;top:153px;z-index:140;}
-.fbtn{padding:4px 11px;border-radius:20px;border:1px solid var(--border);background:var(--white);font-family:'Poppins',sans-serif;font-size:11px;font-weight:500;color:var(--ink-soft);cursor:pointer;transition:all .15s;}
+.fbtn{padding:4px 11px;border-radius:20px;border:1px solid var(--border);background:var(--white);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-size:11px;font-weight:500;color:var(--ink-soft);cursor:pointer;transition:all .15s;}
 .fbtn:hover{border-color:var(--teal);color:var(--teal);}
 .fbtn.active{background:var(--teal);color:#fff;border-color:var(--teal);}
 
@@ -270,7 +270,7 @@ body{font-family:'Poppins',sans-serif;background:var(--cream);color:var(--ink);m
 .ec.teal .el{color:var(--ink-soft);}
 
 .scr{background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:12px 15px;margin:7px 0;font-size:12px;line-height:1.7;color:var(--ink-soft);font-style:italic;position:relative;}
-.scr::before{content:'"';font-family:'DM Serif Display',serif;font-size:34px;color:var(--teal);position:absolute;top:-5px;left:9px;line-height:1;}
+.scr::before{content:'"';font-family:Georgia,'Times New Roman',serif;font-size:34px;color:var(--teal);position:absolute;top:-5px;left:9px;line-height:1;}
 .scr p{padding-left:15px;}
 
 .empty-state{text-align:center;padding:50px 20px;color:var(--ink-muted);}
@@ -283,7 +283,7 @@ body{font-family:'Poppins',sans-serif;background:var(--cream);color:var(--ink);m
 .chat-top h2{font-size:16px;font-weight:700;color:var(--ink);}
 .chat-top p{font-size:12px;color:var(--ink-muted);margin-top:2px;}
 .chat-chips{padding:11px 40px;display:flex;gap:6px;flex-wrap:wrap;background:var(--cream);border-bottom:1px solid var(--border);}
-.chip{padding:5px 12px;background:var(--white);border:1px solid var(--border);border-radius:20px;font-size:11px;color:var(--ink-soft);cursor:pointer;transition:all .15s;font-family:'Poppins',sans-serif;}
+.chip{padding:5px 12px;background:var(--white);border:1px solid var(--border);border-radius:20px;font-size:11px;color:var(--ink-soft);cursor:pointer;transition:all .15s;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;}
 .chip:hover{border-color:var(--teal);color:var(--teal);background:var(--aqua-pale);}
 .chat-msgs{flex:1;overflow-y:auto;padding:18px 40px;display:flex;flex-direction:column;gap:14px;}
 .chat-msgs::-webkit-scrollbar{width:4px;}
@@ -303,7 +303,7 @@ body{font-family:'Poppins',sans-serif;background:var(--cream);color:var(--ink);m
 .mbub li{margin-bottom:2px;}
 .mbub a{color:var(--teal);text-decoration:underline;}
 .msg.user .mbub a{color:rgba(255,255,255,.85);}
-.gap-btn{margin-top:9px;display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--gold);background:transparent;border:1.5px solid var(--gold);padding:5px 12px;border-radius:20px;cursor:pointer;font-family:'Poppins',sans-serif;transition:all .15s;}
+.gap-btn{margin-top:9px;display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--gold);background:transparent;border:1.5px solid var(--gold);padding:5px 12px;border-radius:20px;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;transition:all .15s;}
 .gap-btn:hover,.gap-btn.open{background:var(--gold);color:var(--ink);}
 .gap-form-panel{display:none;margin-top:12px;background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-lg);max-width:560px;}
 .gap-form-panel.open{display:block;}
@@ -312,7 +312,7 @@ body{font-family:'Poppins',sans-serif;background:var(--cream);color:var(--ink);m
 .gap-form-icon{width:32px;height:32px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
 .gap-form-title{font-size:13px;font-weight:600;color:#fff;}
 .gap-form-sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:1px;}
-.gap-form-close{background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.6);width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:'Poppins',sans-serif;}
+.gap-form-close{background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.6);width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;}
 .gap-form-close:hover{background:rgba(255,255,255,.2);color:#fff;}
 .gap-form-body{height:760px;}
 .gap-form-body iframe{width:100%;height:100%;border:none;display:block;}
@@ -323,7 +323,7 @@ body{font-family:'Poppins',sans-serif;background:var(--cream);color:var(--ink);m
 @keyframes bou{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
 .chat-input-area{padding:12px 40px 15px;background:var(--white);border-top:1px solid var(--border);}
 .chat-input-row{display:flex;gap:8px;align-items:flex-end;}
-.chat-inp{flex:1;min-height:40px;max-height:110px;padding:9px 14px;border:1.5px solid var(--border);border-radius:9px;font-family:'Poppins',sans-serif;font-size:13px;color:var(--ink);resize:none;outline:none;background:var(--cream);transition:border-color .15s;overflow-y:auto;}
+.chat-inp{flex:1;min-height:40px;max-height:110px;padding:9px 14px;border:1.5px solid var(--border);border-radius:9px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-size:13px;color:var(--ink);resize:none;outline:none;background:var(--cream);transition:border-color .15s;overflow-y:auto;}
 .chat-inp:focus{border-color:var(--teal);background:#fff;}
 .chat-inp::placeholder{color:var(--ink-muted);}
 .send{width:40px;height:40px;background:var(--teal);border:none;border-radius:9px;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
@@ -1503,14 +1503,18 @@ async function sendMsg(){
   addUserMsg(msg);history.push({role:'user',content:msg});
   const tyEl=addTyping();scrollBot();
   try{
-    const res=await fetch('/.netlify/functions/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:getSopKB(),messages:history,max_tokens:1200})});
-    const data=await res.json();tyEl.remove();
-    let reply=data.content?.[0]?.text||"I'm having trouble connecting. Please use the SOP Browser or contact your supervisor.";
+    const convo=history.map(m=>`${m.role==='user'?'User':'Assistant'}: ${m.content}`).join('\n\n');
+    const prompt=`${getSopKB()}\n\n=== CONVERSATION SO FAR ===\n${convo}\n\nRespond as the RWC SOP Assistant with your next message only — no "Assistant:" preamble. If the user's question isn't covered by any SOP in your knowledge base, append [GAP_DETECTED: <restate the question>] to your reply.`;
+    const res=await fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
+    if(!res.ok)throw new Error('ask api '+res.status);
+    const data=await res.json();
+    tyEl.remove();
+    const reply=data.reply||"I'm having trouble connecting. Please use the SOP Browser or contact your supervisor.";
     const gm=reply.match(/\[GAP_DETECTED:\s*(.*?)\]/);
     const hasGap=!!gm;const cleanReply=reply.replace(/\[GAP_DETECTED:.*?\]/g,'').trim();
     const gapQ=gm?gm[1]:lastQ;history.push({role:'assistant',content:cleanReply});
     addBotMsg(cleanReply,hasGap,gapQ);
-  }catch{tyEl.remove();addBotMsg("I'm having trouble connecting. Please use the SOP Browser or contact your supervisor.",false,'');}
+  }catch(err){console.error('SOP Assistant error:',err);tyEl.remove();addBotMsg("I'm having trouble connecting. Please use the SOP Browser or contact your supervisor.",false,'');}
   loading=false;document.getElementById('sendBtn').disabled=false;scrollBot();
 }
 
@@ -1518,8 +1522,29 @@ function addUserMsg(t){const c=document.getElementById('chatMessages');const d=d
 
 function addBotMsg(t,hasGap,gapQ){
   const c=document.getElementById('chatMessages');const d=document.createElement('div');d.className='msg bot';
-  let gap='';if(hasGap)gap=`<a class="gap-btn" href="https://api.leadconnectorhq.com/widget/form/GCs613o6h6n84xSgsZRD" target="_blank">📋 This question isn't in our SOPs yet — click to submit a request</a>`;
+  let gap='';
+  if(hasGap){
+    const qAttr=esc(gapQ).replace(/"/g,'&quot;');
+    gap=`<button class="gap-btn" type="button" onclick="sendGapToSlack(this,&quot;${qAttr}&quot;)">📤 This question isn't in our SOPs yet — send it to #sop-needed</button>`;
+  }
   d.innerHTML=`<div class="mav">🤝</div><div><div class="mbub">${fmt(t)}</div>${gap}</div>`;c.appendChild(d);scrollBot();
+}
+
+async function sendGapToSlack(btn,question){
+  if(btn.dataset.sent==='1'||btn.dataset.sending==='1')return;
+  btn.dataset.sending='1';const original=btn.textContent;btn.textContent='⏳ Sending to #sop-needed…';btn.disabled=true;
+  try{
+    const res=await fetch('/api/sop-needed',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question})});
+    if(!res.ok)throw new Error('slack api '+res.status);
+    btn.dataset.sent='1';btn.dataset.sending='';
+    btn.textContent='✅ Sent to #sop-needed';
+    btn.style.background='var(--green-light)';btn.style.color='var(--green)';btn.style.borderColor='var(--green)';
+  }catch(err){
+    console.error('Slack send failed:',err);
+    btn.dataset.sending='';btn.disabled=false;
+    btn.textContent='❌ Couldn\'t send — click to retry';
+    btn.style.background='var(--red-light)';btn.style.color='var(--red)';btn.style.borderColor='var(--red)';
+  }
 }
 
 function addTyping(){const c=document.getElementById('chatMessages');const d=document.createElement('div');d.className='msg bot';d.innerHTML=`<div class="mav">🤝</div><div><div class="typing"><div class="td"></div><div class="td"></div><div class="td"></div></div></div>`;c.appendChild(d);scrollBot();return d;}
@@ -1537,28 +1562,4 @@ function toggleGapForm(btn){
     // Load GHL embed script if not already loaded
     if(!document.getElementById('ghl-embed-script')){
       const s=document.createElement('script');
-      s.id='ghl-embed-script';
-      s.src='https://link.msgsndr.com/js/form_embed.js';
-      document.body.appendChild(s);
-    }
-  } else {
-    btn.textContent='📋 This question isn\'t in our SOPs yet — submit a request';
-  }
-}
-
-function closeGapForm(closeBtn){
-  const panel = closeBtn.closest('.gap-form-panel');
-  const btn = panel.previousElementSibling;
-  if(panel) panel.classList.remove('open');
-  if(btn){ btn.classList.remove('open'); btn.textContent='📋 This question isn\'t in our SOPs yet — submit a request'; }
-}
-
-function esc(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function escA(t){return t.replace(/'/g,'&#39;').replace(/"/g,'&quot;');}
-function fmt(t){return esc(t).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>').replace(/`(.*?)`/g,'<code style="background:rgba(0,0,0,.07);padding:1px 5px;border-radius:3px;font-size:11px">$1</code>').replace(/https?:\/\/[^\s<>"&]+/g,u=>`<a href="${u}" target="_blank">${u}</a>`).replace(/^(\d+\.\s)/gm,'<br>$1').replace(/^[-•]\s(.+)/gm,'<br>• $1').replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>');}
-function scrollBot(){const el=document.getElementById('chatMessages');setTimeout(()=>el.scrollTop=el.scrollHeight,50);}
-
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
-</script>
-</body>
-</html>
+      s
