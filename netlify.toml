@@ -1,7 +1,10 @@
 [build]
   publish = "public"
   command = ""
-
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
+[[headers]]
+  for = "/letters.html"
+  [headers.values]
+    Content-Type = "text/html; charset=UTF-8"
