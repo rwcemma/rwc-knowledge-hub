@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Letters — RWC Knowledge Hub</title>
+<style>
+:root {
+  --teal:#04979c; --aqua:#00c4cc; --aqua-light:#79ced8;
+  --aqua-pale:#e8f9fa; --aqua-mid:#d0f0f2;
+  --ink:#0d1f22; --ink-soft:#2a4a4e; --ink-muted:#6b9196;
+  --cream:#f7fafa; --white:#ffffff;
+  --gold:#e8a838; --gold-light:#fef8ec;
+  --red:#e05252; --red-light:#fff0f0;
+  --green:#2d9e6b; --green-light:#edf9f4;
+  --purple:#7c3aed; --purple-light:#f5f3ff;
+  --blue:#2563eb; --blue-light:#eff6ff;
+  --border:#d4ecee; --border-soft:#e8f4f5;
+  --shadow:0 2px 16px rgba(4,151,156,.10);
+  --shadow-lg:0 8px 40px rgba(4,151,156,.16);
+  --shadow-card:0 1px 8px rgba(13,31,34,.07);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;}
+
+/* HEADER — matches hub exactly */
+.header{background:linear-gradient(135deg,var(--ink) 0%,#163a3f 60%,#0d5257 100%);padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:300;border-bottom:2px solid var(--teal);box-shadow:0 2px 20px rgba(0,0,0,.3);}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;}
+.logo-mark{width:36px;height:36px;background:linear-gradient(135deg,var(--teal),var(--aqua));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;letter-spacing:-1px;box-shadow:0 0 16px rgba(0,196,204,.4);}
+.logo-title{font-size:15px;font-weight:600;color:#fff;letter-spacing:.2px;}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase;margin-top:1px;}
+
+/* TAB BAR — matches hub exactly */
+.tab-bar{background:var(--white);border-bottom:1px solid var(--border);display:flex;padding:0 40px;position:sticky;top:64px;z-index:200;box-shadow:var(--shadow);overflow-x:auto;}
+.tab{padding:14px 18px;font-size:12px;font-weight:500;color:var(--ink-muted);border-bottom:2px solid transparent;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px;user-select:none;white-space:nowrap;text-decoration:none;}
+.tab:hover{color:var(--teal);}
+.tab.active{color:var(--teal);border-bottom-color:var(--teal);font-weight:600;}
+.tab-ai{font-size:9px;font-weight:700;background:var(--teal);color:#fff;padding:2px 6px;border-radius:8px;}
+
+/* MAIN */
+.main{max-width:900px;margin:0 auto;padding:28px 40px 60px;}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,var(--ink) 0%,#163a3f 60%,#0d5257 100%);border-radius:14px;padding:32px 36px;margin-bottom:24px;overflow:hidden;position:relative;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 70% at 85% 50%,rgba(0,196,204,.1) 0%,transparent 70%);}
+.hero::after{content:'';position:absolute;right:-30px;top:-30px;width:140px;height:140px;border-radius:50%;background:var(--aqua);opacity:.08;}
+.hero *{position:relative;z-index:1;}
+.hero-eyebrow{font-size:10px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--aqua);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.hero-eyebrow::before{content:'';width:20px;height:1.5px;background:var(--aqua);}
+.hero h1{font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:400;color:#fff;line-height:1.2;margin-bottom:10px;letter-spacing:-.3px;}
+.hero h1 em{font-style:italic;color:var(--aqua-light);}
+.hero p{font-size:12px;color:rgba(255,255,255,.5);line-height:1.7;max-width:520px;}
+
+/* HIPAA BANNER */
+.hipaa{background:var(--blue-light);border:1px solid #B5D4F4;border-radius:8px;padding:9px 14px;font-size:12px;color:#0C447C;display:flex;align-items:center;gap:8px;margin-bottom:20px;}
+
+/* SUB NAV */
+.subnav{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:22px;flex-wrap:wrap;}
+.stab{font-size:11px;font-weight:500;color:var(--ink-muted);padding:11px 15px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;white-space:nowrap;background:transparent;border-top:none;border-left:none;border-right:none;font-family:inherit;}
+.stab:hover{color:var(--teal);}
+.stab.on{color:var(--teal);border-bottom-color:var(--teal);font-weight:600;}
+
+/* SUB PANELS */
+.sub{display:none;}.sub.on{display:block;}
+
+/* TIERS */
+.tier{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600;}
+.t-self{background:var(--green-light);color:#085041;}
+.t-mgmt{background:var(--gold-light);color:#633806;}
+.t-owner{background:var(--red-light);color:#791F1F;}
+
+/* DECISION NODES */
+.dn{border-radius:10px;padding:14px 16px;margin-bottom:10px;border:1px solid;}
+.dn-start{background:var(--green-light);border-color:#9FE1CB;}
+.dn-q{background:#f7f6f2;border-color:#d3d1c7;}
+.dn-stop{background:var(--red-light);border-color:#F7C1C1;}
+.dn-go{background:var(--green-light);border-color:#9FE1CB;}
+.dn-warn{background:var(--gold-light);border-color:#FAC775;}
+.dn-blue{background:var(--blue-light);border-color:#B5D4F4;}
+.dn-title{font-size:13px;font-weight:600;margin-bottom:7px;}
+.dn-stop .dn-title{color:#791F1F;}.dn-go .dn-title{color:#085041;}.dn-warn .dn-title{color:#633806;}.dn-start .dn-title{color:#085041;}.dn-blue .dn-title{color:#0C447C;}.dn-q .dn-title{color:var(--ink);}
+.dn p{font-size:12px;line-height:1.6;margin-bottom:9px;}
+.dn-stop p{color:#a32d2d;}.dn-go p{color:#085041;}.dn-warn p{color:#854f0b;}.dn-blue p{color:#0C447C;}.dn-q p{color:var(--ink-muted);}
+
+.cbtn{display:block;width:100%;text-align:left;padding:8px 12px;border:1px solid #ccc;border-radius:7px;background:#fff;color:var(--ink);font-size:12px;font-family:inherit;cursor:pointer;margin-bottom:5px;transition:all .15s;line-height:1.5;}
+.cbtn:last-child{margin-bottom:0;}
+.cbtn:hover{background:#f0efe9;border-color:#999;}
+.cbtn-stop:hover{background:var(--red-light);border-color:#F7C1C1;color:#791F1F;}
+.cbtn-go:hover{background:var(--green-light);border-color:#9FE1CB;color:#085041;}
+.cbtn-blue:hover{background:var(--blue-light);border-color:#B5D4F4;color:#0C447C;}
+.reset-link{font-size:11px;color:var(--ink-muted);cursor:pointer;text-decoration:underline;margin-top:12px;display:inline-block;}
+.reset-link:hover{color:var(--teal);}
+
+/* TEMPLATE TABS */
+.tmpl-tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px;}
+.ttab{padding:4px 11px;border:1px solid var(--border);border-radius:20px;font-size:11px;background:#fff;color:var(--ink-muted);cursor:pointer;transition:all .15s;font-family:inherit;}
+.ttab:hover{border-color:var(--teal);color:var(--teal);}
+.ttab.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+.tc{display:none;}.tc.on{display:block;}
+
+/* BADGES */
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;}
+.b-green{background:var(--green-light);color:#085041;}
+.b-red{background:var(--red-light);color:#791F1F;}
+.b-amber{background:var(--gold-light);color:#633806;}
+.b-gray{background:#f0efe9;color:#5f5e5a;}
+.b-blue{background:var(--blue-light);color:#0C447C;}
+
+/* LETTER BLOCK */
+.pb{background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:14px 16px;font-size:12px;line-height:1.9;white-space:pre-wrap;font-family:ui-monospace,monospace;color:var(--ink-soft);margin:9px 0;}
+
+/* COPY BUTTON */
+.copy-btn{padding:5px 11px;font-size:11px;font-weight:600;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--ink-muted);cursor:pointer;transition:all .15s;font-family:inherit;}
+.copy-btn:hover{background:var(--teal);color:#fff;border-color:var(--teal);}
+
+/* NOTES */
+.warn-note{background:var(--gold-light);border:1px solid #FAC775;border-radius:7px;padding:9px 13px;font-size:12px;color:#633806;margin-bottom:9px;}
+.info-note{background:var(--blue-light);border:1px solid #B5D4F4;border-radius:7px;padding:9px 13px;font-size:12px;color:#0C447C;margin-bottom:9px;}
+.checklist-row{display:flex;gap:7px;align-items:center;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border-soft);color:var(--ink-soft);}
+.checklist-row:last-child{border-bottom:none;}
+
+/* FORM FIELDS */
+.byo-field{margin-bottom:11px;}
+.byo-field label{display:block;font-size:11px;font-weight:600;color:var(--ink-muted);margin-bottom:4px;letter-spacing:.3px;}
+.byo-field input,.byo-field textarea,.byo-field select{width:100%;font-family:inherit;font-size:13px;padding:8px 11px;border:1px solid var(--border);border-radius:7px;background:#fff;color:var(--ink);outline:none;transition:border .15s;}
+.byo-field input:focus,.byo-field textarea:focus,.byo-field select:focus{border-color:var(--teal);}
+.byo-field textarea{min-height:58px;resize:vertical;}
+
+/* AI GENERATOR */
+.gen-btn{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:10px 22px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;display:flex;align-items:center;gap:7px;}
+.gen-btn:hover{background:var(--aqua);}
+.gen-btn:disabled{background:var(--border);color:var(--ink-muted);cursor:not-allowed;}
+.output-wrap{background:linear-gradient(135deg,var(--ink) 0%,#163a3f 100%);border-radius:12px;padding:20px 24px;margin-top:14px;display:none;border:1px solid var(--teal);}
+.output-wrap.on{display:block;}
+.out-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--aqua-light);margin-bottom:10px;}
+.out-text{font-size:13px;color:rgba(255,255,255,.85);line-height:1.9;white-space:pre-wrap;}
+.copy-out{margin-top:12px;background:transparent;color:var(--aqua-light);border:1px solid rgba(0,196,204,.35);border-radius:7px;padding:6px 14px;font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;}
+.copy-out:hover{background:rgba(0,196,204,.12);}
+.loading{display:none;align-items:center;gap:9px;padding:11px 0;color:var(--ink-muted);font-size:12px;}
+.loading.on{display:flex;}
+.spin{width:15px;height:15px;border:2px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:sp .7s linear infinite;flex-shrink:0;}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* LANGUAGE BANK */
+.lb-sec{margin-bottom:20px;}
+.lb-sec h3{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.4px;}
+.pr{display:flex;gap:9px;margin-bottom:9px;}
+.pc{flex:1;padding:11px 13px;border-radius:8px;font-size:12px;line-height:1.6;}
+.pc-ok{background:var(--green-light);border:1px solid #9FE1CB;color:#085041;}
+.pc-no{background:var(--red-light);border:1px solid #F7C1C1;color:#791F1F;}
+.pc-label{font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px;}
+
+/* RED FLAGS */
+.fi{display:flex;gap:9px;align-items:flex-start;padding:9px 11px;border-radius:8px;margin-bottom:7px;}
+.fi-red{background:var(--red-light);border:1px solid #F7C1C1;}
+.fi-amber{background:var(--gold-light);border:1px solid #FAC775;}
+.fi-red strong{color:#791F1F;font-size:12px;}.fi-red p{color:#a32d2d;font-size:12px;margin-top:2px;}
+.fi-amber strong{color:#633806;font-size:12px;}.fi-amber p{color:#854f0b;font-size:12px;margin-top:2px;}
+
+/* TRAINING */
+.sc{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:10px;box-shadow:var(--shadow-card);}
+.sc-q{background:var(--cream);border-radius:7px;padding:11px 13px;font-size:12px;font-style:italic;margin-bottom:11px;border-left:3px solid var(--ink-muted);line-height:1.6;color:var(--ink-soft);}
+.sc-rev{display:none;margin-top:11px;}.sc-rev.on{display:block;}
+
+/* QUICK REF */
+.qr-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.qr-col{border-radius:10px;padding:14px 16px;border:1px solid;}
+.qr-green{background:var(--green-light);border-color:#9FE1CB;}
+.qr-red{background:var(--red-light);border-color:#F7C1C1;}
+.qr-label{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;margin-bottom:9px;}
+.qr-green .qr-label{color:#085041;}.qr-red .qr-label{color:#791F1F;}
+.qr-item{font-size:12px;padding:4px 0;border-bottom:1px solid;line-height:1.5;}
+.qr-green .qr-item{color:#085041;border-color:rgba(159,225,203,.5);}
+.qr-red .qr-item{color:#791F1F;border-color:rgba(247,193,193,.5);}
+.qr-item:last-child{border-bottom:none;}
+
+/* TABLE */
+.ltat{width:100%;font-size:12px;border-collapse:collapse;}
+.ltat th{text-align:left;padding:6px 9px;color:var(--ink-muted);font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;border-bottom:1px solid var(--border);}
+.ltat td{padding:7px 9px;border-bottom:1px solid var(--border-soft);vertical-align:top;}
+.ltat tr:last-child td{border-bottom:none;}
+
+/* ESCALATION */
+.es{display:flex;gap:11px;padding:11px 0;border-bottom:1px solid var(--border);}
+.es:last-child{border-bottom:none;}
+.es-n{width:26px;height:26px;border-radius:50%;background:var(--aqua-mid);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;color:var(--teal);}
+.es strong{font-size:13px;color:var(--ink);display:block;margin-bottom:2px;}
+.es p{font-size:12px;color:var(--ink-muted);line-height:1.6;}
+
+/* CARD WRAP */
+.card-wrap{background:#fff;border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:14px;box-shadow:var(--shadow-card);}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .header{padding:0 14px;height:56px;}
+  .logo-mark{width:30px;height:30px;font-size:11px;border-radius:8px;}
+  .logo-title{font-size:13px;}
+  .logo-sub{display:none;}
+  .tab-bar{padding:0 8px;top:56px;}
+  .tab{padding:12px 10px;font-size:11px;}
+  .main{padding:18px 14px 40px;}
+  .hero{padding:22px 18px;}
+  .hero h1{font-size:22px;}
+  .pr{flex-direction:column;}
+  .qr-grid{grid-template-columns:1fr;}
+  .stab{font-size:10px;padding:10px 10px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER — same as hub -->
+<div class="header">
+  <a class="logo" href="index.html">
+    <div class="logo-mark">RW</div>
+    <div><div class="logo-title">RWC Knowledge Hub</div><div class="logo-sub">Root Wellness Collective</div></div>
+  </a>
+</div>
+
+<!-- TAB BAR — same as hub, Letters active -->
+<div class="tab-bar">
+  <a class="tab" href="index.html">🏠 Home</a>
+  <a class="tab" href="index.html#browser" onclick="localStorage.setItem('rwc-tab','browser')">📋 SOP Browser</a>
+  <a class="tab" href="index.html#chat" onclick="localStorage.setItem('rwc-tab','chat')">💬 SOP Assistant <span class="tab-ai">AI</span></a>
+  <a class="tab active" href="letters.html">✉️ Letters</a>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+  <div class="hero">
+    <div class="hero-eyebrow">Letter of Necessity System</div>
+    <h1>Write <em>compliant</em> letters,<br>every time.</h1>
+    <p>Decision tree · AI generator · 9 templates · Language bank · Red flags · Training · Escalation scripts</p>
+  </div>
+
+  <div class="hipaa">🔒 No client identifying info entered here — add name, DOB, phone in Practice Better after copying</div>
+
+  <div class="subnav">
+    <button class="stab on" onclick="showSub('tree',this)">🌳 Decision</button>
+    <button class="stab" onclick="showSub('gen',this)">✨ AI Draft</button>
+    <button class="stab" onclick="showSub('tpl',this)">📄 Templates</button>
+    <button class="stab" onclick="showSub('lang',this)">💬 Language</button>
+    <button class="stab" onclick="showSub('flags',this)">🚩 Red Flags</button>
+    <button class="stab" onclick="showSub('train',this)">🎓 Training</button>
+    <button class="stab" onclick="showSub('qref',this)">⚡ Quick Ref</button>
+    <button class="stab" onclick="showSub('esc',this)">📋 Escalation</button>
+  </div>
+
+  <!-- ═══ DECISION TREE ═══ -->
+  <div id="sub-tree" class="sub on">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center;">
+      <span style="font-size:11px;color:var(--ink-muted);">Approval tiers:</span>
+      <span class="tier t-self">Self-approve</span>
+      <span class="tier t-mgmt">Flag Andrea</span>
+      <span class="tier t-owner">Owner required</span>
+    </div>
+    <div class="dn dn-start" id="dn1"><div class="dn-title">1 — Do you have complete intake info?</div><p>All three required: (a) what the letter is for, (b) who receives it, (c) exactly what they require for acceptance.</p><button class="cbtn cbtn-stop" onclick="ds('dn-intake')">No — missing info</button><button class="cbtn cbtn-go" onclick="ds('dn2')">Yes — all three confirmed</button></div>
+    <div class="dn dn-warn" id="dn-intake" style="display:none"><div class="dn-title">Send intake request first</div><div class="pb" style="font-size:11.5px">Hi [Client first name],
+
+To get your Letter of Necessity started, I need a few quick details:
+
+1. What is the letter needed for?
+2. Who will receive it?
+3. What do they specifically require for it to be accepted?
+4. Is there a deadline?</div><button class="cbtn" onclick="dtReset()">↩ Start over once intake is complete</button></div>
+    <div class="dn dn-q" id="dn2" style="display:none"><div class="dn-title">2 — Does the recipient require any of the following?</div><p>A diagnosis · Named medical condition · ICD/CPT codes · Physician certification · FMLA form · Disability determination · Government statement on medical status · ADA formal certification</p><button class="cbtn cbtn-stop" onclick="ds('dn-strict')">Yes — any of the above</button><button class="cbtn cbtn-go" onclick="ds('dn3')">No — none of the above</button></div>
+    <div class="dn dn-q" id="dn-strict" style="display:none"><div class="dn-title">2b — What kind of strict-standard request?</div><button class="cbtn cbtn-stop" onclick="ds('dn-hardstop')">Requires diagnosis, codes, or licensed provider cert</button><button class="cbtn cbtn-blue" onclick="ds('dn-govt')">Government / agency — statement on medical status</button><button class="cbtn cbtn-blue" onclick="ds('dn-licensed')">Letter under practitioner's actual licensure</button></div>
+    <div class="dn dn-stop" id="dn-hardstop" style="display:none"><div class="dn-title">Stop — cannot provide this letter</div><p>Decline and close. Do not offer workarounds.</p><div class="pb" style="font-size:11.5px">Hi [Client first name],
+
+Thank you for reaching out. After reviewing your request, we aren't able to provide this letter — it requires documentation (diagnosis, codes, or licensed provider certification) outside our scope as health coaches.
+
+We'd recommend connecting with your primary care physician for this type of documentation.</div><button class="cbtn" onclick="dtReset()">↩ Start over</button></div>
+    <div class="dn dn-blue" id="dn-govt" style="display:none"><div class="dn-title">Government / agency — narrow statement only</div><p>Nothing about conditions or work capacity. Flag for Andrea before sending.</p><button class="cbtn cbtn-blue" onclick="goTmpl('govt')">Open government statement template →</button><span class="tier t-mgmt" style="display:inline-flex;margin-top:8px;">Flag Andrea before sending</span><button class="cbtn" style="margin-top:8px;" onclick="dtReset()">↩ Start over</button></div>
+    <div class="dn dn-blue" id="dn-licensed" style="display:none"><div class="dn-title">Licensed practitioner track — different rules</div><p>Clinical language, diagnoses, credentials in signature permitted. Practitioner reviews and signs. Owner must be aware.</p><button class="cbtn cbtn-blue" onclick="goTmpl('licensed')">Open licensed practitioner template →</button><span class="tier t-owner" style="display:inline-flex;margin-top:8px;">Owner must be aware</span><button class="cbtn" style="margin-top:8px;" onclick="dtReset()">↩ Start over</button></div>
+    <div class="dn dn-q" id="dn3" style="display:none"><div class="dn-title">3 — Does the letter need clinical reasoning?</div><p>Does it need to explain <em>why</em> something is beneficial beyond general health coach opinion?</p><button class="cbtn" onclick="ds('dn-pract')">Yes — needs clinical context from practitioner</button><button class="cbtn cbtn-go" onclick="ds('dn4')">No — general health coach opinion is enough</button></div>
+    <div class="dn dn-warn" id="dn-pract" style="display:none"><div class="dn-title">Get practitioner input first — then translate</div><p>Ask the practitioner why this recommendation benefits this client. Convert their answer to compliant health coach language. See Language tab → "Translating practitioner input."</p><button class="cbtn cbtn-go" onclick="ds('dn4')">Input received — continue to letter type</button></div>
+    <div class="dn dn-q" id="dn4" style="display:none"><div class="dn-title">4 — What type of letter?</div><button class="cbtn cbtn-go" onclick="ds('dn-landlord')">Landlord accommodation</button><button class="cbtn cbtn-go" onclick="ds('dn-fsa')">FSA / HSA / Christian healthshare reimbursement</button><button class="cbtn cbtn-go" onclick="ds('dn-therapy')">Therapy modality (red light, PEMF, hyperbaric, sauna)</button><button class="cbtn cbtn-go" onclick="ds('dn-supp')">Supplement or wellness product necessity</button><button class="cbtn" onclick="ds('dn-other')">Other accommodation (school, workplace, travel, grant)</button></div>
+    <div class="dn dn-q" id="dn-landlord" style="display:none"><div class="dn-title">4a — Do you have testing results?</div><button class="cbtn cbtn-go" onclick="ds('dn-lt')">Yes — testing available</button><button class="cbtn cbtn-go" onclick="ds('dn-ln')">No — symptoms only</button></div>
+    <div class="dn dn-go" id="dn-lt" style="display:none"><div class="dn-title">✓ Landlord with testing — self-approve</div><p>No "Dr.", no diagnosis, testing referenced neutrally.</p><button class="cbtn cbtn-go" style="margin-top:4px;" onclick="goTmpl('landlord-test')">Open landlord (with testing) →</button><button class="cbtn" onclick="dtReset()">↩ Start over</button></div>
+    <div class="dn dn-go" id="dn-ln" style="display:none"><div class="dn-title">✓ Landlord, symptoms only — self-approve</div><p>Keep it brief. Less specificity is safer without testing.</p><button class="cbtn cbtn-go" style="margin-top:4px;" onclick="goTmpl('landlord-notest')">Open landlord (symptoms only) →</button><button class="cbtn" onclick="dtReset()">↩ Start over</button></div>
+    <div class="dn dn-go" id="dn-fsa" style="display:none"><div class="dn-title">✓ FSA / HSA / healthshare — plan doesn't require codes</div><div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px;"><span class="tier t-self">FSA / HSA — self-approve</span><span class="tier t-mgmt">Christian healthshare — flag Andrea</span></div><button class="cbtn cbtn-go" onclick="goTmpl('fsahsa')">Open FSA / HSA template →</button><button class="cbtn" onclick="dtReset()">↩ Start over</button></div>
+    <div class="dn dn-go" id="dn-therapy" style="display:none"><div class="dn-title">✓ Therapy modality — self-approve</div><p>Include the "not intended to replace medical treatment" line.</p><button class="cbtn cbtn-go" style="margin-top:4px;" onclick="goTmpl('therapy')">Open therapy modality template →</button><button class="cbtn" onclick="dtReset()">↩ Start over</button></div>
+    <div class="dn dn-go" id="dn-supp" style="display:none"><div class="dn-title">✓ Supplement necessity — self-approve</div><p>List supplements by name. Do not state they treat any condition.</p><button class="cbtn cbtn-go" style="margin-top:4px;" onclick="goTmpl('supplement')">Open supplement template →</button><button class="cbtn" onclick="dtReset()">↩ Start over</button></div>
+    <div class="dn dn-warn" id="dn-other" style="display:none"><div class="dn-title">Non-standard — flag Andrea</div><p>Symptoms and general opinion only. Use Build Your Own and flag Andrea before sending.</p><button class="cbtn" style="margin-top:4px;" onclick="goTmpl('byo')">Open Build Your Own →</button><button class="cbtn" onclick="dtReset()">↩ Start over</button></div>
+    <span class="reset-link" onclick="dtReset()">↩ Reset decision tree</span>
+  </div>
+
+  <!-- ═══ AI DRAFT ═══ -->
+  <div id="sub-gen" class="sub">
+    <div class="card-wrap">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal);margin-bottom:6px;">AI Letter Generator</div>
+      <div style="font-size:15px;font-weight:600;color:var(--ink);margin-bottom:4px;">Draft a compliant letter</div>
+      <p style="font-size:12px;color:var(--ink-muted);margin-bottom:16px;line-height:1.6;">Fill in what you know from Practice Better. The AI writes a letter anchored to RWC's compliance rules — no guesswork, no clinical claims, no invented symptoms.</p>
+      <div class="info-note">🔒 Do not enter full name, DOB, or phone. Add those in Practice Better after copying.</div>
+      <div class="byo-field"><label>Letter purpose</label><select id="g-purpose"><option value="">Select letter type</option><option>Landlord / housing accommodation</option><option>FSA / HSA reimbursement — supplements</option><option>FSA / HSA reimbursement — services</option><option>Supplement necessity (school carry)</option><option>Therapy modality support</option><option>Employment leave extension</option><option>Grant / general capacity support</option><option>Christian healthshare reimbursement</option></select></div>
+      <div class="byo-field"><label>Client's reported symptoms (from PB intake notes)</label><textarea id="g-symptoms" placeholder="e.g. fatigue, brain fog, heat intolerance, sleep disruption, mood changes"></textarea></div>
+      <div class="byo-field"><label>Practitioner name</label><input type="text" id="g-prac" placeholder="e.g. Jaban Moore"></div>
+      <div class="byo-field"><label>Testing completed (optional)</label><input type="text" id="g-tests" placeholder="e.g. HTMA, Organic Acids Test, Total Toxicity Panel"></div>
+      <div class="byo-field"><label>Supplements or recommendations (optional)</label><input type="text" id="g-supps" placeholder="e.g. Carboxy, CT Minerals, KL Support"></div>
+      <div class="byo-field"><label>Practice name</label><select id="g-practice"><option>Redefining Wellness Center</option><option>Dr. Jaban Moore</option><option>Dr. Jess Consulting</option><option>Biohacking Bombshell</option><option>Balance the Biome</option></select></div>
+      <button class="gen-btn" id="gen-btn" onclick="generateLetter()">✨ Draft letter</button>
+      <div class="loading" id="gen-load"><div class="spin"></div><span>Writing compliant draft...</span></div>
+    </div>
+    <div class="output-wrap" id="out-wrap">
+      <div class="out-label">Letter draft — ready for Practice Better</div>
+      <div class="out-text" id="out-text"></div>
+      <button class="copy-out" onclick="copyOut()">Copy to clipboard</button>
+    </div>
+  </div>
+
+  <!-- ═══ TEMPLATES ═══ -->
+  <div id="sub-tpl" class="sub">
+    <div class="info-note">🔒 Copy letter body into PB — edit all [bracketed placeholders] before sharing with client</div>
+    <div class="tmpl-tabs">
+      <button class="ttab on" id="tt-landlord-test" onclick="showTmpl('landlord-test',this)">Landlord + testing</button>
+      <button class="ttab" id="tt-landlord-notest" onclick="showTmpl('landlord-notest',this)">Landlord (symptoms)</button>
+      <button class="ttab" id="tt-fsahsa" onclick="showTmpl('fsahsa',this)">FSA / HSA</button>
+      <button class="ttab" id="tt-therapy" onclick="showTmpl('therapy',this)">Therapy modality</button>
+      <button class="ttab" id="tt-supplement" onclick="showTmpl('supplement',this)">Supplement</button>
+      <button class="ttab" id="tt-accommodation" onclick="showTmpl('accommodation',this)">General accommodation</button>
+      <button class="ttab" id="tt-govt" onclick="showTmpl('govt',this)">Gov't / disability</button>
+      <button class="ttab" id="tt-licensed" onclick="showTmpl('licensed',this)">Licensed practitioner</button>
+      <button class="ttab" id="tt-byo" onclick="showTmpl('byo',this)">Build your own</button>
+    </div>
+    <div id="tc-landlord-test" class="tc on"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;"><div style="display:flex;gap:5px;flex-wrap:wrap;"><span class="badge b-green">Landlord</span><span class="badge b-gray">Requires testing</span><span class="tier t-self">Self-approve</span></div><button class="copy-btn" onclick="copyEl('t-lt')">Copy for PB</button></div><div class="pb" id="t-lt">Letter of Necessity
+
+To whom it may concern,
+
+[CLIENT FIRST NAME] began working with [PRACTICE NAME] and [PRACTITIONER FIRST NAME] when [they/he/she] contacted our office regarding concerns about environmental exposure. After completing the appropriate testing, the results of which are attached, [NEUTRAL FINDING — e.g.: elevated markers were indicated in the results].
+
+The results suggest environmental factors may be contributing to [CLIENT FIRST NAME]'s reported symptoms. [He/She/They] is currently on a set of wellness protocols to support overall health, further details of which can be found in session notes.
+
+Due to the client's reported complaints and present symptoms, and in my capacity as a health coach, I believe that [SELECT: vacating the current residence / remediation of the home prior to returning / installation of [SPECIFY]] would be beneficial to the overall improvement of the client's ongoing health-related concerns.
+
+Should there be any questions, please contact my office directly.
+
+[PRACTITIONER FULL NAME]
+Health Coach, [PRACTICE NAME]</div><div style="background:#f7f6f2;border-radius:7px;padding:10px 14px;border:1px solid #d3d1c7;margin-top:6px;"><div class="checklist-row"><span class="badge b-red">No</span><span style="margin-left:6px;">No "Dr." before name, no credentials after name</span></div><div class="checklist-row"><span class="badge b-red">No</span><span style="margin-left:6px;">No named condition ("mold illness," "CIRS," "mycotoxicosis")</span></div><div class="checklist-row"><span class="badge b-green">Yes</span><span style="margin-left:6px;">Testing referenced neutrally — "results indicate" not "results confirm diagnosis of"</span></div></div></div>
+    <div id="tc-landlord-notest" class="tc"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;"><div style="display:flex;gap:5px;"><span class="badge b-green">Landlord</span><span class="badge b-amber">Symptoms only</span><span class="tier t-self">Self-approve</span></div><button class="copy-btn" onclick="copyEl('t-ln')">Copy for PB</button></div><div class="info-note">Intentionally brief. Less specificity is safer without testing.</div><div class="pb" id="t-ln">Letter of Necessity
+
+To whom it may concern,
+
+Due to the client's reported complaints and present symptoms, and in my capacity as a health coach, I believe that [SELECT: vacating the home / remediation of the home / SPECIFIC ACCOMMODATION] would be beneficial to the overall improvement of the client's ongoing health-related concerns.
+
+Should there be any questions, please contact my office directly.
+
+[PRACTITIONER FULL NAME]
+Health Coach, [PRACTICE NAME]</div></div>
+    <div id="tc-fsahsa" class="tc"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;"><div style="display:flex;gap:5px;flex-wrap:wrap;"><span class="badge b-green">FSA / HSA</span><span class="badge b-gray">Most common</span><span class="tier t-self">Self-approve</span><span class="tier t-mgmt">Healthshare → flag Andrea</span></div><button class="copy-btn" onclick="copyEl('t-fsa')">Copy for PB</button></div><div class="pb" id="t-fsa">Letter of Necessity
+
+To whom it may concern,
+
+Due to the client's reported complaints and symptoms of [SYMPTOMS FROM INTAKE], and in my capacity as a health coach, I believe that working with [PRACTITIONER FIRST NAME] and undergoing the recommended wellness protocols would be beneficial to [CLIENT FIRST NAME]'s overall health and well-being.
+
+[IF TESTING AVAILABLE:]
+The attached testing results indicate elevated indicators that the recommended protocols aim to address.
+
+[IF LENGTH OF CARE KNOWN:]
+The anticipated length of care is [X MONTHS], though this may vary based on how the client responds.
+
+[IF SUPPLEMENTS PURCHASED:]
+The following supplements have been recommended as part of [CLIENT FIRST NAME]'s individualized wellness protocol: [LIST SUPPLEMENT NAMES].
+
+[IF DOCUMENTING PAID AMOUNT:]
+Paid amount: $[AMOUNT]
+
+Should there be any questions, please contact my office directly.
+
+[PRACTITIONER FULL NAME]
+Health Coach, [PRACTICE NAME]</div></div>
+    <div id="tc-therapy" class="tc"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;"><div style="display:flex;gap:5px;"><span class="badge b-green">Therapy modality</span><span class="tier t-self">Self-approve</span></div><button class="copy-btn" onclick="copyEl('t-th')">Copy for PB</button></div><div class="pb" id="t-th">Letter of Necessity
+
+To whom it may concern,
+
+Due to the client's reported complaints and present symptoms, and in my capacity as a health coach, I believe that [MODALITY — e.g.: red light therapy / PEMF therapy / hyperbaric oxygen therapy / infrared sauna] would be a beneficial supportive wellness practice for [CLIENT FIRST NAME]'s overall health and well-being.
+
+This recommendation is made in the context of an individualized wellness plan and is not intended to replace any prescribed medical treatment.
+
+Should there be any questions, please contact my office directly.
+
+[PRACTITIONER FULL NAME]
+Health Coach, [PRACTICE NAME]</div></div>
+    <div id="tc-supplement" class="tc"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;"><div style="display:flex;gap:5px;"><span class="badge b-green">Supplement necessity</span><span class="tier t-self">Self-approve</span></div><button class="copy-btn" onclick="copyEl('t-su')">Copy for PB</button></div><div class="pb" id="t-su">Letter of Necessity
+
+To whom it may concern,
+
+Due to the client's reported complaints and present symptoms, and in my capacity as a health coach, I believe that the supplements and wellness products listed below are beneficial to the overall improvement of [CLIENT FIRST NAME]'s health-related concerns.
+
+[CLIENT FIRST NAME] will need to [carry / use / administer] these supplements [at school / at work / as part of their daily routine] to follow the recommended timing and protocols.
+
+Recommended products: [LIST SUPPLEMENT NAMES]
+
+Should there be any questions, please contact my office directly.
+
+[PRACTITIONER FULL NAME]
+Health Coach, [PRACTICE NAME]</div></div>
+    <div id="tc-accommodation" class="tc"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;"><div style="display:flex;gap:5px;"><span class="badge b-amber">General accommodation</span><span class="tier t-mgmt">Flag Andrea</span></div><button class="copy-btn" onclick="copyEl('t-ac')">Copy for PB</button></div><div class="warn-note">High caution. If the employer or agency requires clinical standing, ADA certification, or FMLA — stop at Step 2. Always flag Andrea before sending.</div><div class="pb" id="t-ac">Letter of Necessity
+
+To whom it may concern,
+
+Due to the client's reported complaints and present symptoms, and in my capacity as a health coach, it is my opinion that [CLIENT FIRST NAME] may benefit from [ACCOMMODATION].
+
+Should there be any questions, please contact my office directly.
+
+[PRACTITIONER FULL NAME]
+Health Coach, [PRACTICE NAME]</div></div>
+    <div id="tc-govt" class="tc"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;"><div style="display:flex;gap:5px;"><span class="badge b-amber">Gov't / disability</span><span class="tier t-mgmt">Flag Andrea</span></div><button class="copy-btn" onclick="copyEl('t-go')">Copy for PB</button></div><div class="warn-note">Use this exact language. Do not expand it. The narrow scope is the point.</div><div class="pb" id="t-go">To whom it may concern,
+
+In my capacity as a health coach, I am not able to speak to [CLIENT FIRST NAME]'s medical conditions or how they may affect [his/her/their] ability to complete work or daily activities. Any documentation of that nature would need to come from a licensed medical provider.
+
+Should you have any questions, please contact my office directly.
+
+[PRACTITIONER FULL NAME]
+Health Coach, [PRACTICE NAME]</div></div>
+    <div id="tc-licensed" class="tc"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;"><div style="display:flex;gap:5px;"><span class="badge b-blue">Licensed practitioner track</span><span class="tier t-owner">Owner aware</span></div><button class="copy-btn" onclick="copyEl('t-li')">Copy for PB</button></div><div class="info-note">Different rules apply. Diagnoses, medical necessity language, and credentials in signature are appropriate here. Practitioner must directly review and approve all clinical content. Owner must be aware before sending.</div><div class="pb" id="t-li">[LETTER TYPE — e.g.: Referral / Letter of Medical Necessity / Order]
+
+To whom it may concern,
+
+[PATIENT FIRST NAME] is under my care for [DIAGNOSIS — ICD code if required: ].
+
+[PURPOSE — e.g.: I am referring [PATIENT FIRST NAME] to [PROVIDER / FACILITY] for [SERVICE].]
+
+This [referral / order] is indicated based on [CLINICAL REASONING — provided by practitioner directly].
+
+[INTENDED OUTCOME — practitioner to specify.]
+
+Should there be any questions, please contact my office directly.
+
+[PRACTITIONER FULL NAME], [CREDENTIAL — e.g.: M.D., D.O., D.C.]
+[PRACTICE NAME]
+[NPI if required]</div></div>
+    <div id="tc-byo" class="tc"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;"><div style="display:flex;gap:5px;"><span class="badge b-amber">Build your own</span><span class="tier t-mgmt">Flag Andrea</span></div></div><p style="font-size:12px;color:var(--ink-muted);margin-bottom:13px;line-height:1.6;">For edge cases. No client name or DOB here — add in PB.</p><div class="byo-field"><label>What is the letter for?</label><input type="text" id="b-purpose" placeholder="e.g. school accommodation for supplement administration" oninput="buildByo()"></div><div class="byo-field"><label>Reported symptoms (from PB intake notes)</label><input type="text" id="b-symptoms" placeholder="e.g. fatigue, sleep disruption, digestive concerns" oninput="buildByo()"></div><div class="byo-field"><label>What the letter is supporting</label><input type="text" id="b-rec" placeholder="e.g. that she carry her supplements at school" oninput="buildByo()"></div><div class="byo-field"><label>Practitioner name</label><input type="text" id="b-pract" placeholder="e.g. Vanessa Thomas" oninput="buildByo()"></div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><span style="font-size:11px;font-weight:600;color:var(--ink-muted);">Generated letter — copy into PB</span><button class="copy-btn" onclick="copyEl('byo-out')">Copy for PB</button></div><div class="pb" id="byo-out" style="color:var(--ink-muted);font-style:italic;">Fill in the fields above to generate your letter.</div><span class="tier t-mgmt" style="display:inline-flex;margin-top:8px;">Always flag Andrea before sending</span></div>
+  </div>
+
+  <!-- ═══ LANGUAGE BANK ═══ -->
+  <div id="sub-lang" class="sub">
+    <div class="lb-sec"><h3>Referring to the person</h3><div class="pr"><div class="pc pc-ok"><div class="pc-label">✓ Use</div>"the client" · "the client's reported symptoms" · "[First Name]" · "[First Name] began working with us when…"</div><div class="pc pc-no"><div class="pc-label">✗ Never</div>"the patient" · "my patient" · "patient history" · "patient reports"</div></div></div>
+    <div class="lb-sec"><h3>Your role</h3><div class="pr"><div class="pc pc-ok"><div class="pc-label">✓ Use</div>"in my capacity as a health coach" · "as a health coach" · "[Name], Health Coach" in signature — no credentials</div><div class="pc pc-no"><div class="pc-label">✗ Never</div>"as a physician" · "Dr. [Name]" anywhere · credentials after name (D.C., M.D., D.O., NP-C) on health coach track</div></div></div>
+    <div class="lb-sec"><h3>Expressing opinion</h3><div class="pr"><div class="pc pc-ok"><div class="pc-label">✓ Use</div>"I believe that [X] would be beneficial" · "it is my opinion that [X] may benefit" · "could possibly" · "may benefit"</div><div class="pc pc-no"><div class="pc-label">✗ Never</div>"I certify that" · "it is medically necessary" · "prescribed" · "ordered" · "I diagnose" · "clinically indicated"</div></div></div>
+    <div class="lb-sec"><h3>Describing symptoms</h3><div class="pr"><div class="pc pc-ok"><div class="pc-label">✓ Use</div>"due to the client's reported complaints and symptoms of [list from intake]" · "the client reports experiencing [symptom]"<br><br><em style="font-size:11px;">Pull from the non-client-facing top section of PB session notes.</em></div><div class="pc pc-no"><div class="pc-label">✗ Never</div>"diagnosed with [condition]" · "suffers from [named condition]" · any ICD code · "presents with [clinical finding]"</div></div></div>
+    <div class="lb-sec"><h3>Referencing testing results</h3><div class="pr"><div class="pc pc-ok"><div class="pc-label">✓ Use</div>"according to the testing results attached…" · "the results indicate elevated levels of…" · "the testing results suggest…"</div><div class="pc pc-no"><div class="pc-label">✗ Never</div>"lab results confirm a diagnosis of" · "testing confirms [condition]" · stating clinical interpretation as established fact</div></div></div>
+    <div class="lb-sec"><h3>Translating practitioner input</h3><div class="pr"><div class="pc pc-ok"><div class="pc-label">Practitioner says → you write</div>"This client has CIRS from mold" → "Due to the client's reported symptoms and the testing results attached…"<br><br>"The mycotoxin burden is causing inflammation" → "The results indicate elevated indicators that the recommended protocols aim to address"<br><br>"She needs to detox" → "The recommended wellness protocols are intended to support overall health and well-being"</div><div class="pc pc-no"><div class="pc-label">✗ Never copy directly</div>Do not copy clinical language from practitioner notes verbatim. Always translate. If unsure whether a phrase is clinical, remove it.</div></div></div>
+    <div class="lb-sec"><h3>Signature line</h3><div class="pr"><div class="pc pc-ok"><div class="pc-label">✓ Use</div>"[Full Name], Health Coach" · "[Full Name], Health Coach, [Practice Name]"</div><div class="pc pc-no"><div class="pc-label">✗ Never (health coach track)</div>"Dr. [Name]" · "[Name], D.C." · "[Name], M.D." · "[Name], D.O." · "[Name], NP-C"</div></div></div>
+  </div>
+
+  <!-- ═══ RED FLAGS ═══ -->
+  <div id="sub-flags" class="sub">
+    <p style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#791F1F;margin-bottom:10px;">Hard stops — decline and close</p>
+    <div class="fi fi-red"><span style="font-size:14px;flex-shrink:0;">✕</span><div><strong>Request requires a diagnosis or named condition</strong><p>Full stop. Use the decline script.</p></div></div>
+    <div class="fi fi-red"><span style="font-size:14px;flex-shrink:0;">✕</span><div><strong>Request requires ICD, CPT, or billing codes</strong><p>Any form that says "include code" — cannot provide.</p></div></div>
+    <div class="fi fi-red"><span style="font-size:14px;flex-shrink:0;">✕</span><div><strong>FMLA certification or formal disability determination</strong><p>Requires a licensed healthcare provider regardless of background credentials.</p></div></div>
+    <div class="fi fi-red"><span style="font-size:14px;flex-shrink:0;">✕</span><div><strong>FSA/HSA plan specifically requires licensed provider or codes</strong><p>Confirm plan requirements before drafting. If confirmed — hard stop.</p></div></div>
+    <div class="fi fi-red"><span style="font-size:14px;flex-shrink:0;">✕</span><div><strong>"Dr." or credentials in the signature (health coach track)</strong><p>Including letterhead logos. Must be removed before anything is shared.</p></div></div>
+    <p style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#633806;margin:16px 0 10px;">Amber flags — escalate to Andrea first</p>
+    <div class="fi fi-amber"><span style="font-size:14px;flex-shrink:0;">⚠</span><div><strong>Christian healthshare plan</strong><p>Requirements vary. Some accept health coach letters; others require licensed providers.</p></div></div>
+    <div class="fi fi-amber"><span style="font-size:14px;flex-shrink:0;">⚠</span><div><strong>Letter for a legal proceeding or formal dispute</strong><p>Insurance appeals, lawsuits, government claims — escalate to owner before drafting.</p></div></div>
+    <div class="fi fi-amber"><span style="font-size:14px;flex-shrink:0;">⚠</span><div><strong>Client or third party pushes back on wording</strong><p>Deliver the pushback script. Escalate to Andrea only if client becomes demanding.</p></div></div>
+    <div class="fi fi-amber"><span style="font-size:14px;flex-shrink:0;">⚠</span><div><strong>Government or agency request for statement on medical status</strong><p>Use the narrow government statement template only. Flag Andrea before sending.</p></div></div>
+    <div class="fi fi-amber"><span style="font-size:14px;flex-shrink:0;">⚠</span><div><strong>International client</strong><p>Unknown jurisdiction requirements. Flag Andrea before proceeding.</p></div></div>
+    <div class="fi fi-amber"><span style="font-size:14px;flex-shrink:0;">⚠</span><div><strong>Draft contains a named condition or disease</strong><p>"Mold illness," "Lyme," "ADHD," "CIRS" — remove and replace with symptom language.</p></div></div>
+  </div>
+
+  <!-- ═══ TRAINING ═══ -->
+  <div id="sub-train" class="sub">
+    <p style="font-size:12px;color:var(--ink-muted);margin-bottom:14px;line-height:1.6;">Read each scenario, choose your answer, then reveal the reasoning.</p>
+    <div class="sc"><span class="badge b-gray">Scenario 1 — FSA reimbursement</span><div class="sc-q" style="margin-top:10px;">"My FSA provider says the letter needs to include the condition being treated."</div><button class="cbtn cbtn-stop" onclick="rev('r1')">Stop — condition language required = cannot write</button><button class="cbtn cbtn-go" onclick="rev('r1')">Write a modified version without condition language</button><button class="cbtn" onclick="rev('r1')">Ask the client what the plan specifically requires</button><div id="r1" class="sc-rev"><div class="fi fi-amber"><span>★</span><div><strong style="color:#633806;">Best: confirm exact plan requirements first</strong><p style="color:#854f0b;">Some FSA plans use loose language and accept health coach letters. Others genuinely require a code. Find out which before writing or declining.</p></div></div></div></div>
+    <div class="sc"><span class="badge b-gray">Scenario 2 — Landlord, mold</span><div class="sc-q" style="margin-top:10px;">"My landlord needs a letter saying I have mold illness so I can break my lease."</div><button class="cbtn cbtn-stop" onclick="rev('r2')">Stop — "mold illness" is a diagnosis</button><button class="cbtn cbtn-go" onclick="rev('r2')">Yes, write as requested</button><button class="cbtn" onclick="rev('r2')">Ask what landlord requires, write modified version</button><div id="r2" class="sc-rev"><div class="fi" style="background:var(--green-light);border:1px solid #9FE1CB;"><span>★</span><div><strong style="color:#085041;">Best: ask what landlord requires, write modified version</strong><p style="color:#085041;">"Mold illness" is a named condition — we cannot write that. But we CAN write a landlord letter using symptom language and testing results.</p></div></div></div></div>
+    <div class="sc"><span class="badge b-gray">Scenario 3 — Practitioner input</span><div class="sc-q" style="margin-top:10px;">Practitioner writes: "Sarah has CIRS from mold exposure. The binders help eliminate the mycotoxin load." How do you use this?</div><button class="cbtn" onclick="rev('r3')">Copy verbatim</button><button class="cbtn cbtn-go" onclick="rev('r3')">Translate — remove condition name and clinical framing</button><button class="cbtn" onclick="rev('r3')">Don't include clinical reasoning at all</button><div id="r3" class="sc-rev"><div class="fi" style="background:var(--green-light);border:1px solid #9FE1CB;"><span>★</span><div><strong style="color:#085041;">Correct: translate to compliant language</strong><p style="color:#085041;">"CIRS from mold" → "reported symptoms and testing results attached." "Eliminate mycotoxin load" → "recommended as part of the client's individualized wellness protocols."</p></div></div></div></div>
+    <div class="sc"><span class="badge b-gray">Scenario 4 — Pushback</span><div class="sc-q" style="margin-top:10px;">"My FSA admin says they need 'medically necessary' and a diagnosis. Can you update it?"</div><button class="cbtn cbtn-stop" onclick="rev('r4')">Decline — deliver the pushback script</button><button class="cbtn" onclick="rev('r4')">Escalate to Andrea for a middle ground</button><button class="cbtn" onclick="rev('r4')">Rewrite with language that implies medical necessity</button><div id="r4" class="sc-rev"><div class="fi fi-red"><span>✕</span><div><strong style="color:#791F1F;">Correct: decline — no escalation, no rewrite</strong><p style="color:#a32d2d;">Both out of scope. Deliver pushback script. Do not escalate to Andrea for wording — the answer is already no.</p></div></div></div></div>
+    <div class="sc"><span class="badge b-gray">Scenario 5 — Signature</span><div class="sc-q" style="margin-top:10px;">Finalizing a health coach track letter for Dr. Bronwyn Morris, D.C. How do you sign it?</div><button class="cbtn" onclick="rev('r5')">Dr. Bronwyn Morris, D.C.</button><button class="cbtn cbtn-go" onclick="rev('r5')">Bronwyn Morris, Health Coach, [Practice Name]</button><button class="cbtn" onclick="rev('r5')">Bronwyn Morris, D.C.</button><div id="r5" class="sc-rev"><div class="fi" style="background:var(--green-light);border:1px solid #9FE1CB;"><span>★</span><div><strong style="color:#085041;">Correct: Bronwyn Morris, Health Coach, [Practice Name]</strong><p style="color:#085041;">No "Dr." prefix, no "D.C." suffix on health coach track. Applies to entire document including letterhead logos.</p></div></div></div></div>
+  </div>
+
+  <!-- ═══ QUICK REF ═══ -->
+  <div id="sub-qref" class="sub">
+    <div class="qr-grid">
+      <div class="qr-col qr-green"><div class="qr-label">You may</div><div class="qr-item">Refer to the person as "the client"</div><div class="qr-item">Describe client-reported symptoms (from intake)</div><div class="qr-item">Share general health coach opinions</div><div class="qr-item">Use "recommend," "in my opinion," "I believe"</div><div class="qr-item">Reference testing results in neutral language</div><div class="qr-item">State your role as "health coach"</div><div class="qr-item">Sign with name only — no credentials</div></div>
+      <div class="qr-col qr-red"><div class="qr-label">You may not</div><div class="qr-item">Use the word "patient"</div><div class="qr-item">Provide or imply a diagnosis</div><div class="qr-item">Name any medical condition</div><div class="qr-item">Use ICD, CPT, or billing codes</div><div class="qr-item">Use "treatment" (use "recommendation")</div><div class="qr-item">Write "Dr." or credentials (health coach track)</div><div class="qr-item">Complete FMLA or ADA certification forms</div></div>
+    </div>
+    <div class="card-wrap" style="overflow-x:auto;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal);margin-bottom:10px;">Letter types at a glance</div>
+      <table class="ltat"><thead><tr><th>Letter type</th><th>Can we?</th><th>Approval</th><th>Watch-out</th></tr></thead><tbody>
+        <tr><td>Landlord accommodation</td><td><span class="badge b-green">Yes</span></td><td><span class="tier t-self" style="font-size:10px;">Self</span></td><td style="color:var(--ink-muted);">No condition names. Testing neutral.</td></tr>
+        <tr><td>FSA / HSA reimbursement</td><td><span class="badge b-green">Yes</span></td><td><span class="tier t-self" style="font-size:10px;">Self</span></td><td style="color:var(--ink-muted);">Stop if plan requires codes.</td></tr>
+        <tr><td>Christian healthshare</td><td><span class="badge b-amber">Case by case</span></td><td><span class="tier t-mgmt" style="font-size:10px;">Andrea</span></td><td style="color:var(--ink-muted);">Plan requirements vary.</td></tr>
+        <tr><td>Supplement necessity</td><td><span class="badge b-green">Yes</span></td><td><span class="tier t-self" style="font-size:10px;">Self</span></td><td style="color:var(--ink-muted);">Wellness support, not treatment.</td></tr>
+        <tr><td>Therapy modality</td><td><span class="badge b-green">Yes</span></td><td><span class="tier t-self" style="font-size:10px;">Self</span></td><td style="color:var(--ink-muted);">Include "not a replacement" line.</td></tr>
+        <tr><td>General accommodation</td><td><span class="badge b-amber">Limited</span></td><td><span class="tier t-mgmt" style="font-size:10px;">Andrea</span></td><td style="color:var(--ink-muted);">General opinion only.</td></tr>
+        <tr><td>Gov't / disability</td><td><span class="badge b-amber">Narrow</span></td><td><span class="tier t-mgmt" style="font-size:10px;">Andrea</span></td><td style="color:var(--ink-muted);">Exact template only.</td></tr>
+        <tr><td>FMLA / disability</td><td><span class="badge b-red">No</span></td><td>—</td><td style="color:var(--ink-muted);">Refer to physician.</td></tr>
+        <tr><td>FSA w/ diagnosis/codes</td><td><span class="badge b-red">No</span></td><td>—</td><td style="color:var(--ink-muted);">Decline if needed.</td></tr>
+        <tr><td>Licensed practitioner</td><td><span class="badge b-blue">Yes — diff. rules</span></td><td><span class="tier t-owner" style="font-size:10px;">Owner</span></td><td style="color:var(--ink-muted);">Practitioner signs w/ credential.</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+
+  <!-- ═══ ESCALATION ═══ -->
+  <div id="sub-esc" class="sub">
+    <p style="font-size:12px;color:var(--ink-muted);margin-bottom:14px;">Standard letters are self-approved. Andrea only sees true outliers.</p>
+    <div class="card-wrap">
+      <div class="es"><div class="es-n">1</div><div><strong>Staff runs the decision tree</strong><p>Confirm intake is complete. Hard stop = decline and close.</p></div></div>
+      <div class="es"><div class="es-n">2</div><div><strong>Standard letters — self-approve and send</strong><p>Landlord, FSA/HSA, supplement, therapy — draft, review, paste into PB and share.</p></div></div>
+      <div class="es"><div class="es-n">3</div><div><strong>Amber flag → flag Andrea</strong><p>Christian healthshare, general accommodation, government, Build Your Own, international. Draft first, flag before sharing.</p></div></div>
+      <div class="es"><div class="es-n">4</div><div><strong>Practitioner input → translate → draft</strong><p>Ask why the recommendation benefits this client. Convert to health coach language. No clinical language verbatim.</p></div></div>
+      <div class="es"><div class="es-n">5</div><div><strong>Owner review — true edge cases only</strong><p>Legal proceedings, insurance disputes, escalating clients, licensed practitioner track.</p></div></div>
+      <div class="es"><div class="es-n">6</div><div><strong>Share in Practice Better</strong><p>Create session note, paste letter body. Make visible, share, save. Message client via PB chat.</p></div></div>
+    </div>
+    <div style="background:linear-gradient(135deg,var(--ink) 0%,#163a3f 100%);border-radius:12px;padding:18px 22px;margin-top:14px;border:1px solid var(--teal);">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--aqua-light);margin-bottom:10px;">Pushback script — copy and send</div>
+      <div id="push-text" style="font-size:13px;color:rgba(255,255,255,.85);line-height:1.85;white-space:pre-wrap;">Hi [Client first name],
+
+I completely understand this isn't the language you were hoping for. This is the best we're able to provide within our legal scope as health coaches — we aren't able to include diagnoses or medical codes in our letters.
+
+If your plan specifically requires that level of documentation, it would need to come from a licensed physician. We're happy to help with anything within our scope.
+
+[Staff name], [Practice name]</div>
+      <button class="copy-out" onclick="copyPush()">Copy script</button>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ── SUB NAV ──
+function showSub(id,el){
+  document.querySelectorAll('.sub').forEach(function(p){p.classList.remove('on');});
+  document.querySelectorAll('.stab').forEach(function(t){t.classList.remove('on');});
+  document.getElementById('sub-'+id).classList.add('on');
+  el.classList.add('on');
+}
+
+// ── DECISION TREE ──
+function ds(id){var el=document.getElementById(id);if(el){el.style.display='block';setTimeout(function(){el.scrollIntoView({behavior:'smooth',block:'nearest'});},60);}}
+function dtReset(){
+  ['dn-intake','dn2','dn-strict','dn-hardstop','dn-govt','dn-licensed','dn3','dn-pract','dn4','dn-landlord','dn-fsa','dn-therapy','dn-supp','dn-other','dn-lt','dn-ln'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+  document.getElementById('dn1').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ── TEMPLATES ──
+function showTmpl(id,el){
+  document.querySelectorAll('.tc').forEach(function(t){t.classList.remove('on');});
+  document.querySelectorAll('.ttab').forEach(function(t){t.classList.remove('on');});
+  var c=document.getElementById('tc-'+id);if(c)c.classList.add('on');
+  if(el)el.classList.add('on');
+}
+function goTmpl(id){
+  document.querySelectorAll('.sub').forEach(function(p){p.classList.remove('on');});
+  document.querySelectorAll('.stab').forEach(function(t){t.classList.remove('on');});
+  document.getElementById('sub-tpl').classList.add('on');
+  document.querySelectorAll('.stab')[2].classList.add('on');
+  document.querySelectorAll('.tc').forEach(function(t){t.classList.remove('on');});
+  document.querySelectorAll('.ttab').forEach(function(t){t.classList.remove('on');});
+  var c=document.getElementById('tc-'+id),tb=document.getElementById('tt-'+id);
+  if(c)c.classList.add('on');if(tb)tb.classList.add('on');
+  setTimeout(function(){document.getElementById('sub-tpl').scrollIntoView({behavior:'smooth'});},80);
+}
+
+// ── COPY ──
+function copyEl(id){
+  var el=document.getElementById(id);if(!el)return;
+  navigator.clipboard.writeText(el.innerText||el.textContent).then(function(){
+    var btn=event.target;var o=btn.textContent;btn.textContent='Copied!';
+    setTimeout(function(){btn.textContent=o;},1800);
+  });
+}
+function copyOut(){
+  var t=document.getElementById('out-text').textContent;
+  navigator.clipboard.writeText(t).then(function(){
+    var b=event.target;var o=b.textContent;b.textContent='Copied!';
+    setTimeout(function(){b.textContent=o;},1800);
+  });
+}
+function copyPush(){
+  var t=document.getElementById('push-text').textContent;
+  navigator.clipboard.writeText(t).then(function(){
+    var b=event.target;var o=b.textContent;b.textContent='Copied!';
+    setTimeout(function(){b.textContent=o;},1800);
+  });
+}
+
+// ── TRAINING ──
+function rev(id){var el=document.getElementById(id);if(el)el.classList.add('on');}
+
+// ── BUILD YOUR OWN ──
+function buildByo(){
+  var purpose=document.getElementById('b-purpose').value;
+  var symptoms=document.getElementById('b-symptoms').value;
+  var rec=document.getElementById('b-rec').value;
+  var pract=document.getElementById('b-pract').value||'[PRACTITIONER FULL NAME]';
+  var el=document.getElementById('byo-out');
+  if(!purpose&&!symptoms&&!rec){el.textContent='Fill in the fields above to generate your letter.';el.style.color='var(--ink-muted)';el.style.fontStyle='italic';return;}
+  var sLine=symptoms?'Due to the client\'s reported complaints and symptoms of '+symptoms+', and in my capacity as a health coach,':'Due to the client\'s reported complaints and present symptoms, and in my capacity as a health coach,';
+  var rLine=rec?'I believe that '+rec+' would be beneficial to the overall improvement of [CLIENT FIRST NAME]\'s ongoing health-related concerns.':'I believe the recommended wellness support would be beneficial to the overall improvement of [CLIENT FIRST NAME]\'s ongoing health-related concerns.';
+  el.textContent='Letter of Necessity\n\nTo whom it may concern,\n\n'+sLine+' '+rLine+'\n\nShould there be any questions, please contact my office directly.\n\n'+pract+'\nHealth Coach, [PRACTICE NAME]';
+  el.style.color='var(--ink-soft)';el.style.fontStyle='normal';
+}
+
+// ── AI GENERATOR ──
+async function generateLetter(){
+  var purpose=document.getElementById('g-purpose').value;
+  var symptoms=document.getElementById('g-symptoms').value.trim();
+  var prac=document.getElementById('g-prac').value.trim();
+  var tests=document.getElementById('g-tests').value.trim();
+  var supps=document.getElementById('g-supps').value.trim();
+  var practice=document.getElementById('g-practice').value;
+  if(!purpose||!symptoms||!prac){alert('Please fill in letter purpose, symptoms, and practitioner name.');return;}
+  document.getElementById('gen-btn').disabled=true;
+  document.getElementById('gen-load').classList.add('on');
+  document.getElementById('out-wrap').classList.remove('on');
+  var sys='You are a compliance writer for '+practice+', a functional medicine practice. You write Letters of Necessity on behalf of health coaches — not licensed physicians. You must follow these rules with zero exceptions:\n\nIDENTITY: Always sign as "[Full Name], Health Coach" — never Dr., never credentials. Always refer to the person as "the client" — never "the patient." Always write "in my capacity as a health coach" when expressing opinion.\n\nLANGUAGE: Never name a medical condition or diagnosis. Never use ICD or CPT codes. Never use "treatment" — use "recommendation" or "wellness protocol." Never use "prescribed," "ordered," "medically necessary," or "I certify." Always hedge: "I believe," "it is my opinion," "could possibly," "may benefit." Symptoms must come only from what is provided — never invent or infer symptoms.\n\nSTRUCTURE: Start with "To whom it may concern," Reference symptoms as "reported complaints and symptoms of [list]." If testing is provided, reference neutrally. If supplements provided, frame as "recommended as part of the client\'s individualized wellness protocol." End with "Should there be any questions, please contact our office directly." Final line: "[Full Name], Health Coach\\n'+practice+'." Use [CLIENT FIRST NAME] as placeholder.\n\nTONE: Minimalist. Short. No elaboration beyond what is needed. Less is always safer.\n\nFORMAT: Output only the letter body. Start directly with "To whom it may concern,"';
+  var msg='Write a Letter of Necessity:\nLetter purpose: '+purpose+'\nClient reported symptoms: '+symptoms+'\nPractitioner name: '+prac+(tests?'\nTesting completed: '+tests:'')+(supps?'\nSupplements recommended: '+supps:'');
+  try{
+    var resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:sys,messages:[{role:'user',content:msg}]})});
+    var data=await resp.json();
+    var text=data.content&&data.content[0]&&data.content[0].text?data.content[0].text:'Error generating letter. Please try again.';
+    document.getElementById('out-text').textContent=text;
+    document.getElementById('out-wrap').classList.add('on');
+  }catch(e){
+    document.getElementById('out-text').textContent='Could not generate letter. Check your connection and try again.';
+    document.getElementById('out-wrap').classList.add('on');
+  }
+  document.getElementById('gen-btn').disabled=false;
+  document.getElementById('gen-load').classList.remove('on');
+}
+</script>
+</body>
+</html>
