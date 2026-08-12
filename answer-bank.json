@@ -1,0 +1,602 @@
+{
+ "lastSync": "2026-08-11",
+ "templates": [
+  {
+   "id": "careplan_start",
+   "topic": "When does my care plan start / when does it end",
+   "keys": [
+    "care plan start",
+    "when does my plan",
+    "3 months start",
+    "three months",
+    "when is my plan over",
+    "plan end",
+    "package end",
+    "how long do i have",
+    "extend my plan"
+   ],
+   "answer": "A care plan starts at the <strong>first appointment</strong> \u2014 not signup, not payment. If they lost time to delays, illness, or waiting on results, the end date <strong>can be extended</strong> so they keep every appointment they paid for. Offer that.",
+   "caution": "Front Desk confirms actual dates. Don't state a specific end month yourself.",
+   "reply": "Hello [Name],\n\nGreat question! Your care plan starts from your first appointment rather than from when you signed up, so that's the date we count from.\n\nAnd if you've lost any time waiting on results or shipping, we're more than happy to extend the end date so you can still book all of the appointments included in your plan.\n\nI'll confirm your exact dates and come right back to you!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 1",
+   "handoff": false,
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "selfbook",
+   "topic": "Booking a follow-up appointment",
+   "keys": [
+    "book a follow up",
+    "next appointment",
+    "schedule my follow up",
+    "book another appointment",
+    "when should i see",
+    "set another appt",
+    "can i set"
+   ],
+   "answer": "Clients can <strong>self-book follow-ups in Practice Better</strong>. The recommended cadence is at the <strong>bottom of their session note</strong>.",
+   "reply": "Hello [Name],\n\nSure thing! To make scheduling as easy as possible, we've set it up so you can book your follow-up appointments right through Practice Better \u2014 that way you can find a time that works best for you.\n\nIf you look at the bottom of your session note, you'll see when your practitioner would like to see you next.\n\nIf you'd rather I just get it on the calendar for you, I'm happy to do that too \u2014 let me know what days work!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 2.2",
+   "caution": null,
+   "handoff": false,
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "provider_late",
+   "topic": "Practitioner was late or didn't join the Zoom",
+   "keys": [
+    "didn't show",
+    "no one joined",
+    "waiting on zoom",
+    "practitioner never came",
+    "nobody joined",
+    "20 minutes",
+    "late for my appointment"
+   ],
+   "answer": "If the practitioner is <strong>more than 20 minutes late</strong>, the client reschedules at no charge. If they leave <em>before</em> the 20-minute mark, the cost still applies.",
+   "caution": "Don't apply the no-charge rule yourself \u2014 Front Desk confirms and handles it.",
+   "reply": "Hello [Name],\n\nI'm so sorry about that! Let me look into what happened and get you taken care of.\n\nI'll come back to you shortly with a new time and confirm everything on our end. Thank you for your patience with us.\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 2.4",
+   "handoff": false,
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "oat_kit",
+   "topic": "OAT kit contents, ice pack, missing vial",
+   "keys": [
+    "oat kit",
+    "amino acid vial",
+    "vial missing",
+    "ice pack",
+    "collection cup",
+    "kit contents",
+    "missing from my kit",
+    "mosaic"
+   ],
+   "answer": "The OAT is <strong>the only test needing an ice pack</strong>. Kit is <strong>urine in the collection cup only \u2014 there is no amino acid vial.</strong> The Mosaic contents sheet wrongly lists one.",
+   "caution": "Clients hold off collecting because of that sheet. Reassure them they can proceed. Flag to Emma D.",
+   "reply": "Hello [Name],\n\nThank you for checking before collecting \u2014 good instinct! You don't need an amino acid vial for this one. The OAT is just the urine sample in the collection cup, so you're not missing anything and you're clear to go ahead.\n\nThe kit contents sheet is a bit misleading there and we're getting that sorted with the lab.\n\nPlease let us know if anything else looks off and we'd be happy to help!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 3.1\u20133.2",
+   "handoff": false,
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "freeze_ship",
+   "topic": "Freezing and shipping a sample",
+   "keys": [
+    "freeze",
+    "frozen",
+    "ship it",
+    "when do i mail",
+    "collect friday",
+    "ship monday",
+    "dhl",
+    "fedex pickup",
+    "how do i send"
+   ],
+   "answer": "Collect and <strong>freeze immediately</strong>; it can stay frozen until shipping day. Collecting Friday to ship Monday is fine.",
+   "reply": "Hello [Name],\n\nGreat question! If you collect and put it straight in the freezer, you can keep it frozen until you're ready to ship \u2014 so collecting over the weekend and sending it Monday works perfectly.\n\nJust be sure the collection date and time on the sticker match when you actually collected.\n\nI hope this helps, but please let us know if you have any other questions!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 3.4",
+   "caution": null,
+   "handoff": false,
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "no_requisition",
+   "topic": "No requisition form in the kit",
+   "keys": [
+    "no requisition",
+    "requisition missing",
+    "no form in the kit",
+    "qr code",
+    "register my kit",
+    "where is my req"
+   ],
+   "answer": "There should be a <strong>QR code on the kit or box</strong> that prompts registration. Scanning and completing it replaces the paper form.",
+   "reply": "Hello [Name],\n\nNot a problem! If a requisition wasn't included, there should be a QR code on your kit or box that prompts you to register it to yourself.\n\nIf you scan that and complete the registration, you're all set \u2014 you won't need the paper form.\n\nLet us know if you can't find the code and we'll get it sorted for you!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 3.5",
+   "caution": null,
+   "handoff": false,
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "htma_form",
+   "topic": "Blanks on the HTMA form",
+   "keys": [
+    "htma form",
+    "not signed",
+    "signature blank",
+    "lab number",
+    "fill in the date",
+    "form is blank"
+   ],
+   "answer": "Client puts <strong>today's date</strong> next to the practitioner's signature and <strong>leaves the lab number blank</strong> \u2014 that field is for the lab.",
+   "reply": "Hello [Name],\n\nGreat questions! You can put today's date where it's blank next to the signature, and you can leave the lab number space blank \u2014 that one's for the lab to fill in.\n\nI hope this helps, but if you have any other questions about the form please let us know and we'd be happy to help!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 3.7",
+   "caution": null,
+   "handoff": false,
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "blood_draw",
+   "topic": "Blood draw \u2014 where to go and fasting",
+   "keys": [
+    "blood draw",
+    "quest",
+    "labcorp",
+    "where do i get my blood",
+    "fasting",
+    "fast before",
+    "phlebotomist",
+    "draw site"
+   ],
+   "answer": "Requisition to a local Quest or LabCorp. <strong>Fasting depends on the panel \u2014 don't state 12 hours as a blanket rule.</strong> Never give Quest an insurance card; the client says they already paid us. Print the requisition in case Quest can't scan a phone screen.",
+   "caution": "If the requisition doesn't state fasting, route to Emma D. Never quote the LabCorp price difference yourself.",
+   "reply": "Hello [Name],\n\nHappy to help! You'll take your Requisition Form to a local draw site. I'm confirming whether this particular panel requires fasting and will come right back to you \u2014 I don't want you fasting unnecessarily or breaking one you needed.\n\nOne thing to note: please don't give Quest your insurance card when prompted. Just let them know you've already paid us for your labs so you aren't charged a second time. It's worth printing the form too, in case they can't scan it from your phone.\n\nI'll follow up shortly!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 3.8\u20133.9",
+   "handoff": false,
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "results_timing",
+   "topic": "How long results take",
+   "keys": [
+    "how long",
+    "turnaround",
+    "when will my results",
+    "results back",
+    "still waiting",
+    "haven't gotten results",
+    "when do i get my results",
+    "received my sample"
+   ],
+   "answer": "<strong>Kit arrival: 5\u20137 business days</strong> from order. <strong>Blood: 1\u20132 weeks</strong> from draw. Urine turnaround <strong>varies by lab</strong> \u2014 Mosaic OAT 3 weeks, Vibrant TotalTox 4\u20135 weeks. Vibrant often releases a few days either side of the estimate. Reviewing at the second appointment is normal.",
+   "caution": "Don't quote one blanket figure \u2014 check which lab. Past the window, Trello card to Jasmine.",
+   "reply": "Hello [Name],\n\nGreat question! Blood panels usually come back within one to two weeks of your draw, and urine or specialty testing takes about three weeks from when the lab receives your sample.\n\nIt's also very common to review testing at your second appointment rather than your first, so if you'd prefer to keep your original date we can absolutely do that \u2014 just let us know how you'd like to proceed.\n\nEither way we'll let you know as soon as anything comes in!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 4",
+   "handoff": false,
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "labprep",
+   "topic": "Lab prep \u2014 what to avoid before collecting",
+   "keys": [
+    "before the test",
+    "before collecting",
+    "avoid before",
+    "caffeine",
+    "decaf",
+    "coffee",
+    "prep instructions",
+    "day of collection",
+    "dutch test",
+    "antibiotics before"
+   ],
+   "answer": "Only state what the <strong>lab's prep sheet</strong> says. DUTCH: <strong>avoid decaf too</strong> on collection day \u2014 it can still interfere with hormone levels. Blood: fast 12 hours, water only. Off antibiotics 48 hours before collecting.",
+   "caution": "Anything not named in the instructions gets routed. Never say whether a slip-up already made has ruined the sample, and never tell them to reschedule collection.",
+   "reply": "Hello [Name],\n\nGreat question! Decaf should be avoided as well on the day of your collection, as it can still interfere with hormone levels.\n\nIf there's anything else on your list that isn't mentioned in the instructions, let me know and I'll check on it for you rather than guess.\n\nI hope this helps \u2014 please let us know if you have any other questions!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 6",
+   "handoff": false,
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "recollect",
+   "topic": "Needs to recollect a sample",
+   "keys": [
+    "recollect",
+    "collect again",
+    "redo the test",
+    "contaminated",
+    "reishi",
+    "messed up my sample",
+    "start over"
+   ],
+   "answer": "Rinse the collection cup and let it <strong>fully air dry \u2014 no paper towels or towels</strong> (residue risk). Update the collection date and time on the sticker. New kit if they'd prefer.",
+   "reply": "Hello [Name],\n\nNo problem at all \u2014 this is fixable! If you haven't sent your sample yet, you can rinse your collection cup and let it fully air dry. Please don't use paper towels or a cloth towel, just to avoid any residue.\n\nOnce it's dry you can collect again, and you'll want to update the collection date and time on your sticker.\n\nIf you'd rather have a fresh kit sent out, just say the word and we'll get one to you!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 3.6",
+   "caution": null,
+   "handoff": false,
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "cellcore",
+   "topic": "CellCore sale / buying supplements elsewhere",
+   "keys": [
+    "cellcore",
+    "sale",
+    "discount on cellcore",
+    "buy direct",
+    "fullscript",
+    "full script",
+    "cheaper brand",
+    "canadian brand"
+   ],
+   "answer": "<strong>No CellCore discount on our e-store.</strong> Clients are welcome to buy direct from CellCore. <strong>Which</strong> supplements to buy is a practitioner question \u2014 even against a sale deadline.",
+   "reply": "Hello [Name],\n\nThat's a great question! At this time we don't offer any discounts on the CellCore products in our e-store, but you're more than welcome to purchase directly from CellCore's website if that works out better for you.\n\nAs for which supplements to get, unfortunately we can't give any medical advice here at the Front Desk \u2014 so it would be best to go over that with your practitioner to determine what makes the most sense for you right now.\n\nPlease let us know if there's anything else we can help with!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 7.2\u20137.3",
+   "caution": null,
+   "handoff": false,
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "hsa_card",
+   "topic": "Card declined on the e-store",
+   "keys": [
+    "card declined",
+    "payment failed",
+    "card not working",
+    "hsa",
+    "fsa",
+    "won't accept my card",
+    "billing address"
+   ],
+   "answer": "<strong>HSA cards are not accepted</strong> on the e-store due to IRS regulations. Other common cause: wrong billing address, especially after a move.",
+   "handoff": true,
+   "caution": "This one involves payment \u2014 hand to Front Desk. You may mention the HSA rule if asked directly, nothing further.",
+   "reply": "Hello [Name],\n\nThank you so much for reaching out. I want to ensure you get the proper support here, so I'm passing this along to the correct team member and they'll get back to you very soon.\n\nThank you for your patience with us!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 7.6",
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "international",
+   "topic": "International shipping, customs and duties",
+   "keys": [
+    "customs",
+    "duty",
+    "duties",
+    "international",
+    "canada",
+    "overseas",
+    "charged on delivery",
+    "import fee",
+    "extra charge when it arrived"
+   ],
+   "answer": "A customs slip with weight and purchase price goes on the outside of the package; invoice to the email on file. <strong>Duties charged at delivery are outside our control.</strong> If the total becomes unaffordable, escalate to Management.",
+   "caution": "Never absorb, waive, or estimate a customs charge. Acknowledge it's a real burden, then escalate.",
+   "reply": "Hello [Name],\n\nI'd be happy to look into other potential avenues to get your supplements \u2014 I completely understand where you're coming from, and that's a significant cost on top of everything else.\n\nI'll reach out to our Management team for further assistance on this and we'll be reaching back out to you as soon as we can.\n\nThank you for your patience with us!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 7.7",
+   "handoff": false,
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "labpricing",
+   "topic": "Cost of a test or lab interpretation",
+   "keys": [
+    "how much is the test",
+    "cost of the test",
+    "lab interpretation",
+    "price of dutch",
+    "totaltox",
+    "hertsmi",
+    "ermi price",
+    "testing invoice"
+   ],
+   "answer": "Front Desk only. For reference: lab interpretation $180 / 40 min Zoom \u00b7 HERTSMI-2 $130 direct from EnviroBiomics \u00b7 DUTCH Complete $499 \u00b7 TotalTox $700. We only carry the ERMI on the e-store.",
+   "handoff": true,
+   "reply": "Hello [Name],\n\nThank you so much for reaching out about this. I want to ensure you get the proper support here, so I'm passing this along to the correct team member and they'll get back to you very soon.\n\nThank you for your patience with us!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 5",
+   "caution": null,
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "insurance",
+   "topic": "Insurance, superbills and reimbursement",
+   "keys": [
+    "insurance",
+    "superbill",
+    "reimburse",
+    "itemized receipt",
+    "cover the cost",
+    "in network",
+    "out of network"
+   ],
+   "answer": "We can send a <strong>list of recommended markers</strong> for the client to take to their primary care provider for coverage, and can confirm out-of-network coverage through our office. Send the invoice regardless so they have it.",
+   "handoff": true,
+   "reply": "Hello [Name],\n\nThank you for reaching out! I want to make sure you get accurate information on this, so I'm passing it to the right team member and they'll get back to you very soon.\n\nThank you for your patience with us!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 5.3",
+   "caution": null,
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "late_cancel",
+   "topic": "Cancelled or rescheduled inside 24 hours",
+   "keys": [
+    "cancel last minute",
+    "missed my appointment",
+    "forgot my appointment",
+    "cancelled today",
+    "inside 24 hours",
+    "can you waive",
+    "one time courtesy",
+    "forfeited"
+   ],
+   "answer": "Inside 24 hours the appointment is <strong>forfeited from the care plan</strong> \u2014 not just charged. A <strong>one-time courtesy waiver</strong> exists.",
+   "caution": "Only Front Desk applies the waiver. Don't promise it. If it's granted, say it's one-time so the expectation is set.",
+   "handoff": true,
+   "reply": "Hello [Name],\n\nThank you for letting us know, and no worries at all \u2014 things happen.\n\nI'm passing this to the correct team member so they can get you rescheduled and sort out the details on our end. They'll be in touch very soon.\n\nThank you for your patience with us!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 2.1",
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "blood_pause",
+   "topic": "What to pause before a blood draw",
+   "keys": [
+    "pause before blood",
+    "stop before draw",
+    "biotin",
+    "vitamin c before",
+    "supplements before blood",
+    "48 hours before draw",
+    "st johns wort"
+   ],
+   "answer": "Lab instruction \u2014 pause <strong>48 hours</strong> before a blood draw: biotin, calcium, antacids, diuretics, St John's wort, vitamin C, L-tryptophan, 5-HTP. The lab's own exception applies: <strong>if stopping any of these would be detrimental to their health, they can continue.</strong>",
+   "caution": "State the exception too. Never tell a client whether stopping their specific medication is safe \u2014 that's the practitioner's call.",
+   "reply": "Hello [Name],\n\nGreat question! The lab asks that you pause the following for 48 hours before your draw: biotin, calcium, antacids, diuretics, St John's wort, vitamin C, L-tryptophan, and 5-HTP.\n\nThe lab also notes that if stopping any of these would be detrimental to your health, you can continue taking them \u2014 so please don't stop anything important on our account. If you're unsure about a specific one, your practitioner is the right person to check with and I'm happy to pass it along.\n\nI hope this helps!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 3.8c",
+   "handoff": false,
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "oat_shipping",
+   "topic": "How to freeze and ship the Mosaic OAT",
+   "keys": [
+    "how do i ship the oat",
+    "gel pack",
+    "thermo bag",
+    "biohazard bag",
+    "how long can it stay frozen",
+    "4 hours",
+    "viable",
+    "packing my sample"
+   ],
+   "answer": "Collection cup + gel pack (<strong>laid flat</strong>) in the freezer, <strong>minimum 4 hours</strong> before shipping. Frozen sample is <strong>viable 30 days</strong> after collection. Ship: cup \u2192 biohazard zip-lock with absorbent sheet \u2192 silver thermo bag with gel pack \u2192 cardboard kit box.",
+   "reply": "Hello [Name],\n\nHappy to walk you through it!\n\nPut the collection cup and the gel pack in the freezer, laying the gel pack flat. They need to stay frozen at least 4 hours before shipping, and you can keep them in there until you're ready to send it \u2014 your frozen sample stays viable for 30 days after collection.\n\nWhen you ship: collection cup into the biohazard zip-lock with the absorbent sheet, then the sample and frozen gel pack into the silver thermo bag, then that into the cardboard kit box.\n\nLet us know if anything's missing from your kit and we'll get it sorted!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 14",
+   "caution": null,
+   "handoff": false,
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "welcome_call",
+   "topic": "Welcome Call \u2014 booking, missing it, what it covers",
+   "keys": [
+    "welcome call",
+    "onboarding call",
+    "missed the call",
+    "unknown number called",
+    "reschedule my welcome",
+    "onboarding specialist",
+    "what happens first"
+   ],
+   "answer": "Covers scheduling the second appointment, lab instructions, and navigating the care plan. Rebooking link: <code>api.leadconnectorhq.com/widget/booking/m1zNpzbpK85jM8jsPt2T</code><br>The call comes from <strong>816-673-2421</strong>, not the main line \u2014 tell them in advance.",
+   "reply": "Hello [Name],\n\nNo problem at all! Here's a link to get your Welcome Call rescheduled: https://api.leadconnectorhq.com/widget/booking/m1zNpzbpK85jM8jsPt2T\n\nOne heads-up \u2014 the call comes from 816-673-2421, which isn't our main office number, so keep an eye out for it around your scheduled time.\n\nOn that call we'll get your second appointment booked, go over your lab instructions, and walk you through everything you need to navigate your care plan smoothly.\n\nLet us know if there's anything we can do beforehand!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 11",
+   "caution": null,
+   "handoff": false,
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "installments",
+   "topic": "Updating the card for care plan payments",
+   "keys": [
+    "update my card",
+    "change my payment method",
+    "new card",
+    "card on file",
+    "installment",
+    "autopay",
+    "payment plan card"
+   ],
+   "answer": "Care plan installments are in a <strong>separate system</strong> from the card in Practice Better \u2014 updating one doesn't update the other. Clients update installments themselves via a <strong>per-client</strong> fastpaydirect link.",
+   "caution": "The link is unique per client. Front Desk retrieves it \u2014 never reuse another client's link.",
+   "handoff": true,
+   "reply": "Hello [Name],\n\nThank you for reaching out! I want to make sure you get the right link for your account, so I'm passing this to the correct team member and they'll get back to you very soon.\n\nThank you for your patience with us!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 12",
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "after_plan",
+   "topic": "What happens after the care plan ends",
+   "keys": [
+    "after my care plan",
+    "when my plan ends",
+    "do i have to sign up again",
+    "another care plan",
+    "as needed",
+    "keep seeing"
+   ],
+   "answer": "After the initial care plan, appointments can be booked <strong>as needed</strong> rather than committing to another full plan. Loop in their New Client Advisor if they want to set that up.",
+   "reply": "Hello [Name],\n\nGreat question! After your initial care plan, you don't need to commit to another one \u2014 appointments can be scheduled as needed from there.\n\nIf that's the direction you'd like to go, I can reach out to your New Client Advisor to help get that set up for you.\n\nJust let us know and we'll take care of it!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 11.6",
+   "caution": null,
+   "handoff": false,
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "upload_labs",
+   "topic": "Uploading past labs to Practice Better",
+   "keys": [
+    "upload my labs",
+    "send you my old labs",
+    "previous test results",
+    "share my records",
+    "past labs",
+    "where do i upload"
+   ],
+   "answer": "Clients upload into Practice Better themselves; instructions can be shared in the chat. Notify Jasmine and the Lab team so they can track and share results into the Labs section of the portal.",
+   "reply": "Hello [Name],\n\nHappy to help! You can upload those directly into Practice Better \u2014 I'll share the step-by-step instructions here in the chat for you.\n\nI've also made a note for Jasmine and our Lab team so they know to look out for them, and anything they add will show up in the Labs section of your portal.\n\nLet us know if you hit any trouble with the upload and we'd be happy to help!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 8",
+   "caution": null,
+   "handoff": false,
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "newclient_rate",
+   "topic": "Cost of getting a family member started",
+   "keys": [
+    "get my daughter started",
+    "my son as a client",
+    "add my child",
+    "family member",
+    "new client cost",
+    "how much to start",
+    "link accounts"
+   ],
+   "answer": "New client rates <strong>vary by brand and are set by leadership</strong> \u2014 never quote one. Family accounts can be linked so a parent switches between profiles.",
+   "handoff": true,
+   "reply": "Hello [Name],\n\nThank you so much for reaching out about this! I want to make sure you get accurate pricing and options, so I'm passing this along to the correct team member and they'll get back to you very soon.\n\nI can tell you that we're able to link family accounts so you'd be able to switch between profiles easily.\n\nThank you for your patience with us!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 13.3\u201313.4",
+   "caution": null,
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "precall_form",
+   "topic": "Pre-call reassessment form reminder",
+   "keys": [
+    "reassessment form",
+    "pre-call form",
+    "form before my appointment",
+    "do i need to fill anything out",
+    "intake before session"
+   ],
+   "answer": "Pre-call reassessment forms must be completed <strong>before</strong> the session so the practitioner has time to review. A reminder the day before is standard.",
+   "reply": "Hello [Name],\n\nJust a gentle reminder to please complete your pre-call reassessment form before your session, so your practitioner has plenty of time to review it beforehand.\n\nYou'll find it in Practice Better \u2014 let us know if you have any trouble locating it and we'd be happy to help!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 11.5",
+   "caution": null,
+   "handoff": false,
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "collect_period",
+   "topic": "Collecting a sample while on your period",
+   "keys": [
+    "on my period",
+    "menstruating",
+    "my cycle",
+    "period started",
+    "can i collect while",
+    "time of the month"
+   ],
+   "answer": "<strong>All lab tests:</strong> do not collect while menstruating. Wait until <strong>2\u20133 days after the cycle has ended.</strong>",
+   "reply": "Hello [Name],\n\nThank you for checking first! For all of our lab tests you'll want to hold off on collecting while you're menstruating \u2014 wait until 2 to 3 days after your cycle has ended and you'll be good to go.\n\nThere's no rush on our end, so please take the time you need. Your kit will keep.\n\nPlease let us know if you have any other questions and we'd be happy to help!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 16.1",
+   "caution": null,
+   "handoff": false,
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "oat_prep_foods",
+   "topic": "OAT \u2014 what to avoid before collecting",
+   "keys": [
+    "oat prep",
+    "avoid before oat",
+    "what can't i eat",
+    "foods to avoid",
+    "reishi",
+    "echinacea",
+    "apples before test",
+    "antibiotics before oat"
+   ],
+   "answer": "Antibiotics: finish the course and <strong>wait 14 days</strong>. Avoid <strong>48 hours</strong> before: apples, grapes/raisins, pears, cranberries and anything made from them (incl. apple cider vinegar, apple pectin, wine), echinacea, reishi, arabinogalactan, ribose. Collect <strong>first morning urine before eating or drinking</strong>, minimum 10 mL.",
+   "caution": "Anything not on this list gets routed. Never say whether a slip-up has ruined the sample.",
+   "reply": "Hello [Name],\n\nHappy to share these! For the OAT:\n\nIf you're on antibiotics, finish the course and wait 14 days before collecting.\n\nFor 48 hours beforehand, avoid apples, grapes and raisins, pears, cranberries and anything made from them \u2014 including apple cider vinegar, apple pectin, and wine \u2014 plus echinacea, reishi mushrooms, arabinogalactan, and ribose supplements.\n\nOn collection day, catch your first morning urine before eating or drinking anything, and you'll need at least 10 mL.\n\nIf anything you're taking isn't on that list, let me know and I'll check rather than guess!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 16.2",
+   "handoff": false,
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "totaltox_prep",
+   "topic": "Vibrant TotalTox \u2014 prep and binder",
+   "keys": [
+    "totaltox",
+    "total tox",
+    "binder before test",
+    "viradchem",
+    "provocation",
+    "mycotoxin test prep",
+    "heavy metals test"
+   ],
+   "answer": "Binder on protocol <strong>2 days before</strong> collecting (ViRadChem on the e-store, or activated charcoal / bentonite clay). Avoid 48 hours: seafood, seaweed/kelp, dairy, Brazil nuts, anything high in iodine or selenium. <strong>Fasting not required.</strong> No more than <strong>8 oz water in the hour before.</strong>",
+   "caution": "Optional Epsom bath or sauna the night before can aid provocation \u2014 mention only as the lab's own optional note, never as advice.",
+   "reply": "Hello [Name],\n\nHappy to help! For your TotalTox collection:\n\nYou'll want a binder on your protocol consistently for at least 2 days beforehand. If you haven't met with your practitioner yet, ViRadChem is available on our e-store, and activated charcoal or bentonite clay work as well.\n\nFor 48 hours before, avoid seafood, seaweed and kelp, dairy, Brazil nuts, and other foods high in iodine or selenium. Fasting isn't required. And please don't drink more than 8 oz of water in the hour before you collect.\n\nLet us know if you have any questions about any of it!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 16.3",
+   "handoff": false,
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "fedex_return",
+   "topic": "Shipping the sample back",
+   "keys": [
+    "fedex",
+    "drop box",
+    "how do i return",
+    "mail it back",
+    "return label",
+    "schedule a pickup",
+    "ship it back"
+   ],
+   "answer": "FedEx, <strong>Monday\u2013Friday only</strong>, as soon as possible. <strong>Never a FedEx drop box.</strong> Track with the return label. Pickup via fedex.com or 1-800-463-3339.",
+   "reply": "Hello [Name],\n\nHappy to help! Send it back via FedEx as soon as you can, Monday through Friday only \u2014 and please don't put it in a FedEx drop box, as it needs to be handed over at a location or picked up.\n\nYou can take it to your nearest FedEx location, or schedule a pickup at fedex.com or by calling 1-800-463-3339.\n\nThere's a tracking number on your included return label so you can follow it back to the lab.\n\nLet us know if you need anything else!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 16.4",
+   "caution": null,
+   "handoff": false,
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "alacarte",
+   "topic": "A la carte sessions after the package is used up",
+   "keys": [
+    "a la carte",
+    "one off appointment",
+    "used all my appointments",
+    "package is done",
+    "single session",
+    "out of appointments"
+   ],
+   "answer": "Varies by practitioner. Where offered, the <strong>invoice is sent after the appointment</strong>. <strong>Not offered with Allyssa or Kristi</strong> \u2014 the alternative is reactivating the original package.",
+   "handoff": true,
+   "caution": "Never confirm a la carte availability for a practitioner not on the confirmed list. Tell clients their next session is a la carte BEFORE it happens, not after.",
+   "reply": "Hello [Name],\n\nThank you for reaching out! I want to make sure you get accurate information on what's available with your practitioner, so I'm passing this along to the correct team member and they'll get back to you very soon.\n\nThank you for your patience with us!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 17",
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  },
+  {
+   "id": "cellcore_sale",
+   "topic": "Is there a CellCore sale on",
+   "keys": [
+    "cellcore sale",
+    "private sale",
+    "promo code",
+    "is there a sale",
+    "discount right now",
+    "20% off"
+   ],
+   "answer": "CellCore private sales run periodically (20% off) with a brand-specific link. Sharing a live sale link is fine \u2014 <strong>which product to buy stays a practitioner question.</strong>",
+   "caution": "Confirm the sale is currently live before sharing a link. Never pair a sale link with a product suggestion.",
+   "reply": "Hello [Name],\n\nGreat timing on asking! Let me confirm what's currently live and I'll send you the link if there's a sale running.\n\nAs for which products to pick up, that's one for your practitioner \u2014 I don't want to guess at what fits your protocol. I'm happy to pass the question along so you can decide before the sale ends.\n\nI'll come right back to you!\n\nBest,\n[Your name]",
+   "src": "RWC Client Answer Bank \u00a7 18.5",
+   "handoff": false,
+   "url": "https://docs.google.com/document/d/PLACEHOLDER_ANSWER_BANK/edit"
+  }
+ ]
+}
