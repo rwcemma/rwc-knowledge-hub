@@ -595,8 +595,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica N
   display:inline-block; margin-top:16px; font-family:'Epilogue',sans-serif;
   font-size:14px; font-weight:600; padding:11px 18px; border-radius:8px;
   background:var(--navy); color:#fff; text-decoration:none;
+  border:none; cursor:pointer;
 }
 #panel-comms .gapbtn:hover{background:var(--navy-3)}
+#panel-comms .gapbtn:disabled{cursor:default; opacity:1}
+#panel-comms .gapbtn.done{background:var(--teal)}
+#panel-comms .gapbtn:focus-visible{outline:2px solid var(--teal); outline-offset:2px}
 
 /* boundaries */
 #panel-comms .guard{
@@ -1947,7 +1951,8 @@ const SOPS_JSON_URL = "https://raw.githubusercontent.com/rwcemma/rwc-knowledge-h
 /* Handoff script — the exact words a VA sends before passing it on. */
 const HANDOFF = "Hi [Name],\n\nThank you so much for reaching out about this. I want to ensure you get the proper support here, so I'm passing this along to the correct team member and they'll get back to you very soon.\n\nThank you for your patience with us!\n\nBest,\n[Your name]";
 
-const GAP_FORM_URL = "#"; // GHL gap-submission form
+/* Gaps post to the hub's existing Slack path (#sop-needed) via /api/sop-needed,
+   the same endpoint the SOP Assistant uses — no separate GHL form. */
 
 /* Lane C detectors run FIRST and override every other match. */
 const CLINICAL = [
@@ -2141,8 +2146,8 @@ let topics = TOPICS.slice();
 function isClinical(q){ return CLINICAL.some(r => r.test(q)); }
 function isPayment(q){ return PAYMENT.some(r => r.test(q)); }
 
-function handoffCard(tag, title, body, showGap){
-  return `<div class="result"><div class="card ${showGap?'b':'c'}">
+function handoffCard(tag, title, body, gapQ){
+  return `<div class="result"><div class="card ${gapQ?'b':'c'}">
     <div class="lane"><span class="lane-tag">${tag}</span>
       <span class="lane-topic">${title}</span></div>
     <div class="body">
@@ -2156,8 +2161,26 @@ function handoffCard(tag, title, body, showGap){
           <li>Don't add anything else, even if they follow up asking you to guess.</li>
         </ol>
       </div>
-      ${showGap?`<a class="gapbtn" href="${GAP_FORM_URL}" target="_blank" rel="noopener">Submit this question →</a>`:''}
+      ${gapQ?gapButton(gapQ):''}
     </div></div></div>`;
+}
+
+/* Gap button + Slack send — mirrors the hub's own sendGapToSlack(): POST the
+   question to /api/sop-needed, which posts it to the #sop-needed channel. */
+function gapButton(q){
+  return `<button class="gapbtn" type="button" data-gap="${esc(q)}">📤 Send this to #sop-needed</button>`;
+}
+async function sendGap(btn){
+  if(btn.dataset.sent==='1'||btn.dataset.sending==='1') return;
+  btn.dataset.sending='1'; btn.disabled=true; btn.textContent='⏳ Sending to #sop-needed…';
+  try{
+    const res = await fetch('/api/sop-needed',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:btn.dataset.gap})});
+    if(!res.ok) throw new Error('sop-needed api '+res.status);
+    btn.dataset.sent='1'; btn.dataset.sending=''; btn.classList.add('done'); btn.textContent='✅ Sent to #sop-needed';
+  }catch(e){
+    console.error('sop-needed send failed:',e);
+    btn.dataset.sending=''; btn.disabled=false; btn.textContent='❌ Couldn\'t send — tap to retry';
+  }
 }
 
 function score(q, t){
@@ -2216,7 +2239,7 @@ function render(q){
             <li>Submit the question below so it becomes an SOP and nobody has to ask twice.</li>
           </ol>
         </div>
-        <a class="gapbtn" href="${GAP_FORM_URL}" target="_blank" rel="noopener">Submit this question →</a>
+        ${gapButton(q)}
       </div></div></div>`;
     wire(); return;
   }
@@ -2261,6 +2284,7 @@ function wire(){
   document.querySelectorAll('#out .chip').forEach(c => c.onclick = () => {
     document.getElementById('q').value = c.dataset.q; go();
   });
+  document.querySelectorAll('#panel-comms [data-gap]').forEach(b => b.onclick = () => sendGap(b));
 }
 
 function go(){
