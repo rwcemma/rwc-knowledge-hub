@@ -63,6 +63,46 @@ Every earlier version had a single point of failure that took down everything el
 - `?bbdebug=1` paints **its own fixed panel** via `document.createElement`, so it does
   not depend on any page element. A blank page can never again mean "no information".
 
+### Fetching products — the `handle` filter trap
+
+**`products(query:"handle:para-1-cellcore OR ...")` does NOT work on the Storefront API.**
+`handle` is not a supported filter field there (supported: `product_type`, `tag`,
+`tag_not`, `title`, `updated_at`, `variants.price`, `vendor`, ...). Shopify **silently
+ignores** unknown filters and returns everything, so that query returned the first 20 of
+the store's 327 products. Symptom in the debug strip:
+
+```
+loaded 20 products
+grid rendered 20 cards
+hero: no matching products, static fallback kept
+```
+
+The shop grid looked fine because add-to-cart and the modal work on any product — it was
+quietly selling the wrong 20 items, and the hero correctly found no Para handles.
+
+Note `handle:` **does** work in the **Admin** API, which is what masked this: Admin
+queries run from the tooling kept returning exactly the right 4 products.
+
+`bb-store v8` fetches deterministically, with two paths:
+
+1. **Primary** — aliased `product(handle:)` using GraphQL *variables*, so no quoting is
+   needed in the query string: `query($h0:String!...){p0:product(handle:$h0){...}}`.
+2. **Fallback** — `nodes(ids:)` with hardcoded product ids, if the primary returns
+   nothing or errors. Version-stable and immune to filter syntax entirely.
+
+Verified product ids (Admin API):
+
+| Handle | Product id |
+|---|---|
+| `para-1-cellcore` | `gid://shopify/Product/4573257007201` |
+| `para-2-cellcore` | `gid://shopify/Product/4573257039969` |
+| `para-3-cellcore` | `gid://shopify/Product/4573257105505` |
+| `para-kit` | `gid://shopify/Product/6782540349537` |
+
+Results are then filtered to `HANDLES` and sorted into `HANDLES` order, so even a
+too-broad response can never render the wrong products again. The debug strip reports
+which path was used and exactly which handles resolved.
+
 ### Card contract
 
 All cards are rendered by the footer script. Cards carry `data-bb-handle="<handle>"`, and
