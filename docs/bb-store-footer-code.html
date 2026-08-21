@@ -1,22 +1,23 @@
 <script>
-/* bb-store v9 - lives in SITE FOOTER custom code, not an embed.
+/* bb-store v10 - lives in SITE FOOTER custom code, not an embed.
    Embeds hold markup + CSS only. Failures are isolated so one missing
    element cannot take down the rest. ?bbdebug=1 paints its own panel. */
 (function () {
   var DOMAIN  = 'dr-jaban-moore-store.myshopify.com';
   var TOKEN   = 'TOKENPLACEHOLDER';
   var API     = 'https://' + DOMAIN + '/api/2026-07/graphql.json';
-  var HANDLES = ['para-1-cellcore', 'para-2-cellcore', 'para-3-cellcore', 'para-kit'];
-  var HERO    = ['para-1-cellcore', 'para-2-cellcore', 'para-3-cellcore'];
+  var HANDLES = ['para-1-cellcore', 'para-2-cellcore', 'para-3-cellcore', 'para-4', 'para-kit'];
+  var HERO    = ['para-1-cellcore', 'para-2-cellcore', 'para-3-cellcore', 'para-4'];
   // Fallback ids, same order as HANDLES. Verified via Admin API.
   var IDS     = ['gid://shopify/Product/4573257007201',
                  'gid://shopify/Product/4573257039969',
                  'gid://shopify/Product/4573257105505',
+                 'gid://shopify/Product/6750255612001',
                  'gid://shopify/Product/6782540349537'];
   // Hero promo sticker. Set BADGE to '' to remove it everywhere.
   var BADGE   = '20%';
   var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
-  var VERSION = 'v9';
+  var VERSION = 'v10';
 
   var byHandle = {};
   var cartId = null;

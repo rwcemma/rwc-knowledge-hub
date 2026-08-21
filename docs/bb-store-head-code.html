@@ -1,0 +1,15 @@
+<style>
+/* BB hero fold tightening. Overrides Webflow class styles for .bb-hero.
+   Kept here (site head custom code) rather than in Designer styles so it is
+   editable via the Data API. */
+.bb-hero{min-height:0 !important;height:auto !important;padding-top:60px !important;padding-bottom:60px !important;}
+/* Push the remaining CTA further away from the Para product cards. */
+.bb-cta{margin-top:46px !important;}
+@media screen and (max-width:991px){
+  .bb-hero{padding-top:46px !important;padding-bottom:46px !important;}
+  .bb-cta{margin-top:34px !important;}
+}
+/* Featured store grid: auto-fit so any product count lays out cleanly
+   instead of leaving a lone card on its own row. */
+#bb-store{grid-template-columns:repeat(auto-fit,minmax(200px,1fr)) !important;}
+</style>

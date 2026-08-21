@@ -27,7 +27,8 @@ Enterprise, so page branching is unavailable — edit pages directly.
 
 | Piece | Location |
 |---|---|
-| **All JavaScript** | **Site footer custom code** (Project Settings → Custom Code → Footer). `bb-store v7`. |
+| **All JavaScript** | **Site footer custom code** (Project Settings → Custom Code → Footer). `bb-store v10`. |
+| **Layout CSS overrides** | **Site head custom code** — `.bb-hero` fold height, `.bb-cta` spacing, `#bb-store` auto-fit grid. Mirrored as `bb-store-head-code.html`. |
 | Store markup + CSS | Embed `7c7f9b41-49f9-eda7-a3c5-f289f9bfec5c` — `#bb-store`, cart drawer, modal, all CSS. **No script.** |
 | Hero container | Embed `d7a7c63a-ebc1-c926-210b-2c7da0e8115c` — `#bbp` + static `<a>` fallback cards + CSS. **No script.** |
 | Hero eyebrow badge | Embed `95c7e548-b7da-2e0f-a368-8d2c7cb9f05a` |
@@ -256,6 +257,42 @@ choice. If a shorter blurb is wanted, add a metafield in Shopify instead of cutt
 and logs to the console: products loaded, whether the hero rendered, each `addToCart`,
 and specifically whether an add click found its `[data-bb-handle]` ancestor and a loaded
 product. That last pair is what to check first if a button ever goes inert again.
+
+## Hero layout decisions
+
+- **Hero fold tightened** via site head CSS: `.bb-hero` forced to `min-height:0; height:auto`
+  with 60px vertical padding (46px under 991px). The Webflow class had its own height; the
+  override lives in head custom code so it stays editable through the Data API rather than
+  needing the Designer.
+- **"Shop the Full Moon Cleanse" button hidden** (`d110f857-…-68c0c3ccf471`, visibility
+  false — not deleted, so it is reversible). Only "Learn Why Parasites Matter" remains,
+  pushed down with `.bb-cta{margin-top:46px}`.
+- **Para 4 added** to the hero stack and the featured grid. Hero is now 4 cards, sized down
+  to 164px wide / 124px images so four fit without regrowing the fold.
+- Featured grid uses `repeat(auto-fit,minmax(200px,1fr))` so it never leaves one card
+  stranded on its own row regardless of product count.
+
+### Product reference
+
+| Handle | Product id | Price |
+|---|---|---|
+| `para-1-cellcore` | `gid://shopify/Product/4573257007201` | $46.95 |
+| `para-2-cellcore` | `gid://shopify/Product/4573257039969` | $53.95 |
+| `para-3-cellcore` | `gid://shopify/Product/4573257105505` | $53.95 |
+| `para-4` | `gid://shopify/Product/6750255612001` | $62.95 |
+| `para-kit` | `gid://shopify/Product/6782540349537` | — |
+
+## Outstanding
+
+- **"Made in Webflow" badge** — cannot be removed through the Data API. It needs a paid
+  Site Plan (present) plus toggling Webflow branding off in **Project Settings → General**,
+  then republishing. Hiding it with CSS is possible but may breach Webflow's terms, so it
+  was not done.
+- **Full store below the fold** — requested, not yet built. Needs a decision on scope
+  (whole catalog with paging vs a curated detox collection).
+- **20% discount** — Emma is creating it in Shopify herself. The badge is live in the
+  meantime.
+- SEO/meta still empty; "Meet Your Practitioner" still hidden.
 
 ## Decisions already made
 
