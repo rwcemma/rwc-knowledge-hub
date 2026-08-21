@@ -27,7 +27,7 @@ Enterprise, so page branching is unavailable — edit pages directly.
 
 | Piece | Location |
 |---|---|
-| **All JavaScript** | **Site footer custom code** (Project Settings → Custom Code → Footer). `bb-store v12`. |
+| **All JavaScript** | **Site footer custom code** (Project Settings → Custom Code → Footer). `bb-store v13`. |
 | **Layout CSS overrides** | **Site head custom code** — `.bb-hero` fold height, `.bb-cta` spacing, `#bb-store` auto-fit grid. Mirrored as `bb-store-head-code.html`. |
 | Store markup + CSS | Embed `7c7f9b41-49f9-eda7-a3c5-f289f9bfec5c` — `#bb-store`, cart drawer, modal, all CSS. **No script.** |
 | Hero container | Embed `d7a7c63a-ebc1-c926-210b-2c7da0e8115c` — `#bbp` + static `<a>` fallback cards + CSS. **No script.** |
@@ -302,6 +302,34 @@ The shop area now has two grids, both fed by the same footer script and sharing 
 - Both grids use the same `.bbp` card markup and the same delegated click handling, so
   add-to-cart and the modal work identically in both.
 - The promo sticker stays hero-only — catalogue cards do not carry it.
+
+## Brand separation from Dr. Jaban
+
+This Shopify store is shared with Dr. Jaban, and **Shopify defaults a product's `vendor`
+to the shop name** when no brand is set. The shop was created as "Dr Jaban Moore - Store",
+so 69 of 384 products carry `vendor: "Dr Jaban Moore - Store"` — and only about half of
+those are actually Jaban-branded. The rest are generic stock that merely inherited the
+default: resistance bands, kinesiology tape, drainage/gut bundles, wellness kits, gift card.
+
+So two separate mechanisms, deliberately not one:
+
+```js
+var HIDE_WORDS   = ['jaban'];                                  // drop the product entirely
+var VENDOR_ALIAS = { 'dr jaban moore - store': 'Other' };       // just relabel the brand
+```
+
+- `isHidden(p)` — matches `jaban` in **title or handle**, case-insensitive, and drops the
+  product from the catalogue. Catches "Dr. Jaban's Full Moon Cleanse", the Month 1/2/3
+  programs, the notebook, water bottle, courses, and the Jaban-handled gift card.
+- `vendorOf(p)` — maps that default vendor to **"Other"**. Every place vendor is used
+  (dropdown, brand filter, search, brand sort) goes through it, so `Dr Jaban Moore - Store`
+  can never appear as a brand option while the generic products stay sellable.
+
+Filtering by *vendor* instead would have deleted the bands, tape and bundles too. If that
+is actually wanted, add `'dr jaban moore - store'` to a vendor-level hide list rather than
+widening `HIDE_WORDS`.
+
+`HIDE_WORDS` is a plain substring list, so more terms can be added without touching logic.
 
 ## Catalogue search, brand filter and sort
 
