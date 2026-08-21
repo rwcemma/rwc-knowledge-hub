@@ -58,6 +58,23 @@ await new Promise(r => srv.listen(PORT, r));
 const browser = await chromium.launch({ executablePath: findChromium() });
 const BANK = readFileSync(join(ROOT, 'answer-bank.json'), 'utf8');
 
+/* The fallback only runs on Lane B, so these fixtures have to BE gaps. Adding
+   a keyword can quietly turn one into a confident match and make every
+   assertion below fail for the wrong reason — so verify against the matcher
+   itself and say so plainly rather than reporting a phantom regression. */
+const M = createRequire(import.meta.url)(join(ROOT, 'public/comms-matcher.js'));
+const { topics: MT } = M.mergeTopics(JSON.parse(BANK).templates);
+const GAP_Q = 'its been three weeks and i still have nothing';
+const GAP_Q2 = 'the freezer thing how does that work';
+for (const [name, q] of [['GAP_Q', GAP_Q], ['GAP_Q2', GAP_Q2]]) {
+  const lane = M.classify(q, MT).lane;
+  if (lane !== 'gap') {
+    console.error(`fixture ${name} ("${q}") now resolves to "${lane}", not a gap.`);
+    console.error('Pick a phrase the keyword matcher still misses, or these tests prove nothing.');
+    process.exit(1);
+  }
+}
+
 let fails = 0;
 const check = (name, cond, extra = '') => {
   if (!cond) fails++;
@@ -105,7 +122,7 @@ async function session(mode, classifyReply, { deadApi = false } = {}) {
 console.log('\n── shadow mode (the default)');
 {
   const s = await session('shadow', { id: 'results_timing', reason: 'asks about turnaround' });
-  const r = await s.ask('any update on my labs');
+  const r = await s.ask(GAP_Q);
   check('gap card is what the VA sees', r.tag === 'Not documented', r.tag);
   check('no answer text leaks into it', !/three weeks|one to two weeks/i.test(r.body));
   check('classifier was consulted', s.classifyCalls.length === 1);
@@ -134,7 +151,7 @@ console.log('\n── shadow mode (the default)');
 console.log('\n── on mode');
 {
   const s = await session('on', { id: 'results_timing', reason: 'asks about turnaround' });
-  const r = await s.ask('any update on my labs');
+  const r = await s.ask(GAP_Q);
   check('renders the classifier pick', r.tag === 'You can answer' && /results take/i.test(r.topic), r.topic);
   check('flagged to the VA as matched by meaning', /Matched from your wording/.test(r.body));
   check('the reply is the STORED one, not generated', /Blood panels usually come back/.test(r.reply));
@@ -159,12 +176,12 @@ console.log('\n── on mode, classifier picks a Front Desk rule');
 console.log('\n── on mode, bad classifier output');
 {
   const s = await session('on', { id: 'totally-made-up-rule', reason: 'hallucinated' });
-  const r = await s.ask('the freezer thing how does that work');
+  const r = await s.ask(GAP_Q2);
   check('an id we never offered falls back to the gap card', r.tag === 'Not documented', r.tag);
   await s.pg.close();
 
   const s2 = await session('on', { id: null, reason: 'no match' });
-  const r2 = await s2.ask('the freezer thing how does that work');
+  const r2 = await s2.ask(GAP_Q2);
   check('null falls back to the gap card', r2.tag === 'Not documented', r2.tag);
   check('gap button still offered', (await s2.pg.locator('#panel-comms .gapbtn').count()) === 1);
   check('no page errors', s2.errs.length === 0, s2.errs.join('|'));
@@ -177,7 +194,7 @@ console.log('\n── /api/* unreachable');
   const s = await session('on', null, { deadApi: true });
   const a = await s.ask('where do i order my supplements');
   check('keyword answers survive a dead API', a.tag === 'You can answer', a.tag);
-  const g = await s.ask('any update on my labs');
+  const g = await s.ask(GAP_Q);
   check('gaps survive a dead classifier', g.tag === 'Not documented', g.tag);
   check('no page errors', s.errs.length === 0, s.errs.join('|'));
   await s.pg.close();

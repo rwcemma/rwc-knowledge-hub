@@ -32,7 +32,10 @@ const HARD_CLINICAL = [
   /\b(symptom|symptoms|flare|flaring|herx|die.?off|detox reaction|healing crisis)\b/i,
   /\b(pain|hurting|nausea|nauseous|headache|migraine|dizzy|dizziness|rash|swelling|swollen|fatigue|exhausted|insomnia|palpitation)\b/i,
   /\b(should i (take|stop|pause|start|keep|continue|try|increase|decrease|double)|can i (take|stop|pause|mix|combine))\b/i,
-  /\b(dose|dosage|how much should i|how many should i|mg\b|twice a day|with food)\b/i,
+  /\b(dose|dosage|how much should i|how many should i|twice a day|with food|empty stomach)\b/i,
+  /\d\s*-?\s*\d*\s*(mg|mcg|ml|iu|grams?)\b/i,   // "2-3mg of melatonin" has no \b before mg
+  /\b\d+\s*(caps?|capsules?|tabs?|tablets?|pills?|scoops?|drops?|pumps?|sprays?)\b/i,
+  /\b(caps?|capsules?|tablets?|pills?|scoops?|drops?)\s+(daily|a day|per day|every day|each day|twice)\b/i,
   /\b(advil|tylenol|ibuprofen|motrin|aspirin|benadryl|zyrtec|claritin|prescription)\b/i,
   /\b(is (this|that|it) normal|is (this|that) (bad|serious|concerning)|should i be worried|worse|getting worse)\b/i,
   /\bwhat (do|does) (my|the|this|that) [a-z0-9 ]{0,25}\b(result|results|lab|labs|number|numbers|level|levels|value|values|marker|markers) mean\b/i,
@@ -52,17 +55,53 @@ const SOFT_CLINICAL = [
 /* Collection / testing context that releases a SOFT match. */
 const PREP_CONTEXT = /\b(test|testing|collect|collecting|collection|sample|specimen|draw|kit|urine|stool|panel|requisition|fast|fasting)\b/i;
 
+/* Combination detectors: each fires only when EVERY pattern matches. Both of
+   these were found in the real chat corpus falling through to Lane B — safe,
+   because a gap still hands off, but labelled "undocumented" when they are in
+   fact questions no one here may answer. */
+const SUBSTANCE = /\b(cleanse|detox|protocol|binder|supplement|supplements|medication|meds?|herb|herbs|tincture|drops|capsule|suppositor\w*|probiotic|melatonin|glutathione|charcoal|bentonite|wormwood|black walnut|clove|cloves|steroid|prednisone|antibiotic|antibiotics|cellcore|viradchem|nanoglut|boswellia|a-?fng)\b/i;
+
+const COMBO_CLINICAL = [
+  /* "I'm mid parasite cleanse — should I wait to do the labs?" Answer Bank § 6:
+     never tell a client whether a deviation invalidated a sample and never tell
+     them whether to reschedule a collection. Requires a named substance, so the
+     documented menstruation timing rule (§ 16.1) stays answerable. */
+  {
+    name: 'delay-collection-around-a-substance',
+    all: [
+      SUBSTANCE,
+      /\b(wait|hold off|holding off|delay|postpone|push (it|them|this) back|reschedule)\b/i,
+      /\b(lab|labs|test|testing|collect|collecting|collection|sample|draw|bloodwork|blood work)\b/i
+    ]
+  },
+  /* "Am I supposed to do the boric suppositories for 7 days and then the
+     probiotic?" — protocol sequencing is the practitioner's call. */
+  {
+    name: 'protocol-sequencing',
+    all: [
+      SUBSTANCE,
+      /\b(am i supposed to|do i keep|do i continue|how long do i|how many days|then do the|along with the|at the same time|before or after|first or)\b/i
+    ]
+  }
+];
+
 /* "Take the test" is not "take a substance". Neutralised before the
    clinical patterns run so the can-i-take verb form doesn't misfire. */
 const TAKE_A_TEST = /\b(take|taking|do|doing) (the|this|my|a|that) (test|oat|dutch|htma|panel|kit|sample|draw|collection|labs?)\b/gi;
 
+/* "Sorry to be a pain" is an apology, not a symptom. Only the article forms
+   preceded by be/being/such/what are neutralised — "I have a pain in my side"
+   and "a pain in my knee" still read as symptoms, which is the point. */
+const PAIN_IDIOM = /\b(be|being|such|what) a pain\b/gi;
+
 function clinicalProbe(q) {
-  return String(q).replace(TAKE_A_TEST, 'perform $2 $3');
+  return String(q).replace(TAKE_A_TEST, 'perform $2 $3').replace(PAIN_IDIOM, '$1 a nuisance');
 }
 
 function isClinical(q) {
   const probe = clinicalProbe(q);
   if (HARD_CLINICAL.some(r => r.test(probe))) return true;
+  if (COMBO_CLINICAL.some(c => c.all.every(r => r.test(probe)))) return true;
   if (!SOFT_CLINICAL.some(r => r.test(probe))) return false;
   /* Soft-only hit: release it when the question is plainly about a test or
      a collection, where the prep rules are documented and quotable. */
@@ -90,7 +129,12 @@ const STOP = new Set(('a an the and or but if is are was were be been being am i
   'you your he she it its they them their this that these those to of in on at for with from by as so ' +
   'than then here there theres when where what which who how why do does did doing have has had will ' +
   'would shall may might must could should can go going just also any some yet about into again more ' +
-  'most very really please thanks thank hi hello hey ok okay one been').split(' '));
+  'most very really please thanks thank hi hello hey ok okay one been ' +
+  /* Pure filler. Added after a real message matched the cellcore_sale key
+     "discount right now" on nothing but "right" and "now" — high-frequency
+     words that carry no intent but still accumulate score. */
+  'right now anything something everything thing things sorry actually maybe ' +
+  'probably well much many lot bit cuz gonna wanna').split(' '));
 
 function normalize(s) {
   return String(s == null ? '' : s)
@@ -333,9 +377,27 @@ const BUNDLED_TOPICS = [
    overwritten nightly — a fix written into that file would not survive.
    Anything added here should be migrated to the Doc and then deleted. */
 const KEY_AUGMENTS = {
-  results_timing: ['when will my kit arrive', 'kit arrive', 'when does my kit ship', 'waiting on my kit', 'kit hasnt arrived', 'kit still hasnt come'],
+  results_timing: ['when will my kit arrive', 'kit arrive', 'when does my kit ship', 'waiting on my kit', 'kit hasnt arrived', 'kit still hasnt come',
+    'any update on my labs', 'any update on my results', 'update on my results', 'update on my testing'],
   oat_prep_foods: ['on antibiotics', 'antibiotics before the test', 'can i test on antibiotics', 'taking antibiotics'],
-  newclient_rate: ['add my daughter', 'add my son', 'add my daughter as a client', 'my daughter as a client', 'get my son started', 'start my child']
+  newclient_rate: ['add my daughter', 'add my son', 'add my daughter as a client', 'my daughter as a client', 'get my son started', 'start my child'],
+
+  /* Every entry below was taken from a real client message in the Aug 2026
+     chat export that fell through to Lane B while the right rule existed.
+     Phrased as the client wrote it, not as we would. */
+  reschedule: ['is there anything sooner', 'anything sooner', 'next day available', 'next available',
+    'does she have time on', 'do you have anything the week of', 'anything open', 'any openings',
+    'change my appt', 'move my appt', 'what times are available', 'what is her next opening',
+    'cant make it wednesday', 'is thursday open'],
+  selfbook: ['set up an appointment', 'schedule another appointment', 'get scheduled', 'book my second appointment',
+    'appointment with my practitioner', 'second meeting', 'schedule my next appointment'],
+  blood_draw: ['send me the order', 'send me the orders', 'send that form so i can get labs drawn',
+    'send me the form', 'when will i have the requisition', 'when will i have the lab requisition',
+    'which location', 'closest location', 'closer to me', 'do you send the order to the lab',
+    'print the requisition', 'the one with the barcode', 'where do i go for the draw'],
+  fedex_return: ['send my sample back', 'sending my sample back', 'getting my sample sent off'],
+  welcome_call: ['how do i get started with my onboarding', 'get started with onboarding',
+    'onboarding appointment', 'access my onboarding']
 };
 
 /* Bundled entries the Answer Bank now covers better. Dropped on merge so the
@@ -345,18 +407,25 @@ const KEY_AUGMENTS = {
      refund     → payment lane catches it before rule matching runs */
 const SUPERSEDED = new Set(['turnaround', 'labprep', 'refund']);
 
+function withAugments(t) {
+  const add = KEY_AUGMENTS[t.id];
+  if (!add) return t;
+  const keys = (t.keys || []).slice();
+  for (const k of add) if (!keys.includes(k)) keys.push(k);
+  return Object.assign({}, t, { keys: keys });
+}
+
 /* Answer Bank first (canonical), bundled FAQ topics only where they add an
-   id the compile doesn't emit. Returns {topics, added}. */
+   id the compile doesn't emit. Augments apply to BOTH — several of the
+   phrasings found in the real chat export belong to bundled rules such as
+   `reschedule`, and applying them to the fetched bank alone silently dropped
+   them. Returns {topics, added}. */
 function mergeTopics(fetched) {
-  const bank = (Array.isArray(fetched) ? fetched.filter(Boolean) : []).map(t => {
-    const add = KEY_AUGMENTS[t.id];
-    if (!add) return t;
-    const keys = (t.keys || []).slice();
-    for (const k of add) if (!keys.includes(k)) keys.push(k);
-    return Object.assign({}, t, { keys: keys });
-  });
+  const bank = (Array.isArray(fetched) ? fetched.filter(Boolean) : []).map(withAugments);
   const have = new Set(bank.map(t => t.id));
-  const extra = BUNDLED_TOPICS.filter(t => !have.has(t.id) && !SUPERSEDED.has(t.id));
+  const extra = BUNDLED_TOPICS
+    .filter(t => !have.has(t.id) && !SUPERSEDED.has(t.id))
+    .map(withAugments);
   return { topics: bank.concat(extra), added: extra.length };
 }
 
@@ -396,7 +465,7 @@ function classify(q, topics) {
 
 return {
   BUNDLED_TOPICS, SUPERSEDED, KEY_AUGMENTS, mergeTopics,
-  HARD_CLINICAL, SOFT_CLINICAL, PAYMENT,
+  HARD_CLINICAL, SOFT_CLINICAL, COMBO_CLINICAL, PAYMENT,
   isClinical, isPayment, normalize, stem, allTokens, contentTokens,
   idfFor, score, classify,
   CONFIDENCE_FLOOR, ALT_WINDOW

@@ -44,7 +44,7 @@ node tests/matcher.test.mjs      # matching accuracy — -v for scores and runne
 node tests/fallback.e2e.mjs      # guardrails in a real browser (skips without Playwright)
 ```
 
-The unit suite covers 18 match cases plus 12 lane guards. The e2e suite covers
+The unit suite covers 26 match cases plus 19 lane guards. The e2e suite covers
 the wiring: that clinical and money questions never reach the classifier, that
 the classifier can only surface a stored reply, that a hallucinated rule id
 falls back to the gap card, and that the tab still works with the API down.
@@ -84,6 +84,28 @@ access-controlled base.
 
 Log table columns: `Question` (text), `Lane` (text), `Matched Rule` (text),
 `Score` (number), `LLM Rule` (text), `LLM Reason` (text), `Mode` (text).
+
+### Measured against real traffic
+
+Benchmarked against the Aug 2026 Clinic Support export — 20 sessions, 233 client
+messages, of which 127 are actual lookups (the rest are conversational turns
+like "yes, the 18th works", which nobody types into the tab):
+
+| Outcome | Share |
+|---|---|
+| VA can answer it | 47% |
+| Correctly routed to Front Desk (money, clinical, Front Desk rule) | 31% |
+| No rule covers it | 22% |
+
+The 22% is mostly genuine SOP gaps, not matcher failures — supplement order
+status, Practice Better navigation, and ordering an extra test for a family
+member have no rule anywhere. Those need SOPs written, not keywords added.
+
+Separately, on 24 hand-written paraphrases of five documented topics the
+keyword matcher resolves **13**. Corpus-derived keywords moved that from 12 to
+13 — which is the point: keyword tuning fixes the phrasings you have already
+seen and does almost nothing for the ones you haven't. That is what the AI
+fallback and the query log are for.
 
 ### Improving matching
 
