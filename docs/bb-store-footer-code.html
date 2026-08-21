@@ -1,5 +1,5 @@
 <script>
-/* bb-store v8 - lives in SITE FOOTER custom code, not an embed.
+/* bb-store v9 - lives in SITE FOOTER custom code, not an embed.
    Embeds hold markup + CSS only. Failures are isolated so one missing
    element cannot take down the rest. ?bbdebug=1 paints its own panel. */
 (function () {
@@ -13,8 +13,10 @@
                  'gid://shopify/Product/4573257039969',
                  'gid://shopify/Product/4573257105505',
                  'gid://shopify/Product/6782540349537'];
+  // Hero promo sticker. Set BADGE to '' to remove it everywhere.
+  var BADGE   = '20%';
   var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
-  var VERSION = 'v8';
+  var VERSION = 'v9';
 
   var byHandle = {};
   var cartId = null;
@@ -75,7 +77,12 @@
     var img = p.featuredImage ? p.featuredImage.url : '';
     var label = v.availableForSale === false ? 'Sold out' : 'Add to Cart';
     if (kind === 'hero') {
-      return '<div class="c" data-bb-handle="' + p.handle + '">' +
+      var badge = BADGE ? '<div class="bb-off" aria-hidden="true">' +
+        '<svg viewBox="0 0 40 22"><path d="M4 15q5-10 10 0t10 0" fill="none" stroke="#ffd7ec" ' +
+        'stroke-width="4.5" stroke-linecap="round"/><circle cx="28" cy="13" r="5.4" fill="#ffd7ec"/>' +
+        '<circle cx="30.4" cy="11.2" r="1.3" fill="#a01e60"/></svg>' +
+        '<b>' + BADGE + '</b><span>OFF</span></div>' : '';
+      return '<div class="c" data-bb-handle="' + p.handle + '">' + badge +
              '<img src="' + img + '" alt="' + esc(p.title) + '">' +
              '<div class="n">' + esc(p.title) + '</div>' +
              '<span class="p">' + money(v.price) + '</span>' +

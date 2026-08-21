@@ -63,6 +63,27 @@ Every earlier version had a single point of failure that took down everything el
 - `?bbdebug=1` paints **its own fixed panel** via `document.createElement`, so it does
   not depend on any page element. A blank page can never again mean "no information".
 
+### Hero promo sticker (`.bb-off`)
+
+A magenta circular sticker with a worm graphic sits on each **hero** card, top-right,
+rotated ~12deg. It is drawn as inline SVG + CSS, **not** baked into the product images —
+so the percentage can change without re-exporting artwork, and it stays crisp at any size.
+
+- Text controlled by `var BADGE = '20%';` in the footer script. Set `BADGE = ''` to remove
+  the sticker everywhere.
+- Styles live in the hero embed CSS as `#bbp .bb-off`.
+- `pointer-events:none`, so it never blocks a click on the card underneath.
+- Deliberately **absent** from the static fallback cards: if the store is unreachable those
+  link to synergizedsupps.com, which would not honour a BB discount.
+- Shop-grid cards do not carry it, only the hero.
+
+**⚠ The discount is not configured in Shopify.** As of this writing there is no 20%
+discount on the store. Active codes: `DRJABAN25` (25%), several `PLATINUM*` practitioner
+codes (10%), `DRB5` (5%). No automatic discount. The sticker is a marketing claim that
+checkout will not honour until someone either creates a 20% discount or changes `BADGE`
+to match an existing one. Prices shown on the page are always live from Shopify and are
+NOT reduced by the sticker.
+
 ### Fetching products — the `handle` filter trap
 
 **`products(query:"handle:para-1-cellcore OR ...")` does NOT work on the Storefront API.**
