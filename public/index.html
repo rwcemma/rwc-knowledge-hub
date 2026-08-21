@@ -1937,14 +1937,22 @@ function scrollBot(){const el=document.getElementById('chatMessages');setTimeout
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
 </script>
 
+<script src="comms-matcher.js"></script>
 <script>
 /* ─────────────────────────────────────────────────────────────
-   Client Communication tab. Entire script wrapped in an IIFE so
-   its names (esc, score, render, go, topics, TOPICS, CLINICAL,
-   PAYMENT, etc.) stay local and never collide with the hub's
-   globals (the hub has its own esc(), for one).
+   Client Communication tab. Wrapped in an IIFE so its names stay
+   local and never collide with the hub's globals (the hub has its
+   own esc(), for one).
+
+   Lane routing and rule matching live in comms-matcher.js — shared
+   with the standalone copy and covered by tests/matcher.test.mjs.
+   This file is presentation only: it must never decide a lane and
+   must never generate reply text.
    ───────────────────────────────────────────────────────────── */
 (function(){
+if(!window.RWCComms){ console.error('comms-matcher.js did not load — Client Communication tab disabled'); return; }
+const CC = window.RWCComms;
+
 /* CONFIG — points at the answer-bank.json the daily sync updates. */
 const SOPS_JSON_URL = "https://raw.githubusercontent.com/rwcemma/rwc-knowledge-hub/main/answer-bank.json";
 
@@ -1954,197 +1962,38 @@ const HANDOFF = "Hi [Name],\n\nThank you so much for reaching out about this. I 
 /* Gaps post to the hub's existing Slack path (#sop-needed) via /api/sop-needed,
    the same endpoint the SOP Assistant uses — no separate GHL form. */
 
-/* Lane C detectors run FIRST and override every other match. */
-const CLINICAL = [
-  /\b(symptom|symptoms|flare|flaring|herx|die.?off|detox reaction|healing crisis)\b/i,
-  /\b(pain|hurting|nausea|nauseous|headache|migraine|dizzy|dizziness|rash|swelling|swollen|fatigue|exhausted|insomnia|palpitation)\b/i,
-  /\b(should i (take|stop|pause|start|keep|continue|try|increase|decrease|double)|can i (take|stop|pause|mix|combine))\b/i,
-  /\b(dose|dosage|how much should i|how many should i|mg\b|twice a day|with food)\b/i,
-  /\b(advil|tylenol|ibuprofen|motrin|aspirin|benadryl|zyrtec|claritin|antibiotic|prescription)\b/i,
-  /\b(is (this|that|it) normal|is (this|that) (bad|serious|concerning)|should i be worried|worse|getting worse)\b/i,
-  /\b(what do my (results|labs|numbers) mean|explain my (results|labs)|is my .{0,20}(high|low|normal))\b/i,
-  /\b(feeling (worse|awful|terrible|off)|reacting to|reaction to|side effect)\b/i
-];
+/* Bundled FAQ topics only, until the fetch lands. */
+let topics = CC.mergeTopics([]).topics;
 
-/* Payment detectors — any money question goes to Front Desk. */
-const PAYMENT = [
-  /\b(invoice|charge|charged|billing|bill|refund|refunded|payment|paid|pay|price|pricing|cost|costs|rate|subscription|card declined|failed payment|overcharged|discount)\b/i,
-  /\$\s?\d/,
-  /\b(\d{2,4})\s?(dollars|usd)\b/i
-];
-
-/* Bundled Lane A topics — sourced from the Front Desk & Labs SOPs. */
-const TOPICS = [
-  {
-    id:"reschedule", topic:"Rescheduling or cancelling an appointment",
-    keys:["reschedule","rescheduling","cancel","cancelling","move my appointment","change my appointment","can't make","cannot make","different time","another day"],
-    answer:"We need <strong>24 hours' notice</strong> to reschedule or cancel at no charge. They can do it themselves in Practice Better, or we can do it for them.",
-    caution:"If they're inside 24 hours, don't mention fees in your reply — check with Front Desk first.",
-    reply:"Hello [Name],\n\nI'd be happy to help get that moved for you — no need to keep wrestling with it on your end.\n\nCould you let me know a couple of days or times that work best? Once I have those I'll get you back on the schedule and send a confirmation.\n\nPlease let us know if there's anything else we can help with!\n\nBest,\n[Your name]",
-    src:"RWC Client FAQ — Appointment Scheduling, No-Shows & Add-On Appointments",
-    url:"https://docs.google.com/document/d/16SPq5ugNYr01YWHiESGmBe1itJuoixwA7JN_ini0AUM/edit"
-  },
-  {
-    id:"cantbook", topic:"Client can't find where to book",
-    keys:["can't book","cannot book","no availability showing","nothing to book","booking link","can't find where","not letting me book","won't let me schedule","request a session"],
-    answer:"Usually their <strong>package hasn't been set up in Practice Better yet</strong> — a client can't self-book until it is.",
-    caution:"Check the package first, then contact Emma Moore to get it set up. Don't tell the client it's a system error until you know.",
-    reply:"Hello [Name],\n\nThank you for letting us know! I'm looking into why that isn't showing up for you — this is on our end to sort out, not something you did wrong.\n\nI'll get it fixed and confirm with you as soon as you're able to book. If you'd rather I just schedule it for you in the meantime, I'm happy to do that — let me know what days work best.\n\nBest,\n[Your name]",
-    src:"RWC Client FAQ — Appointment Scheduling, No-Shows & Add-On Appointments",
-    url:"https://docs.google.com/document/d/16SPq5ugNYr01YWHiESGmBe1itJuoixwA7JN_ini0AUM/edit"
-  },
-  {
-    id:"turnaround", topic:"How long lab results take",
-    keys:["how long","turnaround","when will my results","results back","still waiting for results","haven't gotten results","how long do results take","when do i get my results"],
-    answer:"<strong>Blood panel:</strong> about 1 week after the draw.<br><strong>Specialty testing</strong> (OAT, HTMA, Total Tox, Neural Zoomer, hormones): about 3 weeks after they ship the sample.",
-    caution:"Turnaround is set by the lab — we can't speed it up. Past the window, make a Trello card for Jasmine (Labs).",
-    reply:"Hello [Name],\n\nGreat question! For specialty testing like this, results usually take around three weeks from the time your sample reaches the lab. Blood panels are quicker — closer to a week after your draw.\n\nWe'll keep an eye on it from our side, and if it goes past that window we'll reach out to the lab directly to check on it. Either way we'll let you know as soon as anything comes in.\n\nI hope this helps, but please let us know if you have any other questions!\n\nBest,\n[Your name]",
-    src:"RWC Client FAQ — Labs & Results, Health Coaching, Chat Access & Supplements",
-    url:"https://docs.google.com/document/d/1IjHABAelPb4DulCfVVpCb9vnCRc3phoIfEI8kJ-2Plo/edit"
-  },
-  {
-    id:"notreviewed", topic:"Results are in but the provider hasn't reviewed them",
-    keys:["results are in","got my results","results uploaded","when will the doctor look","has the doctor seen","reviewed my results"],
-    answer:"Their provider reviews results <strong>with them at the appointment</strong>. They already have access to the documents in Practice Better.",
-    caution:"Do not comment on anything in the results — not even that they look fine. If they have no upcoming appointment, help them book one.",
-    reply:"Hello [Name],\n\nThank you for checking in! Your results are in your Practice Better portal, so you're welcome to look at them anytime.\n\nYour provider will walk through everything with you at your appointment — they like to review results alongside your symptoms and history so you're connecting all the dots together rather than looking at numbers on their own.\n\nPlease let us know if you have any questions in the meantime!\n\nBest,\n[Your name]",
-    src:"RWC Client FAQ — Labs & Results, Health Coaching, Chat Access & Supplements",
-    url:"https://docs.google.com/document/d/1IjHABAelPb4DulCfVVpCb9vnCRc3phoIfEI8kJ-2Plo/edit"
-  },
-  {
-    id:"retest", topic:"Why they need to re-run labs they already have",
-    keys:["already had that test","why do i need to test again","recent results","did this test last year","retest","test again","already have labs"],
-    answer:"Three valid reasons: results are <strong>too old</strong> to reflect their current state, it was the <strong>wrong panel</strong> (we prefer Mosaic OAT), or it's a <strong>new baseline</strong> to track progress.",
-    reply:"Hello [Name],\n\nThat's a fair question! There are a few reasons we may re-run testing. Sometimes previous results are old enough that they no longer reflect what's happening now, and sometimes a different lab or panel was used than the ones our providers work with.\n\nAnd in a lot of cases it's about getting a fresh baseline so your provider can actually measure your progress as you move through your protocol.\n\nIt's less about repeating work and more about making sure your provider has the right data to build an accurate plan. Let us know if you have any other questions!\n\nBest,\n[Your name]",
-    src:"RWC Client FAQ — Labs & Results, Health Coaching, Chat Access & Supplements",
-    url:"https://docs.google.com/document/d/1IjHABAelPb4DulCfVVpCb9vnCRc3phoIfEI8kJ-2Plo/edit"
-  },
-  {
-    id:"addon", topic:"Extra or add-on appointments",
-    keys:["extra appointment","additional appointment","see the doctor more","more appointments","add on appointment","another appointment cost","see her sooner"],
-    answer:"Extra appointments are available, but pricing varies by provider and this involves an invoice — <strong>Front Desk handles it</strong>.",
-    caution:"Never mention chat access — not every plan includes provider chat. Do not quote a price.",
-    handoff:true,
-    reply:"Hello [Name],\n\nThank you so much for reaching out! I want to ensure you get the proper support here, so I'm passing this along to the correct team member and they'll get back to you very soon with everything you need.\n\nThank you for your patience with us!\n\nBest,\n[Your name]",
-    src:"RWC Client FAQ — Appointment Scheduling, No-Shows & Add-On Appointments",
-    url:"https://docs.google.com/document/d/16SPq5ugNYr01YWHiESGmBe1itJuoixwA7JN_ini0AUM/edit"
-  },
-  {
-    id:"chattime", topic:"How long until a provider replies in chat",
-    keys:["chat response","how long for a reply","no response in chat","haven't heard back","provider hasn't replied","messaged my provider","response time"],
-    answer:"Reply windows depend on the plan, and <strong>not every client has provider chat</strong>. Confirm what this client actually has before saying anything about chat.",
-    caution:"Never state a response time or reference chat access you have not confirmed for this client. Hand off.",
-    handoff:true,
-    reply:"Hello [Name],\n\nThank you so much for reaching out about this. I want to ensure you get the proper support here, so I'm passing this along to the correct team member and they'll get back to you very soon.\n\nThank you for your patience with us!\n\nBest,\n[Your name]",
-    src:"RWC Client FAQ — Labs & Results, Health Coaching, Chat Access & Supplements",
-    url:"https://docs.google.com/document/d/1IjHABAelPb4DulCfVVpCb9vnCRc3phoIfEI8kJ-2Plo/edit"
-  },
-  {
-    id:"chatpaused", topic:"Chat access stopped working",
-    keys:["can't message","chat not working","can't send a message","chat is locked","lost chat access","chat disabled"],
-    answer:"Chat send access is paused when a care plan is paused — they keep read access to everything. <strong>Christian</strong> handles pausing and unpausing.",
-    caution:"If the chat is paused but the plan is active, flag Christian and Emma Lile via Trello.",
-    reply:"Hello [Name],\n\nThanks for flagging that! Let me look into your chat access and get it sorted out.\n\nJust so you know, nothing you've sent or received is ever deleted — you'll still have all of your previous messages and information there.\n\nI'll confirm with you as soon as it's working again. Please let us know if there's anything else we can help with in the meantime!\n\nBest,\n[Your name]",
-    src:"RWC Client FAQ — Labs & Results, Health Coaching, Chat Access & Supplements",
-    url:"https://docs.google.com/document/d/1IjHABAelPb4DulCfVVpCb9vnCRc3phoIfEI8kJ-2Plo/edit"
-  },
-  {
-    id:"estore", topic:"E-store account activation email",
-    keys:["activation email","activate my account","never got the email","account activation","can't log into the store","store password","set up my store account"],
-    answer:"Resend the activation email — subject line <strong>\"Customer account activation\"</strong>. Tell them to check spam.",
-    reply:"Hello [Name],\n\nSure thing! I'm sorry that activation email never made it to you — I've just sent it over again, so it may take a minute to show up.\n\nOur emails do sometimes land in the spam or junk folder, so it's worth a peek there if you don't see it. The subject line will say \"Customer account activation.\"\n\nIf it still doesn't turn up, let us know and we'll get it resent!\n\nBest,\n[Your name]",
-    src:"RWC Client FAQ — Failed Payments, Card Issues, Onboarding & First Appointment Questions",
-    url:"https://docs.google.com/document/d/1wdIcmogVvhQj-6EhQRfPV8Y1ydctfOGA4782VJAd__I/edit"
-  },
-  {
-    id:"wherebuy", topic:"Where to order supplements",
-    keys:["where do i order","where do i buy","supplement store","store link","discount code","where to get my supplements"],
-    answer:"Store: <strong>synergizedsupps.com/collections/all</strong><br>Discount code: <strong>HEALTH</strong>",
-    reply:"Hello [Name],\n\nHappy to help! You can find your supplements here: https://synergizedsupps.com/collections/all\n\nUse code HEALTH at checkout for your discount. Everything recommended in your protocol should be available there.\n\nLet us know if you have any trouble finding something and we'd be happy to help!\n\nBest,\n[Your name]",
-    src:"RWC Client FAQ — Labs & Results, Health Coaching, Chat Access & Supplements",
-    url:"https://docs.google.com/document/d/1IjHABAelPb4DulCfVVpCb9vnCRc3phoIfEI8kJ-2Plo/edit"
-  },
-  {
-    id:"notinstore", topic:"A supplement isn't on the e-store",
-    keys:["not on the store","can't find the supplement","out of stock","don't carry","special order","not in your store"],
-    answer:"It may be a specialty product we don't stock. Send the <strong>special order form</strong> → we quote it → they pay the invoice → we order it.",
-    caution:"⚠️ The special order form link is still unconfirmed. Pass this to Front Desk rather than sending a link you're unsure of.",
-    reply:"Hello [Name],\n\nThank you for reaching out! That one isn't in our standard store, but we can often special order it for you.\n\nI'm getting you the right form to fill out so we can quote it for the quantity you need. Once you're happy with the quote and the invoice is paid, we'll place the order on your behalf.\n\nI'll follow up shortly with that link!\n\nBest,\n[Your name]",
-    src:"RWC Client FAQ — Labs & Results, Health Coaching, Chat Access & Supplements",
-    url:"https://docs.google.com/document/d/1IjHABAelPb4DulCfVVpCb9vnCRc3phoIfEI8kJ-2Plo/edit"
-  },
-  {
-    id:"amazon", topic:"They found it cheaper on Amazon",
-    keys:["amazon","cheaper somewhere else","cheaper online","found it for less","why so expensive"],
-    answer:"We advise against Amazon — <strong>quality, potency, and purity can't be verified</strong> there. Acknowledge that cost matters, but be clear quality affects how well the protocol works.",
-    reply:"Hello [Name],\n\nI completely understand wanting to keep costs down, and I'm glad you asked before ordering!\n\nWe do steer clients away from Amazon for supplements, because Amazon doesn't regulate what's sold on the platform — there's no way to verify the quality, potency, or purity of what actually arrives. Our store products are sourced and quality-controlled so you know exactly what you're getting.\n\nDon't hesitate to reach out if cost is a concern and we'll see what we can do to help!\n\nBest,\n[Your name]",
-    src:"RWC Client FAQ — Labs & Results, Health Coaching, Chat Access & Supplements",
-    url:"https://docs.google.com/document/d/1IjHABAelPb4DulCfVVpCb9vnCRc3phoIfEI8kJ-2Plo/edit"
-  },
-  {
-    id:"refund", topic:"Refund timing",
-    keys:["refund","money back","when will i be refunded","refunded yet","cancel my order"],
-    answer:"Anything involving money goes to <strong>Front Desk</strong>. Do not quote refund timing, amounts, or process.",
-    caution:"Never confirm a refund has been issued, and never quote an amount or a timeframe.",
-    handoff:true,
-    reply:"Hello [Name],\n\nThank you so much for reaching out. I want to ensure you get the proper support here, so I'm passing this along to the correct team member and they'll get back to you very soon.\n\nThank you for your patience with us!\n\nBest,\n[Your name]",
-    src:"SOP: Calculating Refunds on Paused or Cancelled Care Plans",
-    url:"https://docs.google.com/document/d/18oJi1rGFx6tt_ZbP4Kq3KxfE3NXDDAJk5TqUFvsDlNA/edit"
-  },
-  {
-    id:"inperson", topic:"In-person vs virtual appointments",
-    keys:["in person","in-person","come to the office","visit the office","office location","see you in person","virtual or in person","drive to"],
-    answer:"Availability differs by provider — <strong>don't assume the provider they want offers in-person</strong>. Check the office location SOP, and confirm before promising anything.",
-    caution:"If they've also proposed a specific date and time, confirm that separately — don't let it get lost while you answer the in-person part.",
-    reply:"Hello [Name],\n\nThank you for reaching out! Let me confirm what's available for in-person visits with your provider and I'll come right back to you.\n\nI've also made a note of the day and time you mentioned so we don't lose it — I'll confirm that with you at the same time.\n\nI'll follow up shortly!\n\nBest,\n[Your name]",
-    src:"Dr. Jaban Office Location & In-Person vs. Virtual Appointment Availability",
-    url:"https://docs.google.com/document/d/1t0NJFkRTVZ6vz8h3WjLKSfuJfVPJ-Uq2kO26VQTiD8U/edit"
-  },
-  {
-    id:"labprep", topic:"Lab prep — what to avoid before collecting",
-    keys:["before the test","before collecting","avoid before","caffeine","decaf","coffee","fast before","fasting","can i eat","prep instructions","day of collection","dutch test"],
-    answer:"You can answer <strong>only what the lab's own prep sheet says</strong>. Example: for DUTCH, decaf should also be avoided on the day of collection — it can still interfere with hormone levels.",
-    caution:"If the product or food isn't named in the prep instructions, hand off. Never say whether a slip-up already made has ruined the sample, and never tell them to reschedule collection.",
-    reply:"Hello [Name],\n\nGreat question! Decaf should be avoided as well on the day of your collection, as it can still interfere with hormone levels.\n\nIf anything else on your list isn't mentioned in the instructions, let me know and I'll check on it for you rather than guess.\n\nI hope this helps — please let us know if you have any other questions!\n\nBest,\n[Your name]",
-    src:"RWC Client FAQ — Labs & Results, Health Coaching, Chat Access & Supplements",
-    url:"https://docs.google.com/document/d/1IjHABAelPb4DulCfVVpCb9vnCRc3phoIfEI8kJ-2Plo/edit"
-  },
-  {
-    id:"coach", topic:"Never heard from their health coach",
-    keys:["health coach","never heard from my coach","haven't met my coach","who is my coach","coach hasn't reached out"],
-    answer:"Confirm their plan includes coaching, then contact the coach directly and notify management.",
-    caution:"Never tell the client the coach dropped the ball. Say someone will be reaching out shortly — then make sure it happens.",
-    reply:"Hello [Name],\n\nThank you for letting us know, and I'm sorry for the wait!\n\nI'm reaching out to your health coach now so they can get in touch with you about next steps. You should be hearing from them shortly.\n\nI'll follow up to make sure that happens. Please let us know if there's anything else we can help with in the meantime!\n\nBest,\n[Your name]",
-    src:"RWC Client FAQ — Labs & Results, Health Coaching, Chat Access & Supplements",
-    url:"https://docs.google.com/document/d/1IjHABAelPb4DulCfVVpCb9vnCRc3phoIfEI8kJ-2Plo/edit"
-  }
-];
-
-let topics = TOPICS.slice();
-
-/* ── load synced library if configured ── */
+/* ── load synced library ── */
 (async function load(){
-  const t = document.getElementById('syncTxt'), d = document.querySelector('#sync .dot');
-  if(!SOPS_JSON_URL){
-    d.classList.add('stale');
-    t.textContent = 'Running on bundled topics — set SOPS_JSON_URL to use the daily sync';
-    return;
-  }
+  const t = document.getElementById('syncTxt'), d = document.querySelector('#panel-comms #sync .dot');
   try{
     const r = await fetch(SOPS_JSON_URL, {cache:'no-store'});
     if(!r.ok) throw new Error(r.status);
     const j = await r.json();
-    if(Array.isArray(j.templates) && j.templates.length) topics = j.templates;
-    t.textContent = 'SOP library synced' + (j.lastSync ? ' · ' + j.lastSync : '');
+    const m = CC.mergeTopics(j.templates);
+    if(!m.topics.length) throw new Error('answer bank empty');
+    topics = m.topics;
+    d.classList.remove('stale');
+    t.textContent = 'Answer Bank synced' + (j.lastSync ? ' · ' + j.lastSync : '') +
+      ' · ' + (j.templates||[]).length + ' rules' + (m.added ? ' + ' + m.added + ' FAQ topics' : '');
   }catch(e){
+    console.error('answer-bank fetch failed:', e);
     d.classList.add('stale');
-    t.textContent = 'Could not reach the synced library — using bundled topics. Verify anything policy-related.';
+    t.textContent = 'Could not reach the Answer Bank — running on ' + topics.length +
+      ' bundled FAQ topics only. Verify anything policy-related before you send it.';
   }
 })();
 
-/* ── matching ── */
-function isClinical(q){ return CLINICAL.some(r => r.test(q)); }
-function isPayment(q){ return PAYMENT.some(r => r.test(q)); }
+/* ── rendering ── */
+function esc(x){ return String(x).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function replyBlock(text){
+  return `<div class="h">Reply you can paste</div>
+    <div class="reply">${esc(text)}</div>
+    <button class="copy" data-copy="${esc(text)}">Copy reply</button>`;
+}
 
 function handoffCard(tag, title, body, gapQ){
   return `<div class="result"><div class="card ${gapQ?'b':'c'}">
@@ -2183,75 +2032,61 @@ async function sendGap(btn){
   }
 }
 
-function score(q, t){
-  const s = q.toLowerCase();
-  let n = 0;
-  for(const k of t.keys){
-    if(s.includes(k.toLowerCase())) n += k.split(' ').length * 3;
-  }
-  const words = s.split(/\W+/).filter(w => w.length > 3);
-  for(const w of words){
-    if(t.keys.some(k => k.toLowerCase().includes(w))) n += 1;
-    if(t.topic.toLowerCase().includes(w)) n += 1;
-  }
-  return n;
-}
-
-function esc(x){ return x.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-
-function replyBlock(text, cls){
-  return `<div class="h">Reply you can paste</div>
-    <div class="reply">${esc(text)}</div>
-    <button class="copy" data-copy="${esc(text)}">Copy reply</button>`;
-}
-
-function render(q){
-  const out = document.getElementById('out');
-
-  /* Lane C first — always wins */
-  if(isClinical(q)){
-    out.innerHTML = handoffCard('Hand off', 'This one goes to the Front Desk team',
-      'This touches something clinical — symptoms, dosing, a product, or what a result means. <strong>Don\'t answer any part of it</strong>, even if you\'re fairly sure. Send the reply below, then hand it over.<br><br>If it\'s about a supplement or protocol, Front Desk will also point them to their Support Specialist chat — you don\'t need to mention it.');
-    wire(); return;
-  }
-
-  if(isPayment(q)){
-    out.innerHTML = handoffCard('Front Desk only', 'Anything involving money',
-      'Invoices, charges, pricing, refunds, subscriptions, wrong amounts — all of it goes to Front Desk. <strong>Don\'t quote a figure, confirm a refund, or adjust anything</strong>, even if you can see what the right answer is.');
-    wire(); return;
-  }
-
-  const ranked = topics.map(t => ({t, n:score(q, t)})).filter(x => x.n > 0).sort((a,b) => b.n - a.n);
-
-  /* Lane B — nothing matched */
-  if(!ranked.length){
-    out.innerHTML = `<div class="result"><div class="card b">
+function gapCard(q){
+  return `<div class="result"><div class="card b">
       <div class="lane"><span class="lane-tag">Not documented</span>
-        <span class="lane-topic">No SOP covers this yet</span></div>
+        <span class="lane-topic">No rule covers this yet</span></div>
       <div class="body">
-        <div class="answer">Nothing in the library answers this. <strong>Don't piece an answer together</strong> — an invented policy is harder to undo than a short wait.</div>
+        <div class="answer">Nothing in the library answers this with enough confidence. <strong>Don't piece an answer together</strong> — an invented policy is harder to undo than a short wait.</div>
         ${replyBlock(HANDOFF)}
         <div class="next">
           <div class="h">Then do this</div>
           <ol>
             <li>Send the reply above.</li>
             <li>Leave the message marked as <strong>UNREAD</strong> for Front Desk.</li>
-            <li>Submit the question below so it becomes an SOP and nobody has to ask twice.</li>
+            <li>Send the question below so it becomes an SOP and nobody has to ask twice.</li>
           </ol>
         </div>
         ${gapButton(q)}
       </div></div></div>`;
+}
+
+function render(q){
+  const out = document.getElementById('out');
+  const r = CC.classify(q, topics);
+
+  /* Lane C — clinical. Always first, always wins, never shows an answer. */
+  if(r.lane === 'clinical'){
+    out.innerHTML = handoffCard('Hand off', 'This one goes to the Front Desk team',
+      'This touches something clinical — symptoms, dosing, a product, or what a result means. <strong>Don\'t answer any part of it</strong>, even if you\'re fairly sure. Send the reply below, then hand it over.<br><br>If it\'s about a supplement or protocol, Front Desk will also point them to their Support Specialist chat — you don\'t need to mention it.');
     wire(); return;
   }
 
-  const t = ranked[0].t;
-  if(t.handoff){
+  /* Lane C — money. */
+  if(r.lane === 'payment'){
+    out.innerHTML = handoffCard('Front Desk only', 'Anything involving money',
+      'Invoices, charges, pricing, refunds, subscriptions, wrong amounts — all of it goes to Front Desk. <strong>Don\'t quote a figure, confirm a refund, or adjust anything</strong>, even if you can see what the right answer is.');
+    wire(); return;
+  }
+
+  /* Lane B — nothing matched, or nothing matched confidently enough. */
+  if(r.lane === 'gap'){
+    out.innerHTML = gapCard(q);
+    wire(); return;
+  }
+
+  const t = r.topic;
+
+  /* Matched, but the rule itself is Front Desk only. */
+  if(r.lane === 'handoff'){
     out.innerHTML = handoffCard('Front Desk only', esc(t.topic),
       t.answer + (t.caution ? '<br><br><strong>' + esc(t.caution) + '</strong>' : ''));
     wire(); return;
   }
-  const alts = ranked.slice(1,3).map(x =>
-    `<button class="chip" data-q="${esc(x.t.keys[0])}">${esc(x.t.topic)}</button>`).join('');
+
+  /* Lane A. */
+  const alts = (r.alternates||[]).filter(a => a.keys && a.keys[0]).map(a =>
+    `<button class="chip" data-q="${esc(a.keys[0])}">${esc(a.topic)}</button>`).join('');
 
   out.innerHTML = `<div class="result"><div class="card">
     <div class="lane"><span class="lane-tag">You can answer</span>
@@ -2281,7 +2116,7 @@ function wire(){
       const s = getSelection(); s.removeAllRanges(); s.addRange(r);
     }
   });
-  document.querySelectorAll('#out .chip').forEach(c => c.onclick = () => {
+  document.querySelectorAll('#panel-comms #out .chip').forEach(c => c.onclick = () => {
     document.getElementById('q').value = c.dataset.q; go();
   });
   document.querySelectorAll('#panel-comms [data-gap]').forEach(b => b.onclick = () => sendGap(b));
@@ -2306,7 +2141,7 @@ const STARTERS = [
 ];
 document.getElementById('chips').innerHTML = STARTERS.map(
   ([label,q]) => `<button class="chip" data-q="${esc(q)}">${esc(label)}</button>`).join('');
-document.querySelectorAll('#chips .chip').forEach(c => c.onclick = () => {
+document.querySelectorAll('#panel-comms #chips .chip').forEach(c => c.onclick = () => {
   document.getElementById('q').value = c.dataset.q; go();
 });
 })();
