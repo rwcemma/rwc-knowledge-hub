@@ -27,7 +27,7 @@ Enterprise, so page branching is unavailable — edit pages directly.
 
 | Piece | Location |
 |---|---|
-| **All JavaScript** | **Site footer custom code** (Project Settings → Custom Code → Footer). `bb-store v10`. |
+| **All JavaScript** | **Site footer custom code** (Project Settings → Custom Code → Footer). `bb-store v11`. |
 | **Layout CSS overrides** | **Site head custom code** — `.bb-hero` fold height, `.bb-cta` spacing, `#bb-store` auto-fit grid. Mirrored as `bb-store-head-code.html`. |
 | Store markup + CSS | Embed `7c7f9b41-49f9-eda7-a3c5-f289f9bfec5c` — `#bb-store`, cart drawer, modal, all CSS. **No script.** |
 | Hero container | Embed `d7a7c63a-ebc1-c926-210b-2c7da0e8115c` — `#bbp` + static `<a>` fallback cards + CSS. **No script.** |
@@ -282,14 +282,34 @@ product. That last pair is what to check first if a button ever goes inert again
 | `para-4` | `gid://shopify/Product/6750255612001` | $62.95 |
 | `para-kit` | `gid://shopify/Product/6782540349537` | — |
 
+## Two shop sections
+
+The shop area now has two grids, both fed by the same footer script and sharing one cart:
+
+| Container | What it holds |
+|---|---|
+| `#bb-store` | **Featured Full Moon Cleanse** — Para 1-4 + the Kit, from `HANDLES`. |
+| `#bb-all` | **"Shop the rest of the store"** — the rest of the catalogue, paged 50 at a time. |
+
+- `#bb-all` deliberately **excludes** anything in `HANDLES`, so featured products are not
+  duplicated below.
+- Paging uses Storefront cursors (`products(first:50, after:$after)`); the `#bb-all-more`
+  button loads the next page and hides itself when `hasNextPage` is false.
+- Catalogue cards are fetched with **light fields only** (no `descriptionHtml`, no extra
+  images). When a modal opens for one, `openModalByHandle()` fetches that single product's
+  description on demand. This keeps paging ~300 products cheap while the modal still shows
+  full copy. Featured products already carry descriptions, so they never re-fetch.
+- Both grids use the same `.bbp` card markup and the same delegated click handling, so
+  add-to-cart and the modal work identically in both.
+- The promo sticker stays hero-only — catalogue cards do not carry it.
+
 ## Outstanding
 
 - **"Made in Webflow" badge** — cannot be removed through the Data API. It needs a paid
   Site Plan (present) plus toggling Webflow branding off in **Project Settings → General**,
   then republishing. Hiding it with CSS is possible but may breach Webflow's terms, so it
   was not done.
-- **Full store below the fold** — requested, not yet built. Needs a decision on scope
-  (whole catalog with paging vs a curated detox collection).
+- ~~Full store below the fold~~ — **built.** See "Two shop sections" below.
 - **20% discount** — Emma is creating it in Shopify herself. The badge is live in the
   meantime.
 - SEO/meta still empty; "Meet Your Practitioner" still hidden.

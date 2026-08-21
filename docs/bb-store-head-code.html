@@ -11,5 +11,7 @@
 }
 /* Featured store grid: auto-fit so any product count lays out cleanly
    instead of leaving a lone card on its own row. */
-#bb-store{grid-template-columns:repeat(auto-fit,minmax(200px,1fr)) !important;}
+/* NOTE: do not add a #bb-store grid rule here. The store embed owns that layout
+   including its mobile breakpoints, and an !important rule here would override
+   them. */
 </style>

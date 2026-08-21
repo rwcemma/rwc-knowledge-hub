@@ -1,5 +1,5 @@
 <script>
-/* bb-store v10 - lives in SITE FOOTER custom code, not an embed.
+/* bb-store v11 - lives in SITE FOOTER custom code, not an embed.
    Embeds hold markup + CSS only. Failures are isolated so one missing
    element cannot take down the rest. ?bbdebug=1 paints its own panel. */
 (function () {
@@ -17,7 +17,7 @@
   // Hero promo sticker. Set BADGE to '' to remove it everywhere.
   var BADGE   = '20%';
   var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
-  var VERSION = 'v10';
+  var VERSION = 'v11';
 
   var byHandle = {};
   var cartId = null;
@@ -164,6 +164,61 @@
     });
   }
 
+  // ---- Full catalog ("shop the rest of the store") ----
+  // Light fields only: descriptions and extra images are fetched on demand when
+  // a modal opens, so paging 300+ products stays cheap.
+  var ALL_PF = 'id title handle featuredImage{url altText} variants(first:1){nodes{id price{amount currencyCode} availableForSale}}';
+  var allCursor = null, allDone = false, allLoading = false;
+
+  function loadCatalogPage() {
+    if (allDone || allLoading) { return; }
+    allLoading = true;
+    var btn = $('bb-all-more');
+    if (btn) { btn.textContent = 'Loading...'; btn.disabled = true; }
+    gql('query($after:String){products(first:50,after:$after){pageInfo{hasNextPage endCursor} nodes{' + ALL_PF + '}}}',
+        { after: allCursor })
+      .then(function (res) {
+        allLoading = false;
+        if (btn) { btn.textContent = 'Load more'; btn.disabled = false; }
+        if (res.json && res.json.errors) { dbg('catalog errors: ' + JSON.stringify(res.json.errors)); return; }
+        var conn = res.json && res.json.data && res.json.data.products;
+        if (!conn) { dbg('catalog: no products connection'); return; }
+        allCursor = conn.pageInfo.endCursor;
+        allDone = !conn.pageInfo.hasNextPage;
+        var fresh = (conn.nodes || []).filter(function (p) {
+          return p && p.variants && p.variants.nodes.length &&
+                 HANDLES.indexOf(p.handle) === -1 && !byHandle[p.handle];
+        });
+        fresh.forEach(function (p) { byHandle[p.handle] = p; });
+        var wrap = $('bb-all');
+        if (wrap) {
+          wrap.insertAdjacentHTML('beforeend', fresh.map(function (p) { return card(p, 'grid'); }).join(''));
+        }
+        if (btn && allDone) { btn.style.display = 'none'; }
+        dbg('catalog +' + fresh.length + (allDone ? ' (complete)' : ' (more available)'));
+      })
+      .catch(function (e) {
+        allLoading = false;
+        if (btn) { btn.textContent = 'Load more'; btn.disabled = false; }
+        dbg('catalog fetch failed: ' + (e && e.message ? e.message : e));
+      });
+  }
+
+  // Catalog cards ship without descriptions; fill one in before opening its modal.
+  function openModalByHandle(h) {
+    var p = byHandle[h];
+    if (!p) { return; }
+    if (p.descriptionHtml !== undefined) { openModal(p); return; }
+    gql('query($id:ID!){node(id:$id){... on Product{descriptionHtml images(first:4){nodes{url altText}}}}}', { id: p.id })
+      .then(function (r) {
+        var n = r.json && r.json.data && r.json.data.node;
+        p.descriptionHtml = (n && n.descriptionHtml) || '';
+        if (n && n.images) { p.images = n.images; }
+        openModal(p);
+      })
+      .catch(function () { p.descriptionHtml = ''; openModal(p); });
+  }
+
   safe('boot placeholder', function () {
     var grid = $('bb-store');
     if (grid) { grid.innerHTML = '<div class="bb-empty">Loading products&hellip;</div>'; }
@@ -182,6 +237,7 @@
     dbg('resolved ' + items.length + ' of ' + HANDLES.length + ' wanted: ' + items.map(function (p) { return p.handle; }).join(', '));
     safe('renderGrid', function () { renderGrid(items); });
     safe('renderHero', function () { renderHero(); });
+    safe('catalog', function () { loadCatalogPage(); });
   }).catch(function (e) {
     report('Store temporarily unavailable.', 'fetch() threw, never reached Shopify (bad hostname, CORS, CSP, extension, offline). Detail: ' + (e && e.message ? e.message : e));
   });
@@ -294,6 +350,7 @@
     var t = ev.target;
     if (!t || !t.closest) { return; }
 
+    if (t.closest('#bb-all-more')) { ev.preventDefault(); loadCatalogPage(); return; }
     if (t.closest('#bb-cart-toggle')) { openCart(); return; }
     if (t.closest('#bb-cart-close') || t.id === 'bb-cart-backdrop') { closeCart(); return; }
     if (t.closest('#bb-modal-close') || t.id === 'bb-modal-backdrop') { closeModal(); return; }
@@ -319,8 +376,8 @@
 
     var c = t.closest('[data-bb-handle]');
     if (!c) { return; }
-    var p = byHandle[c.getAttribute('data-bb-handle')];
-    if (p) { ev.preventDefault(); openModal(p); }
+    var h = c.getAttribute('data-bb-handle');
+    if (byHandle[h]) { ev.preventDefault(); openModalByHandle(h); }
   });
 
   document.addEventListener('keydown', function (ev) {

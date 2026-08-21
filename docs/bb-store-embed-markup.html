@@ -1,7 +1,17 @@
-<!-- bb-store markup v7 - MARKUP + CSS ONLY. The JavaScript lives in PAGE FOOTER custom code.
+<!-- bb-store markup v11 - MARKUP + CSS ONLY.
+     The JavaScript lives in SITE FOOTER custom code (Project Settings > Custom Code).
      Do NOT add a script here - embed script serialization proved unreliable.
-     Append ?bbdebug=1 for detail. Do NOT add a second script or cart drawer. -->
+     #bb-store  = featured Full Moon Cleanse products (Para 1-4 + Kit)
+     #bb-all    = the rest of the catalogue, paged 50 at a time via #bb-all-more -->
 <div id="bb-store"></div>
+
+<div id="bb-all-wrap">
+  <h3 class="bb-all-h">Shop the rest of the store</h3>
+  <p class="bb-all-sub">Everything else in the dispensary, straight from our Shopify catalogue.</p>
+  <div id="bb-all"></div>
+  <div class="bb-all-foot"><button id="bb-all-more" type="button">Load more</button></div>
+</div>
+
 <div id="bb-cart-toggle" aria-label="Open cart">&#128722; <span id="bb-cart-count">0</span></div>
 <div id="bb-cart-backdrop"></div>
 <aside id="bb-cart-drawer" aria-hidden="true">
@@ -20,17 +30,23 @@
 </div>
 
 <style>
-#bb-store{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;max-width:1100px;margin:0 auto;font-family:Montserrat,sans-serif;}
-#bb-store .bbp{background:#fff;border:1px solid #ecdfe6;border-radius:16px;padding:20px 18px 18px;text-align:center;display:flex;flex-direction:column;box-shadow:0 8px 24px rgba(21,79,97,.10);cursor:pointer;transition:transform .15s ease,box-shadow .15s ease;}
-#bb-store .bbp:hover{transform:translateY(-4px);box-shadow:0 14px 32px rgba(160,30,96,.20);}
-#bb-store .bbp img{width:100%;height:180px;object-fit:contain;margin-bottom:12px;}
-#bb-store .bbp .t{font-weight:700;font-size:18px;color:#7c2a68;margin-bottom:4px;}
-#bb-store .bbp .pr{font-size:15px;color:#4a5a63;margin-bottom:6px;}
-#bb-store .bbp .lm{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#a01e60;margin-bottom:14px;}
-#bb-store .bbp button{margin-top:auto;background:#E5397F;color:#fff;font-family:Montserrat,sans-serif;font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase;padding:12px 16px;border:none;border-radius:40px;cursor:pointer;transition:background .15s;}
-#bb-store .bbp button:hover{background:#B0286F;}
+#bb-store,#bb-all{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:22px;max-width:1100px;margin:0 auto;font-family:Montserrat,sans-serif;}
+#bb-store .bbp,#bb-all .bbp{background:#fff;border:1px solid #ecdfe6;border-radius:16px;padding:20px 18px 18px;text-align:center;display:flex;flex-direction:column;box-shadow:0 8px 24px rgba(21,79,97,.10);cursor:pointer;transition:transform .15s ease,box-shadow .15s ease;}
+#bb-store .bbp:hover,#bb-all .bbp:hover{transform:translateY(-4px);box-shadow:0 14px 32px rgba(160,30,96,.20);}
+#bb-store .bbp img,#bb-all .bbp img{width:100%;height:170px;object-fit:contain;margin-bottom:12px;}
+#bb-store .bbp .t,#bb-all .bbp .t{font-weight:700;font-size:16px;line-height:1.35;color:#7c2a68;margin-bottom:4px;}
+#bb-store .bbp .pr,#bb-all .bbp .pr{font-size:15px;color:#4a5a63;margin-bottom:6px;}
+#bb-store .bbp .lm,#bb-all .bbp .lm{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#a01e60;margin-bottom:14px;}
+#bb-store .bbp button,#bb-all .bbp button{margin-top:auto;background:#E5397F;color:#fff;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;letter-spacing:.04em;text-transform:uppercase;padding:12px 14px;border:none;border-radius:40px;cursor:pointer;transition:background .15s;}
+#bb-store .bbp button:hover,#bb-all .bbp button:hover{background:#B0286F;}
 #bb-store .bb-empty{grid-column:1/-1;text-align:center;color:#7c2a68;padding:30px;font-family:Montserrat,sans-serif;cursor:default;}
-#bb-store .bb-empty pre{text-align:left;white-space:pre-wrap;word-break:break-word;font-size:11px;line-height:1.5;margin-top:14px;background:#faf4f7;border:1px solid #ecdfe6;border-radius:10px;padding:12px;color:#4a5a63;max-height:320px;overflow:auto;}
+#bb-all-wrap{max-width:1100px;margin:72px auto 0;font-family:Montserrat,sans-serif;}
+.bb-all-h{text-align:center;font-size:26px;font-weight:700;color:#7c2a68;margin:0 0 6px;}
+.bb-all-sub{text-align:center;font-size:14px;color:#6d7f88;margin:0 0 26px;}
+.bb-all-foot{text-align:center;margin-top:30px;}
+#bb-all-more{background:transparent;border:2px solid #E5397F;color:#a01e60;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:13px 30px;border-radius:40px;cursor:pointer;transition:background .15s,color .15s;}
+#bb-all-more:hover{background:#E5397F;color:#fff;}
+#bb-all-more:disabled{opacity:.6;cursor:default;}
 #bb-cart-toggle{position:fixed;bottom:18px;right:18px;z-index:9998;background:#E5397F;color:#fff;font-family:Montserrat,sans-serif;font-weight:700;padding:10px 16px;border-radius:40px;cursor:pointer;box-shadow:0 6px 18px rgba(160,30,96,.35);}
 #bb-cart-backdrop{position:fixed;inset:0;background:rgba(21,25,26,.45);z-index:9998;display:none;}
 #bb-cart-drawer{position:fixed;top:0;right:0;height:100%;width:380px;max-width:90vw;background:#fff;z-index:9999;box-shadow:-8px 0 30px rgba(0,0,0,.2);transform:translateX(100%);transition:transform .25s ease;display:flex;flex-direction:column;font-family:Montserrat,sans-serif;}
@@ -69,8 +85,6 @@
 .bb-m-desc i,.bb-m-desc em{font-style:italic;}
 .bb-m-info button{margin-top:22px;flex:none;background:#E5397F;color:#fff;font-family:Montserrat,sans-serif;font-weight:700;font-size:15px;letter-spacing:.04em;text-transform:uppercase;padding:14px 18px;border:none;border-radius:40px;cursor:pointer;transition:background .15s;}
 .bb-m-info button:hover{background:#B0286F;}
-@media screen and (max-width:1100px){#bb-store{grid-template-columns:repeat(2,1fr);max-width:700px;}}
 @media screen and (max-width:900px){#bb-modal-body{grid-template-columns:1fr;}.bb-m-media{padding:18px;}#bb-m-main{max-height:190px;}.bb-m-info{padding:22px 20px;max-height:none;}}
-@media screen and (max-width:767px){#bb-store{grid-template-columns:1fr;max-width:340px;}}
+@media screen and (max-width:767px){#bb-store,#bb-all{grid-template-columns:repeat(2,1fr);gap:14px;}#bb-store .bbp,#bb-all .bbp{padding:14px 12px 12px;}#bb-store .bbp img,#bb-all .bbp img{height:120px;}}
 </style>
-
