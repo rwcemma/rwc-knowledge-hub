@@ -28,8 +28,8 @@ Enterprise, so page branching is unavailable — edit pages directly.
 | Element ID | What it is | JS? | Renders? |
 |---|---|---|---|
 | `95c7e548-b7da-2e0f-a368-8d2c7cb9f05a` | Hero eyebrow badge | No | ✅ |
-| `d7a7c63a-ebc1-c926-210b-2c7da0e8115c` | Hero 3 Para cards, **add-to-cart** (markup only, `data-bb-handle`) | No | ✅ |
-| `7c7f9b41-49f9-eda7-a3c5-f289f9bfec5c` | **Headless store + cart** (real token), `bb-store v4` | **Yes** | ✅ |
+| `d7a7c63a-ebc1-c926-210b-2c7da0e8115c` | Hero 3 Para cards, add-to-cart + modal (markup only, v3) | No | ✅ |
+| `7c7f9b41-49f9-eda7-a3c5-f289f9bfec5c` | **Store + cart + product modal** (real token), `bb-store v5` | **Yes** | ✅ |
 | `2148c621-673b-0a07-3ec6-1e86f60a7a63` | `#bb-learn` education section | No | ✅ |
 
 Source of `7c7f9b41` is committed alongside this doc as
@@ -103,33 +103,56 @@ page. Without it, visitors see a neutral message.
 - **"Meet Your Practitioner"** (`d110f857-…-68c0c3ccf482`) is hidden, not deleted.
   Restore with a BB practitioner or remove for good.
 
-## Architecture — one script owns the cart
+## Architecture — one script owns everything
 
-There is exactly **one** `<script>` on the page (the shop embed, `bb-store v4`). It owns
-the product fetch, the cart, and the drawer. Everything else is markup only.
+There is exactly **one** `<script>` on the page: the shop embed, `bb-store v5`. It owns
+the product fetch, the cart, the drawer, and the product detail modal. Every other
+section is markup only.
 
-Any product card anywhere on the page opts in by declaring:
+### Opting a card in
 
 ```html
 <div class="c" data-bb-handle="para-1-cellcore"
               data-bb-url="https://synergizedsupps.com/products/para-1-cellcore">
   <img src="..."><div class="n">Para 1</div>
-  <span class="p"></span>            <!-- price, filled by JS -->
-  <button disabled>Add to Cart</button>   <!-- enabled by JS -->
+  <span class="p"></span>                 <!-- price, filled by decorateCards() -->
+  <span class="lm">Learn more</span>
+  <button data-bb-add>Add to Cart</button>
 </div>
 ```
 
-`bb-store v4` calls `wireExternalCards()` after its fetch resolves: it matches each
-card by handle, fills `.p` with the price, enables the button, and binds it to the
-shared `addToCart()`. If the store fails to load, `report()` calls
-`fallbackExternalCards()`, which turns those buttons into "View product" links to
-`data-bb-url` so a shopper is never dead-ended.
+- `data-bb-handle` — which Shopify product this card is. Required.
+- `data-bb-add` — marks the add-to-cart control.
+- `data-bb-url` — product page URL, used only as an offline fallback.
 
-**Never add a second `<script>` or a second cart drawer.** Two copies fighting over
-`#bb-store` / `#bb-cart-*` ids was one of the earlier bugs. To add products elsewhere
-(a new section, a second page), add markup with `data-bb-handle` and — if the handle is
-new — add it to `HANDLES` in the shop embed. Buttons start `disabled` so they cannot be
-clicked before the cart is ready.
+**Clicks are handled by ONE delegated listener on `document`**, which resolves the handle
+at click time. This is deliberate: v4 bound handlers in a one-shot pass after the fetch
+resolved, and when that pass silently missed, the hero buttons stayed `disabled` and
+looked dead. Delegation is immune to timing, ordering and re-renders, and buttons now
+ship **enabled**, so a decoration miss costs a price label — never functionality.
+
+Click routing: `[data-bb-add]` adds to cart · anything else inside a `[data-bb-handle]`
+card opens the modal · clicks inside the modal are inert except the add button, the
+thumbnails and close · Escape closes modal and cart.
+
+`decorateCards()` only fills prices. `fallbackCards()` (called from `report()`) converts
+add buttons to "View product" links if the store is unreachable, so a shopper is never
+dead-ended.
+
+**Never add a second `<script>`, cart drawer or modal.** Two copies fighting over
+`#bb-store` / `#bb-cart-*` ids was one of the original bugs. To add products anywhere:
+write markup with `data-bb-handle`, and if the handle is new, add it to `HANDLES`.
+
+### Product modal
+
+Clicking a card opens a centered modal: image with thumbnail switcher, title, price,
+the product's full `descriptionHtml` from Shopify, and Add to Cart (which adds, closes
+the modal, and opens the cart drawer).
+
+**The descriptions are rendered in full, on purpose.** CellCore copy carries California
+Prop 65 warnings and FDA-style `*` disclaimers. Do not excerpt, truncate or summarise
+them — dropping a Prop 65 warning off a product listing is a compliance problem, not a
+design choice.
 
 ## Decisions already made
 
