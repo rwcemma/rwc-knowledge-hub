@@ -28,8 +28,8 @@ Enterprise, so page branching is unavailable — edit pages directly.
 | Element ID | What it is | JS? | Renders? |
 |---|---|---|---|
 | `95c7e548-b7da-2e0f-a368-8d2c7cb9f05a` | Hero eyebrow badge | No | ✅ |
-| `d7a7c63a-ebc1-c926-210b-2c7da0e8115c` | Hero 3 Para cards → link out to synergizedsupps.com | No | ✅ |
-| `7c7f9b41-49f9-eda7-a3c5-f289f9bfec5c` | **Headless store + cart** (real token), `bb-store v3` | **Yes** | see below |
+| `d7a7c63a-ebc1-c926-210b-2c7da0e8115c` | Hero 3 Para cards, **add-to-cart** (markup only, `data-bb-handle`) | No | ✅ |
+| `7c7f9b41-49f9-eda7-a3c5-f289f9bfec5c` | **Headless store + cart** (real token), `bb-store v4` | **Yes** | ✅ |
 | `2148c621-673b-0a07-3ec6-1e86f60a7a63` | `#bb-learn` education section | No | ✅ |
 
 Source of `7c7f9b41` is committed alongside this doc as
@@ -100,11 +100,36 @@ page. Without it, visitors see a neutral message.
 
 ## Open requirements (not yet built)
 
-- **Hero cards should add to cart, not route away.** `d7a7c63a`'s three Para cards are
-  plain links to synergizedsupps.com, which exits the BB brand mid-funnel. Emma wants
-  add-to-cart on the BB page. Blocked behind the same JS fix — same cart, same token.
 - **"Meet Your Practitioner"** (`d110f857-…-68c0c3ccf482`) is hidden, not deleted.
   Restore with a BB practitioner or remove for good.
+
+## Architecture — one script owns the cart
+
+There is exactly **one** `<script>` on the page (the shop embed, `bb-store v4`). It owns
+the product fetch, the cart, and the drawer. Everything else is markup only.
+
+Any product card anywhere on the page opts in by declaring:
+
+```html
+<div class="c" data-bb-handle="para-1-cellcore"
+              data-bb-url="https://synergizedsupps.com/products/para-1-cellcore">
+  <img src="..."><div class="n">Para 1</div>
+  <span class="p"></span>            <!-- price, filled by JS -->
+  <button disabled>Add to Cart</button>   <!-- enabled by JS -->
+</div>
+```
+
+`bb-store v4` calls `wireExternalCards()` after its fetch resolves: it matches each
+card by handle, fills `.p` with the price, enables the button, and binds it to the
+shared `addToCart()`. If the store fails to load, `report()` calls
+`fallbackExternalCards()`, which turns those buttons into "View product" links to
+`data-bb-url` so a shopper is never dead-ended.
+
+**Never add a second `<script>` or a second cart drawer.** Two copies fighting over
+`#bb-store` / `#bb-cart-*` ids was one of the earlier bugs. To add products elsewhere
+(a new section, a second page), add markup with `data-bb-handle` and — if the handle is
+new — add it to `HANDLES` in the shop embed. Buttons start `disabled` so they cannot be
+clicked before the cart is ready.
 
 ## Decisions already made
 

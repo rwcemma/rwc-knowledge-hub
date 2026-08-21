@@ -1,4 +1,4 @@
-<!-- bb-store v3 — correct myshopify domain + API 2026-07. Append ?bbdebug=1 for detail. -->
+<!-- bb-store v4 — owns the cart for the shop grid AND any [data-bb-handle] cards elsewhere on the page. Append ?bbdebug=1 for detail. -->
 <div id="bb-store"></div>
 <div id="bb-cart-toggle" aria-label="Open cart">🛒 <span id="bb-cart-count">0</span></div>
 <div id="bb-cart-backdrop"></div>
@@ -52,7 +52,7 @@
   var API     = 'https://' + DOMAIN + '/api/2026-07/graphql.json';
   var HANDLES = ['para-1-cellcore', 'para-2-cellcore', 'para-3-cellcore', 'para-kit'];
   var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
-  var VERSION = 'v3';
+  var VERSION = 'v4';
 
   var grid = document.getElementById('bb-store');
 
@@ -65,12 +65,44 @@
 
   function esc(s) { return String(s).split('&').join('&amp;').split('<').join('&lt;'); }
 
+  // Wire up product cards that live OUTSIDE this embed (e.g. the hero row).
+  // They are markup-only and opt in with data-bb-handle, so there is exactly
+  // one cart and one script on the page.
+  function wireExternalCards(items) {
+    var byHandle = {};
+    items.forEach(function (p) { byHandle[p.handle] = p; });
+    document.querySelectorAll('[data-bb-handle]').forEach(function (card) {
+      var p = byHandle[card.getAttribute('data-bb-handle')];
+      var btn = card.querySelector('button');
+      if (!p || !btn || !p.variants.nodes.length) { return; }
+      var v = p.variants.nodes[0];
+      var priceEl = card.querySelector('.p');
+      if (priceEl) { priceEl.textContent = money(v.price); }
+      btn.disabled = false;
+      btn.addEventListener('click', function () { addToCart(v.id); });
+    });
+  }
+
+  // If the store cannot load, never dead-end a shopper: fall back to the
+  // product page so the hero cards still lead somewhere.
+  function fallbackExternalCards() {
+    document.querySelectorAll('[data-bb-handle]').forEach(function (card) {
+      var btn = card.querySelector('button');
+      var url = card.getAttribute('data-bb-url');
+      if (!btn || !url) { return; }
+      btn.disabled = false;
+      btn.textContent = 'View product';
+      btn.addEventListener('click', function () { window.open(url, '_blank', 'noopener'); });
+    });
+  }
+
   function report(headline, detail) {
     if (!grid) return;
     grid.innerHTML = '<div class="bb-empty"><strong>' + esc(headline) + '</strong>' +
       (DEBUG && detail ? '<pre>' + esc(detail).slice(0, 1500) + '</pre>'
                        : '<br><small>Add ?bbdebug=1 to the URL for technical detail.</small>') +
       '</div>';
+    fallbackExternalCards();
   }
 
   function gql(query, variables) {
@@ -122,6 +154,7 @@
     grid.querySelectorAll('button[data-vid]').forEach(function (b) {
       b.addEventListener('click', function () { addToCart(b.getAttribute('data-vid')); });
     });
+    wireExternalCards(items);
   }).catch(function (e) {
     report('Store temporarily unavailable.',
            'fetch() threw before any response arrived, so the browser never reached Shopify. Usual causes: blocked by CORS, a Content-Security-Policy, a browser extension, or offline. Detail: ' + (e && e.message ? e.message : e));
