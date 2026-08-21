@@ -23,18 +23,56 @@ session has lacked, and it is what this blocker now needs.
 Site has a **paid Webflow Site Plan** (confirmed by Emma). Workspace is **not**
 Enterprise, so page branching is unavailable — edit pages directly.
 
-## Embeds currently on the page (4)
+## Where the code lives (IMPORTANT — read before editing)
 
-| Element ID | What it is | JS? | Renders? |
-|---|---|---|---|
-| `95c7e548-b7da-2e0f-a368-8d2c7cb9f05a` | Hero eyebrow badge | No | ✅ |
-| `d7a7c63a-ebc1-c926-210b-2c7da0e8115c` | Hero container `#bbp` + static fallback links (v4). Cards rendered by `bb-store v6` | No | ✅ |
-| `7c7f9b41-49f9-eda7-a3c5-f289f9bfec5c` | **Store + cart + modal + hero rendering** (real token), `bb-store v6` | **Yes** | ✅ |
-| `2148c621-673b-0a07-3ec6-1e86f60a7a63` | `#bb-learn` education section | No | ✅ |
+| Piece | Location |
+|---|---|
+| **All JavaScript** | **Site footer custom code** (Project Settings → Custom Code → Footer). `bb-store v7`. |
+| Store markup + CSS | Embed `7c7f9b41-49f9-eda7-a3c5-f289f9bfec5c` — `#bb-store`, cart drawer, modal, all CSS. **No script.** |
+| Hero container | Embed `d7a7c63a-ebc1-c926-210b-2c7da0e8115c` — `#bbp` + static `<a>` fallback cards + CSS. **No script.** |
+| Hero eyebrow badge | Embed `95c7e548-b7da-2e0f-a368-8d2c7cb9f05a` |
+| Education section | Embed `2148c621-673b-0a07-3ec6-1e86f60a7a63` |
 
-Source of `7c7f9b41` is committed alongside this doc as
-`bb-headless-store-embed.html`, **token redacted**. The live embed has the real
-publishable token in it.
+### Why the JS is not in an embed
+
+Scripts inside Webflow HTML Embeds behaved unreliably on this site across several
+deploys. The final failure: the whole store section published **completely blank** — not
+even the synchronous "Loading products…" placeholder — while the CSS from the same embed
+applied correctly. Verified by reading the stored embed back byte-for-byte against a
+locally `node --check`ed copy: **the stored code was correct and still did not run.**
+
+Markup and CSS in embeds have always worked. So the script moved to site footer custom
+code, which is emitted as a raw block before `</body>`, runs after all DOM exists, and
+has been reliable.
+
+**Do not move the JavaScript back into an embed.**
+
+Note: the **page-level** freeform code endpoint returns `HTTP 406` on this site for any
+content, even 40 bytes — it is not a size limit. **Site-level** footer code works. There
+is only one page, so site-level is equivalent here.
+
+### Resilience built into v7
+
+Every earlier version had a single point of failure that took down everything else:
+
+- Every DOM lookup is guarded; a missing element logs and skips instead of throwing.
+- `renderGrid()` and `renderHero()` run inside separate `safe()` wrappers, so a failure
+  in one cannot prevent the other. (In v6, `grid` being null threw *before* `renderHero()`
+  was reached, which is why the hero silently stayed on its fallback.)
+- `localStorage` access is wrapped in try/catch (private mode, blocked storage).
+- `?bbdebug=1` paints **its own fixed panel** via `document.createElement`, so it does
+  not depend on any page element. A blank page can never again mean "no information".
+
+### Card contract
+
+All cards are rendered by the footer script. Cards carry `data-bb-handle="<handle>"`, and
+the add button carries `data-bb-add="1"` — always with a value, never bare. One delegated
+`click` listener on `document` routes everything: cart toggle/close, modal close,
+`[data-bb-thumb]` image swap, `.rm` line removal, `[data-bb-add]` add-to-cart, and
+otherwise opening the modal for the clicked card. Escape closes modal and cart.
+
+To add products: add an empty container with an `id`, render into it from the footer
+script, and add the handle to `HANDLES`. Never write `data-bb-*` into static embed markup.
 
 ## THE BLOCKER — ROOT CAUSE FOUND
 

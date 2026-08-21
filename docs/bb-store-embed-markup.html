@@ -1,0 +1,76 @@
+<!-- bb-store markup v7 - MARKUP + CSS ONLY. The JavaScript lives in PAGE FOOTER custom code.
+     Do NOT add a script here - embed script serialization proved unreliable.
+     Append ?bbdebug=1 for detail. Do NOT add a second script or cart drawer. -->
+<div id="bb-store"></div>
+<div id="bb-cart-toggle" aria-label="Open cart">&#128722; <span id="bb-cart-count">0</span></div>
+<div id="bb-cart-backdrop"></div>
+<aside id="bb-cart-drawer" aria-hidden="true">
+  <div class="bb-cart-head"><span>Your Cart</span><button id="bb-cart-close" aria-label="Close">&times;</button></div>
+  <div id="bb-cart-lines"></div>
+  <div class="bb-cart-foot">
+    <div class="bb-cart-sub"><span>Subtotal</span><span id="bb-cart-subtotal">$0.00</span></div>
+    <button id="bb-checkout-btn" disabled>Checkout</button>
+    <p class="bb-cart-note">Secure checkout is completed on Shopify.</p>
+  </div>
+</aside>
+<div id="bb-modal-backdrop"></div>
+<div id="bb-modal" role="dialog" aria-modal="true">
+  <button id="bb-modal-close" aria-label="Close">&times;</button>
+  <div id="bb-modal-body"></div>
+</div>
+
+<style>
+#bb-store{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;max-width:1100px;margin:0 auto;font-family:Montserrat,sans-serif;}
+#bb-store .bbp{background:#fff;border:1px solid #ecdfe6;border-radius:16px;padding:20px 18px 18px;text-align:center;display:flex;flex-direction:column;box-shadow:0 8px 24px rgba(21,79,97,.10);cursor:pointer;transition:transform .15s ease,box-shadow .15s ease;}
+#bb-store .bbp:hover{transform:translateY(-4px);box-shadow:0 14px 32px rgba(160,30,96,.20);}
+#bb-store .bbp img{width:100%;height:180px;object-fit:contain;margin-bottom:12px;}
+#bb-store .bbp .t{font-weight:700;font-size:18px;color:#7c2a68;margin-bottom:4px;}
+#bb-store .bbp .pr{font-size:15px;color:#4a5a63;margin-bottom:6px;}
+#bb-store .bbp .lm{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#a01e60;margin-bottom:14px;}
+#bb-store .bbp button{margin-top:auto;background:#E5397F;color:#fff;font-family:Montserrat,sans-serif;font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase;padding:12px 16px;border:none;border-radius:40px;cursor:pointer;transition:background .15s;}
+#bb-store .bbp button:hover{background:#B0286F;}
+#bb-store .bb-empty{grid-column:1/-1;text-align:center;color:#7c2a68;padding:30px;font-family:Montserrat,sans-serif;cursor:default;}
+#bb-store .bb-empty pre{text-align:left;white-space:pre-wrap;word-break:break-word;font-size:11px;line-height:1.5;margin-top:14px;background:#faf4f7;border:1px solid #ecdfe6;border-radius:10px;padding:12px;color:#4a5a63;max-height:320px;overflow:auto;}
+#bb-cart-toggle{position:fixed;bottom:18px;right:18px;z-index:9998;background:#E5397F;color:#fff;font-family:Montserrat,sans-serif;font-weight:700;padding:10px 16px;border-radius:40px;cursor:pointer;box-shadow:0 6px 18px rgba(160,30,96,.35);}
+#bb-cart-backdrop{position:fixed;inset:0;background:rgba(21,25,26,.45);z-index:9998;display:none;}
+#bb-cart-drawer{position:fixed;top:0;right:0;height:100%;width:380px;max-width:90vw;background:#fff;z-index:9999;box-shadow:-8px 0 30px rgba(0,0,0,.2);transform:translateX(100%);transition:transform .25s ease;display:flex;flex-direction:column;font-family:Montserrat,sans-serif;}
+#bb-cart-drawer.open{transform:translateX(0);}
+#bb-cart-backdrop.open{display:block;}
+.bb-cart-head{display:flex;justify-content:space-between;align-items:center;padding:20px 22px;border-bottom:1px solid #ecdfe6;font-weight:700;font-size:18px;color:#7c2a68;}
+.bb-cart-head button{background:none;border:none;font-size:26px;line-height:1;cursor:pointer;color:#7c2a68;}
+#bb-cart-lines{flex:1;overflow-y:auto;padding:12px 22px;}
+.bb-line{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #f3e8ee;}
+.bb-line img{width:56px;height:56px;object-fit:contain;border-radius:8px;background:#faf4f7;}
+.bb-line .ln{flex:1;font-size:14px;color:#20303a;}
+.bb-line .lp{font-weight:700;color:#7c2a68;}
+.bb-line .rm{background:none;border:none;color:#a01e60;cursor:pointer;font-size:12px;text-decoration:underline;padding:0;}
+.bb-cart-foot{border-top:1px solid #ecdfe6;padding:18px 22px;}
+.bb-cart-sub{display:flex;justify-content:space-between;font-weight:700;color:#20303a;margin-bottom:14px;}
+#bb-checkout-btn{width:100%;background:#E5397F;color:#fff;font-family:Montserrat,sans-serif;font-weight:700;font-size:16px;text-transform:uppercase;letter-spacing:.04em;padding:15px;border:none;border-radius:40px;cursor:pointer;}
+#bb-checkout-btn:disabled{opacity:.5;cursor:not-allowed;}
+.bb-cart-note{font-size:11px;color:#9bb2b6;text-align:center;margin:10px 0 0;}
+#bb-modal-backdrop{position:fixed;inset:0;background:rgba(21,25,26,.6);z-index:10000;display:none;}
+#bb-modal-backdrop.open{display:block;}
+#bb-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:920px;max-width:92vw;max-height:88vh;background:#fff;border-radius:18px;z-index:10001;display:none;overflow:hidden;font-family:Montserrat,sans-serif;box-shadow:0 30px 80px rgba(0,0,0,.35);}
+#bb-modal.open{display:block;}
+#bb-modal-body{display:grid;grid-template-columns:1fr 1fr;max-height:88vh;}
+#bb-modal-close{position:absolute;top:12px;right:14px;z-index:2;background:#fff;border:1px solid #ecdfe6;width:34px;height:34px;border-radius:50%;font-size:20px;line-height:1;cursor:pointer;color:#7c2a68;}
+.bb-m-media{background:#faf4f7;padding:26px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+#bb-m-main{width:100%;max-height:300px;object-fit:contain;}
+.bb-m-thumbs{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;justify-content:center;}
+.bb-m-thumbs img{width:52px;height:52px;object-fit:contain;background:#fff;border:1px solid #ecdfe6;border-radius:8px;cursor:pointer;padding:4px;}
+.bb-m-thumbs img:hover{border-color:#E5397F;}
+.bb-m-info{padding:34px 28px 28px;overflow-y:auto;max-height:88vh;display:flex;flex-direction:column;}
+.bb-m-info h3{font-size:24px;font-weight:700;color:#7c2a68;margin:0 0 4px;}
+.bb-m-price{font-size:18px;color:#4a5a63;margin-bottom:16px;}
+.bb-m-desc{font-size:13.5px;line-height:1.65;color:#3d4d56;}
+.bb-m-desc p{margin:0 0 12px;}
+.bb-m-desc a{color:#a01e60;}
+.bb-m-desc i,.bb-m-desc em{font-style:italic;}
+.bb-m-info button{margin-top:22px;flex:none;background:#E5397F;color:#fff;font-family:Montserrat,sans-serif;font-weight:700;font-size:15px;letter-spacing:.04em;text-transform:uppercase;padding:14px 18px;border:none;border-radius:40px;cursor:pointer;transition:background .15s;}
+.bb-m-info button:hover{background:#B0286F;}
+@media screen and (max-width:1100px){#bb-store{grid-template-columns:repeat(2,1fr);max-width:700px;}}
+@media screen and (max-width:900px){#bb-modal-body{grid-template-columns:1fr;}.bb-m-media{padding:18px;}#bb-m-main{max-height:190px;}.bb-m-info{padding:22px 20px;max-height:none;}}
+@media screen and (max-width:767px){#bb-store{grid-template-columns:1fr;max-width:340px;}}
+</style>
+
