@@ -273,6 +273,17 @@ const HANDOFF = "Hi [Name],\n\nThank you so much for reaching out about this. I 
 /* Gaps post to the hub's existing Slack path (#sop-needed) via /api/sop-needed,
    the same endpoint the SOP Assistant uses — no separate GHL form. */
 
+/* AI fallback for questions the keyword matcher doesn't recognise.
+     'off'    — deterministic matcher only
+     'shadow' — ask the classifier, log what it would have picked, show the VA
+                nothing different. Run here first and read the log before
+                trusting it with real questions.
+     'on'     — render the rule the classifier picks, flagged as AI-matched
+   The classifier only ever SELECTS a stored rule. It cannot write a reply,
+   and it is never consulted for clinical or money questions — those lanes
+   resolve before this runs. */
+const LLM_FALLBACK = 'shadow';
+
 /* Bundled FAQ topics only, until the fetch lands. */
 let topics = CC.mergeTopics([]).topics;
 
@@ -296,6 +307,32 @@ let topics = CC.mergeTopics([]).topics;
       ' bundled FAQ topics only. Verify anything policy-related before you send it.';
   }
 })();
+
+/* ── telemetry + AI fallback ── */
+
+/* Fire-and-forget log of what VAs actually type, so keyword lists can be
+   written from real traffic instead of guesswork. No-ops if the endpoint
+   isn't configured. Never blocks or breaks a search. */
+function logQuery(payload){
+  try{
+    fetch('/api/log-query',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload),keepalive:true}).catch(()=>{});
+  }catch(e){}
+}
+
+/* Ask the classifier for a rule id, and resolve it against our own topics —
+   an id we didn't offer, or anything unexpected, comes back as null. */
+async function classifyRemote(q){
+  try{
+    const res = await fetch('/api/classify',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({question:q, candidates:topics.map(t=>({id:t.id,topic:t.topic}))})});
+    if(!res.ok) return null;
+    const j = await res.json();
+    if(!j || !j.id) return null;
+    const hit = topics.find(t => t.id === j.id);
+    return hit ? {topic:hit, reason:j.reason||''} : null;
+  }catch(e){ console.error('classify failed:',e); return null; }
+}
 
 /* ── rendering ── */
 function esc(x){ return String(x).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
@@ -362,47 +399,27 @@ function gapCard(q){
       </div></div></div>`;
 }
 
-function render(q){
-  const out = document.getElementById('out');
-  const r = CC.classify(q, topics);
+/* Shown while the AI fallback is being consulted (mode 'on' only). */
+function thinkingCard(){
+  return `<div class="result"><div class="card b">
+    <div class="lane"><span class="lane-tag">Checking</span>
+      <span class="lane-topic">No exact match — checking the rest of the library…</span></div></div></div>`;
+}
 
-  /* Lane C — clinical. Always first, always wins, never shows an answer. */
-  if(r.lane === 'clinical'){
-    out.innerHTML = handoffCard('Hand off', 'This one goes to the Front Desk team',
-      'This touches something clinical — symptoms, dosing, a product, or what a result means. <strong>Don\'t answer any part of it</strong>, even if you\'re fairly sure. Send the reply below, then hand it over.<br><br>If it\'s about a supplement or protocol, Front Desk will also point them to their Support Specialist chat — you don\'t need to mention it.');
-    wire(); return;
-  }
-
-  /* Lane C — money. */
-  if(r.lane === 'payment'){
-    out.innerHTML = handoffCard('Front Desk only', 'Anything involving money',
-      'Invoices, charges, pricing, refunds, subscriptions, wrong amounts — all of it goes to Front Desk. <strong>Don\'t quote a figure, confirm a refund, or adjust anything</strong>, even if you can see what the right answer is.');
-    wire(); return;
-  }
-
-  /* Lane B — nothing matched, or nothing matched confidently enough. */
-  if(r.lane === 'gap'){
-    out.innerHTML = gapCard(q);
-    wire(); return;
-  }
-
-  const t = r.topic;
-
-  /* Matched, but the rule itself is Front Desk only. */
-  if(r.lane === 'handoff'){
-    out.innerHTML = handoffCard('Front Desk only', esc(t.topic),
-      t.answer + (t.caution ? '<br><br><strong>' + esc(t.caution) + '</strong>' : ''));
-    wire(); return;
-  }
-
-  /* Lane A. */
-  const alts = (r.alternates||[]).filter(a => a.keys && a.keys[0]).map(a =>
+/* The green card. `aiMatched` is set when the rule was found by the AI fallback
+   rather than by keyword, because a VA should know the difference before they
+   paste a reply. The reply itself is the stored one either way. */
+function answerCard(t, alternates, aiMatched){
+  const alts = (alternates||[]).filter(a => a.keys && a.keys[0]).map(a =>
     `<button class="chip" data-q="${esc(a.keys[0])}">${esc(a.topic)}</button>`).join('');
 
-  out.innerHTML = `<div class="result"><div class="card">
+  document.getElementById('out').innerHTML = `<div class="result"><div class="card">
     <div class="lane"><span class="lane-tag">You can answer</span>
       <span class="lane-topic">${esc(t.topic)}</span></div>
     <div class="body">
+      ${aiMatched ? `<div class="next" style="background:var(--teal-bg);color:var(--navy-3);margin-bottom:20px">
+        <div class="h" style="color:#1d7fa0">Matched from your wording</div>
+        No rule matched word-for-word, so this one was picked by meaning. <strong>Check it actually answers what they asked</strong> before you send it.</div>` : ''}
       <div class="h">What's true</div>
       <div class="answer">${t.answer}</div>
       ${t.caution ? `<div class="next" style="background:var(--amber-bg);color:var(--navy-3);margin-bottom:20px">
@@ -412,6 +429,66 @@ function render(q){
       ${alts ? `<div style="margin-top:12px">Did you mean: ${alts}</div>` : ''}</div>
     </div></div></div>`;
   wire();
+}
+
+async function render(q){
+  const out = document.getElementById('out');
+  const r = CC.classify(q, topics);
+  const log = {question:q, lane:r.lane, matchedId:r.topic?r.topic.id:'', score:r.score, mode:LLM_FALLBACK};
+
+  /* Lane C — clinical. Always first, always wins, never shows an answer. */
+  if(r.lane === 'clinical'){
+    out.innerHTML = handoffCard('Hand off', 'This one goes to the Front Desk team',
+      'This touches something clinical — symptoms, dosing, a product, or what a result means. <strong>Don\'t answer any part of it</strong>, even if you\'re fairly sure. Send the reply below, then hand it over.<br><br>If it\'s about a supplement or protocol, Front Desk will also point them to their Support Specialist chat — you don\'t need to mention it.');
+    wire(); logQuery(log); return;
+  }
+
+  /* Lane C — money. */
+  if(r.lane === 'payment'){
+    out.innerHTML = handoffCard('Front Desk only', 'Anything involving money',
+      'Invoices, charges, pricing, refunds, subscriptions, wrong amounts — all of it goes to Front Desk. <strong>Don\'t quote a figure, confirm a refund, or adjust anything</strong>, even if you can see what the right answer is.');
+    wire(); logQuery(log); return;
+  }
+
+  /* Lane B — nothing matched, or nothing matched confidently enough. This is
+     where paraphrases the keyword list has never seen land, so it is the only
+     place the AI fallback is consulted. */
+  if(r.lane === 'gap'){
+    if(LLM_FALLBACK === 'off'){
+      out.innerHTML = gapCard(q); wire(); logQuery(log); return;
+    }
+    if(LLM_FALLBACK === 'shadow'){
+      /* VA sees the normal gap card immediately; the classifier's answer only
+         reaches the log, never the screen. */
+      out.innerHTML = gapCard(q); wire();
+      classifyRemote(q).then(res => logQuery(Object.assign(log,
+        {llmId:res?res.topic.id:'', llmReason:res?res.reason:''})));
+      return;
+    }
+    out.innerHTML = thinkingCard();
+    const res = await classifyRemote(q);
+    logQuery(Object.assign(log, {llmId:res?res.topic.id:'', llmReason:res?res.reason:''}));
+    if(!res){ out.innerHTML = gapCard(q); wire(); return; }
+    if(res.topic.handoff){
+      out.innerHTML = handoffCard('Front Desk only', esc(res.topic.topic),
+        res.topic.answer + (res.topic.caution ? '<br><br><strong>' + esc(res.topic.caution) + '</strong>' : ''));
+      wire(); return;
+    }
+    answerCard(res.topic, [], true); return;
+  }
+
+  const t = r.topic;
+
+  /* Matched, but the rule itself is Front Desk only. */
+  if(r.lane === 'handoff'){
+    out.innerHTML = handoffCard('Front Desk only', esc(t.topic),
+      t.answer + (t.caution ? '<br><br><strong>' + esc(t.caution) + '</strong>' : ''));
+    wire(); logQuery(log); return;
+  }
+
+  /* Lane A. */
+  answerCard(t, r.alternates||[]);
+  logQuery(log);
 }
 
 function wire(){
@@ -435,7 +512,7 @@ function wire(){
 
 function go(){
   const q = document.getElementById('q').value.trim();
-  if(q) render(q);
+  if(q) render(q).catch(e => console.error('render failed:', e));
 }
 
 document.getElementById('go').onclick = go;
