@@ -17,7 +17,7 @@ session has lacked, and it is what this blocker now needs.
 | Site | `6a7635942dbaea8e6172ec21` (`biohacking-bombshell-estore`) |
 | Page | `Home` `/` — `6a7635962dbaea8e6172ec58` (only page) |
 | Published at | `https://biohacking-bombshell-estore.webflow.io` (no custom domain) |
-| Shopify | `synergized-supplements.myshopify.com` / `synergizedsupps.com`, Advanced |
+| Shopify | myshopify: **`dr-jaban-moore-store.myshopify.com`** (NOT synergized-supplements — see root cause) / primary: `synergizedsupps.com`, Advanced |
 | Storefront API | `https://dr-jaban-moore-store.myshopify.com/api/2026-07/graphql.json` |
 
 Site has a **paid Webflow Site Plan** (confirmed by Emma). Workspace is **not**
