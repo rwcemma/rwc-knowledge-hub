@@ -1,13 +1,27 @@
-<!-- bb-store markup v11 - MARKUP + CSS ONLY.
+<!-- bb-store markup v12 - MARKUP + CSS ONLY.
      The JavaScript lives in SITE FOOTER custom code (Project Settings > Custom Code).
      Do NOT add a script here - embed script serialization proved unreliable.
      #bb-store  = featured Full Moon Cleanse products (Para 1-4 + Kit)
-     #bb-all    = the rest of the catalogue, paged 50 at a time via #bb-all-more -->
+     #bb-all    = the rest of the catalogue, with search / brand filter / sort
+     Toolbar ids the footer script binds to: #bb-q #bb-vendor #bb-sort #bb-count #bb-all-more -->
 <div id="bb-store"></div>
 
 <div id="bb-all-wrap">
   <h3 class="bb-all-h">Shop the rest of the store</h3>
   <p class="bb-all-sub">Everything else in the dispensary, straight from our Shopify catalogue.</p>
+  <div class="bb-tools">
+    <input id="bb-q" type="search" placeholder="Search products or brands..." autocomplete="off" aria-label="Search products">
+    <select id="bb-vendor" aria-label="Filter by brand"><option value="">All brands</option></select>
+    <select id="bb-sort" aria-label="Sort products">
+      <option value="featured">Sort: Featured</option>
+      <option value="az">Name: A to Z</option>
+      <option value="za">Name: Z to A</option>
+      <option value="plow">Price: low to high</option>
+      <option value="phigh">Price: high to low</option>
+      <option value="vendor">Brand: A to Z</option>
+    </select>
+  </div>
+  <p id="bb-count" class="bb-count">Loading products...</p>
   <div id="bb-all"></div>
   <div class="bb-all-foot"><button id="bb-all-more" type="button">Load more</button></div>
 </div>
@@ -42,7 +56,14 @@
 #bb-store .bb-empty{grid-column:1/-1;text-align:center;color:#7c2a68;padding:30px;font-family:Montserrat,sans-serif;cursor:default;}
 #bb-all-wrap{max-width:1100px;margin:72px auto 0;font-family:Montserrat,sans-serif;}
 .bb-all-h{text-align:center;font-size:26px;font-weight:700;color:#7c2a68;margin:0 0 6px;}
-.bb-all-sub{text-align:center;font-size:14px;color:#6d7f88;margin:0 0 26px;}
+.bb-all-sub{text-align:center;font-size:14px;color:#6d7f88;margin:0 0 20px;}
+.bb-tools{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:0 0 14px;}
+.bb-tools input,.bb-tools select{font-family:Montserrat,sans-serif;font-size:14px;color:#20303a;background:#fff;border:1px solid #e2d3dc;border-radius:40px;padding:11px 16px;outline:none;transition:border-color .15s,box-shadow .15s;}
+.bb-tools input{flex:1 1 260px;min-width:220px;max-width:380px;}
+.bb-tools select{cursor:pointer;min-width:180px;}
+.bb-tools input:focus,.bb-tools select:focus{border-color:#E5397F;box-shadow:0 0 0 3px rgba(229,57,127,.15);}
+.bb-count{text-align:center;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#9bb2b6;margin:0 0 22px;}
+.bb-none{grid-column:1/-1;text-align:center;color:#7c2a68;padding:44px 20px;font-family:Montserrat,sans-serif;}
 .bb-all-foot{text-align:center;margin-top:30px;}
 #bb-all-more{background:transparent;border:2px solid #E5397F;color:#a01e60;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:13px 30px;border-radius:40px;cursor:pointer;transition:background .15s,color .15s;}
 #bb-all-more:hover{background:#E5397F;color:#fff;}
@@ -86,5 +107,5 @@
 .bb-m-info button{margin-top:22px;flex:none;background:#E5397F;color:#fff;font-family:Montserrat,sans-serif;font-weight:700;font-size:15px;letter-spacing:.04em;text-transform:uppercase;padding:14px 18px;border:none;border-radius:40px;cursor:pointer;transition:background .15s;}
 .bb-m-info button:hover{background:#B0286F;}
 @media screen and (max-width:900px){#bb-modal-body{grid-template-columns:1fr;}.bb-m-media{padding:18px;}#bb-m-main{max-height:190px;}.bb-m-info{padding:22px 20px;max-height:none;}}
-@media screen and (max-width:767px){#bb-store,#bb-all{grid-template-columns:repeat(2,1fr);gap:14px;}#bb-store .bbp,#bb-all .bbp{padding:14px 12px 12px;}#bb-store .bbp img,#bb-all .bbp img{height:120px;}}
+@media screen and (max-width:767px){.bb-tools{flex-direction:column;align-items:stretch;}.bb-tools input,.bb-tools select{max-width:none;width:100%;}#bb-store,#bb-all{grid-template-columns:repeat(2,1fr);gap:14px;}#bb-store .bbp,#bb-all .bbp{padding:14px 12px 12px;}#bb-store .bbp img,#bb-all .bbp img{height:120px;}}
 </style>

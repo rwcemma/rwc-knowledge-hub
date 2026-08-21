@@ -27,7 +27,7 @@ Enterprise, so page branching is unavailable — edit pages directly.
 
 | Piece | Location |
 |---|---|
-| **All JavaScript** | **Site footer custom code** (Project Settings → Custom Code → Footer). `bb-store v11`. |
+| **All JavaScript** | **Site footer custom code** (Project Settings → Custom Code → Footer). `bb-store v12`. |
 | **Layout CSS overrides** | **Site head custom code** — `.bb-hero` fold height, `.bb-cta` spacing, `#bb-store` auto-fit grid. Mirrored as `bb-store-head-code.html`. |
 | Store markup + CSS | Embed `7c7f9b41-49f9-eda7-a3c5-f289f9bfec5c` — `#bb-store`, cart drawer, modal, all CSS. **No script.** |
 | Hero container | Embed `d7a7c63a-ebc1-c926-210b-2c7da0e8115c` — `#bbp` + static `<a>` fallback cards + CSS. **No script.** |
@@ -289,7 +289,7 @@ The shop area now has two grids, both fed by the same footer script and sharing 
 | Container | What it holds |
 |---|---|
 | `#bb-store` | **Featured Full Moon Cleanse** — Para 1-4 + the Kit, from `HANDLES`. |
-| `#bb-all` | **"Shop the rest of the store"** — the rest of the catalogue, paged 50 at a time. |
+| `#bb-all` | **"Shop the rest of the store"** — the rest of the catalogue, with search / brand filter / sort. |
 
 - `#bb-all` deliberately **excludes** anything in `HANDLES`, so featured products are not
   duplicated below.
@@ -302,6 +302,30 @@ The shop area now has two grids, both fed by the same footer script and sharing 
 - Both grids use the same `.bbp` card markup and the same delegated click handling, so
   add-to-cart and the modal work identically in both.
 - The promo sticker stays hero-only — catalogue cards do not carry it.
+
+## Catalogue search, brand filter and sort
+
+The toolbar above `#bb-all` binds to these ids (all in the store embed markup):
+
+| Id | Control |
+|---|---|
+| `#bb-q` | Search box — matches product **title or vendor**, case-insensitive substring |
+| `#bb-vendor` | Brand dropdown, built at runtime from the loaded products with per-brand counts |
+| `#bb-sort` | Featured / Name A-Z / Name Z-A / Price low-high / Price high-low / Brand A-Z |
+| `#bb-count` | "Showing 48 of 312 products" line |
+| `#bb-all-more` | Reveals the next 48 **from memory** — no longer a network call |
+
+**Why the whole catalogue loads up front.** `loadAllCatalog()` pages through every product
+(50 per request, ~7 requests) with LIGHT fields only, then all filtering and sorting happens
+in memory. Typing is instant with no debounce and no request per keystroke. The payload is
+small because descriptions and extra images are excluded — those are still fetched per
+product when a modal opens, via `openModalByHandle()`.
+
+Rendering is chunked at `CHUNK = 48` so 300+ cards never hit the DOM at once. Changing a
+filter resets to the first chunk.
+
+The brand list is derived from the products actually returned, so it can never offer a brand
+with no results. `vendor` had to be added to `ALL_PF` for this.
 
 ## Outstanding
 
