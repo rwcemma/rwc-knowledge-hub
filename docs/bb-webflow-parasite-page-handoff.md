@@ -29,7 +29,7 @@ Enterprise, so page branching is unavailable — edit pages directly.
 |---|---|---|---|
 | `95c7e548-b7da-2e0f-a368-8d2c7cb9f05a` | Hero eyebrow badge | No | ✅ |
 | `d7a7c63a-ebc1-c926-210b-2c7da0e8115c` | Hero 3 Para cards → link out to synergizedsupps.com | No | ✅ |
-| `7c7f9b41-49f9-eda7-a3c5-f289f9bfec5c` | **Headless store + cart** (real token) | **Yes** | ❌ |
+| `7c7f9b41-49f9-eda7-a3c5-f289f9bfec5c` | **Headless store + cart** (real token), `bb-store v2` | **Yes** | see below |
 | `2148c621-673b-0a07-3ec6-1e86f60a7a63` | `#bb-learn` education section | No | ✅ |
 
 Source of `7c7f9b41` is committed alongside this doc as
@@ -58,6 +58,31 @@ Shop section renders **nothing** — no product cards, and *not even* the embed'
 - **Stray custom code.** Site and page head/footer freeform blocks are both empty;
   zero registered scripts. Those 4 embeds are the only code on the site.
 
+### `bb-store v2` — self-diagnosing embed (installed, published)
+
+The store embed was replaced with a hardened version that **cannot fail silently**.
+It reads the same 4 handles with the same token; the changes are diagnostic and cosmetic.
+
+Read the shop section on load — it now distinguishes the failure modes by itself:
+
+| What you see | What it means |
+|---|---|
+| **Completely blank** | The script never executed. Not a Shopify problem — the embed's JS isn't running. |
+| `Loading products…` and it stays | The fetch never settled. |
+| *"fetch() threw…"* | Never reached Shopify — CORS, CSP, extension, or offline. |
+| *"HTTP 401/403…"* | Token wrong, revoked, or not permitted. |
+| *"GraphQL errors…"* | Token reached Shopify but the query was rejected. |
+| *"No products found… token is VALID"* | Token fine; handles not visible to its sales channel. |
+| Product cards | Working. |
+
+Append **`?bbdebug=1`** to the URL to get the raw HTTP status, response body, and
+GraphQL errors printed on the page. Without it, visitors see a neutral message.
+
+Also changed: `.catch()` on every fetch (this is what turns a blank into a message),
+grid `repeat(3,1fr)` → `repeat(4,1fr)` with a 2-up tablet breakpoint so `para-kit` no
+longer wraps alone, and the floating cart toggle moved from `top:18px` to `bottom:18px`
+so it stops colliding with the nav's "Book a Call" button.
+
 ### Remaining suspects, in priority order
 
 The absence of the `.bb-empty` message is the key signal — that message prints whenever
@@ -85,10 +110,6 @@ no `.catch()`, so a network-level failure fails silently).
 - **Hero cards should add to cart, not route away.** `d7a7c63a`'s three Para cards are
   plain links to synergizedsupps.com, which exits the BB brand mid-funnel. Emma wants
   add-to-cart on the BB page. Blocked behind the same JS fix — same cart, same token.
-- **`para-kit` wraps alone.** `HANDLES` has 4 entries; `#bb-store` is `repeat(3,1fr)`, so
-  the kit lands on its own row. Cosmetic; either promote the kit separately or go 4-up.
-- **Floating cart toggle** is `position:fixed; top:18px; right:18px` — collides with the
-  nav / "Book a Call" button. Move it bottom-right.
 - **"Meet Your Practitioner"** (`d110f857-…-68c0c3ccf482`) is hidden, not deleted.
   Restore with a BB practitioner or remove for good.
 

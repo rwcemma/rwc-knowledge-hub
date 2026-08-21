@@ -1,17 +1,4 @@
-<!-- ============================================================
-     BIOHACKING BOMBSHELL — HEADLESS STORE (Shopify Storefront API)
-     Mirror of Webflow embed 7c7f9b41-49f9-eda7-a3c5-f289f9bfec5c
-     on site 6a7635942dbaea8e6172ec21, page 6a7635962dbaea8e6172ec58.
-
-     TOKEN IS REDACTED HERE. The live embed carries the real publishable
-     Storefront token. It is public by design (it ships in page HTML),
-     redacted only to keep it out of git history.
-
-     BEFORE IT WORKS:
-     1) Paste the Storefront API access token below.
-     2) The products in HANDLES must be published to the SAME sales
-        channel / custom app that issued that token, or the grid is empty.
-     ============================================================ -->
+<!-- bb-store v2 — self-diagnosing. Append ?bbdebug=1 to the URL for detail. -->
 <div id="bb-store"></div>
 <div id="bb-cart-toggle" aria-label="Open cart">🛒 <span id="bb-cart-count">0</span></div>
 <div id="bb-cart-backdrop"></div>
@@ -26,16 +13,17 @@
 </aside>
 
 <style>
-  #bb-store{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;max-width:960px;margin:0 auto;font-family:Montserrat,sans-serif;}
+  #bb-store{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;max-width:1100px;margin:0 auto;font-family:Montserrat,sans-serif;}
   #bb-store .bbp{background:#fff;border:1px solid #ecdfe6;border-radius:16px;padding:20px 18px 18px;text-align:center;display:flex;flex-direction:column;box-shadow:0 8px 24px rgba(21,79,97,.10);}
   #bb-store .bbp img{width:100%;height:180px;object-fit:contain;margin-bottom:12px;}
   #bb-store .bbp .t{font-weight:700;font-size:18px;color:#7c2a68;margin-bottom:4px;}
   #bb-store .bbp .pr{font-size:15px;color:#4a5a63;margin-bottom:14px;}
   #bb-store .bbp button{margin-top:auto;background:#E5397F;color:#fff;font-family:Montserrat,sans-serif;font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase;padding:12px 16px;border:none;border-radius:40px;cursor:pointer;transition:background .15s;}
   #bb-store .bbp button:hover{background:#B0286F;}
-  #bb-store .bb-empty{grid-column:1/-1;text-align:center;color:#7c2a68;padding:30px;}
+  #bb-store .bb-empty{grid-column:1/-1;text-align:center;color:#7c2a68;padding:30px;font-family:Montserrat,sans-serif;}
+  #bb-store .bb-empty pre{text-align:left;white-space:pre-wrap;word-break:break-word;font-size:11px;line-height:1.5;margin-top:14px;background:#faf4f7;border:1px solid #ecdfe6;border-radius:10px;padding:12px;color:#4a5a63;max-height:320px;overflow:auto;}
 
-  #bb-cart-toggle{position:fixed;top:18px;right:18px;z-index:9998;background:#E5397F;color:#fff;font-family:Montserrat,sans-serif;font-weight:700;padding:10px 16px;border-radius:40px;cursor:pointer;box-shadow:0 6px 18px rgba(160,30,96,.35);}
+  #bb-cart-toggle{position:fixed;bottom:18px;right:18px;z-index:9998;background:#E5397F;color:#fff;font-family:Montserrat,sans-serif;font-weight:700;padding:10px 16px;border-radius:40px;cursor:pointer;box-shadow:0 6px 18px rgba(160,30,96,.35);}
   #bb-cart-backdrop{position:fixed;inset:0;background:rgba(21,25,26,.45);z-index:9998;display:none;}
   #bb-cart-drawer{position:fixed;top:0;right:0;height:100%;width:380px;max-width:90vw;background:#fff;z-index:9999;box-shadow:-8px 0 30px rgba(0,0,0,.2);transform:translateX(100%);transition:transform .25s ease;display:flex;flex-direction:column;font-family:Montserrat,sans-serif;}
   #bb-cart-drawer.open{transform:translateX(0);}
@@ -53,72 +41,127 @@
   #bb-checkout-btn{width:100%;background:#E5397F;color:#fff;font-family:Montserrat,sans-serif;font-weight:700;font-size:16px;text-transform:uppercase;letter-spacing:.04em;padding:15px;border:none;border-radius:40px;cursor:pointer;}
   #bb-checkout-btn:disabled{opacity:.5;cursor:not-allowed;}
   .bb-cart-note{font-size:11px;color:#9bb2b6;text-align:center;margin:10px 0 0;}
+  @media screen and (max-width:1100px){#bb-store{grid-template-columns:repeat(2,1fr);max-width:700px;}}
   @media screen and (max-width:767px){#bb-store{grid-template-columns:1fr;max-width:340px;}}
 </style>
 
 <script>
 (function () {
-  var DOMAIN = 'synergized-supplements.myshopify.com';
-  var TOKEN  = 'PASTE_STOREFRONT_ACCESS_TOKEN_HERE';   // <-- publishable Storefront API token
-  var API    = 'https://' + DOMAIN + '/api/2024-10/graphql.json';
+  var DOMAIN  = 'synergized-supplements.myshopify.com';
+  var TOKEN   = 'PASTE_STOREFRONT_ACCESS_TOKEN_HERE';
+  var API     = 'https://' + DOMAIN + '/api/2024-10/graphql.json';
   var HANDLES = ['para-1-cellcore', 'para-2-cellcore', 'para-3-cellcore', 'para-kit'];
+  var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
+  var VERSION = 'v2';
 
-  var cartId = localStorage.getItem('bbCartId') || null;
-  var money = function (m) { return '$' + Number(m.amount).toFixed(2); };
+  var grid = document.getElementById('bb-store');
+
+  // Proof of execution. If the shop section is completely blank on load,
+  // this script never ran at all — that is a different problem from a failed fetch.
+  if (grid) {
+    grid.innerHTML = '<div class="bb-empty">Loading products&hellip;' +
+      (DEBUG ? ' <small>(bb-store ' + VERSION + ' executing)</small>' : '') + '</div>';
+  }
+
+  function esc(s) { return String(s).split('&').join('&amp;').split('<').join('&lt;'); }
+
+  function report(headline, detail) {
+    if (!grid) return;
+    grid.innerHTML = '<div class="bb-empty"><strong>' + esc(headline) + '</strong>' +
+      (DEBUG && detail ? '<pre>' + esc(detail).slice(0, 1500) + '</pre>'
+                       : '<br><small>Add ?bbdebug=1 to the URL for technical detail.</small>') +
+      '</div>';
+  }
 
   function gql(query, variables) {
     return fetch(API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Shopify-Storefront-Access-Token': TOKEN },
       body: JSON.stringify({ query: query, variables: variables || {} })
-    }).then(function (r) { return r.json(); });
+    }).then(function (r) {
+      return r.text().then(function (t) {
+        var j = null;
+        try { j = JSON.parse(t); } catch (e) { /* non-JSON body */ }
+        return { ok: r.ok, status: r.status, json: j, raw: t };
+      });
+    });
   }
 
-  // --- load products by handle ---
+  var money = function (m) { return '$' + Number(m.amount).toFixed(2); };
+  var cartId = localStorage.getItem('bbCartId') || null;
+
+  // --- load products ---
   var q = 'query($q:String!){products(first:20,query:$q){nodes{id title handle featuredImage{url altText} variants(first:1){nodes{id price{amount currencyCode}}}}}}';
   var qStr = HANDLES.map(function (h) { return 'handle:' + h; }).join(' OR ');
+
   gql(q, { q: qStr }).then(function (res) {
-    var grid = document.getElementById('bb-store');
-    var items = ((res && res.data && res.data.products && res.data.products.nodes) || [])
+    if (!res.ok) {
+      report('Store temporarily unavailable.',
+             'HTTP ' + res.status + ' from the Storefront API. A 401 or 403 here means the access token is wrong, revoked, or not permitted. Body: ' + res.raw);
+      return;
+    }
+    if (res.json && res.json.errors) {
+      report('Store temporarily unavailable.',
+             'The API answered 200 but returned GraphQL errors: ' + JSON.stringify(res.json.errors));
+      return;
+    }
+    var items = ((res.json && res.json.data && res.json.data.products && res.json.data.products.nodes) || [])
       .sort(function (a, b) { return HANDLES.indexOf(a.handle) - HANDLES.indexOf(b.handle); });
     if (!items.length) {
-      grid.innerHTML = '<div class="bb-empty">If this stays empty, the products aren’t published to this token’s sales channel.</div>';
+      report('No products found.',
+             'The request succeeded and returned 0 products, so the token is VALID but these handles are not visible to its sales channel. Wanted: ' + HANDLES.join(', ') + ' Body: ' + res.raw);
       return;
     }
     grid.innerHTML = items.map(function (p) {
       var v = p.variants.nodes[0];
       var img = p.featuredImage ? p.featuredImage.url : '';
-      return '<div class="bbp"><img src="' + img + '" alt="' + (p.title || '') + '"><div class="t">' + p.title + '</div>' +
+      return '<div class="bbp"><img src="' + img + '" alt="' + esc(p.title || '') + '"><div class="t">' + esc(p.title) + '</div>' +
              '<div class="pr">' + money(v.price) + '</div>' +
              '<button data-vid="' + v.id + '">Add to Cart</button></div>';
     }).join('');
     grid.querySelectorAll('button[data-vid]').forEach(function (b) {
       b.addEventListener('click', function () { addToCart(b.getAttribute('data-vid')); });
     });
+  }).catch(function (e) {
+    report('Store temporarily unavailable.',
+           'fetch() threw before any response arrived, so the browser never reached Shopify. Usual causes: blocked by CORS, a Content-Security-Policy, a browser extension, or offline. Detail: ' + (e && e.message ? e.message : e));
   });
 
-  // --- cart mutations ---
+  // --- cart ---
   var CART_FIELDS = 'id checkoutUrl totalQuantity cost{subtotalAmount{amount currencyCode}} lines(first:50){nodes{id quantity merchandise{... on ProductVariant{id price{amount currencyCode} product{title featuredImage{url}}}}}}';
+
+  function cartFail(e) {
+    alert('Sorry, the cart could not be updated. Please try again.');
+    if (window.console) { console.error('[bb-store] cart error', e); }
+  }
 
   function addToCart(variantId) {
     if (!cartId) {
       gql('mutation($lines:[CartLineInput!]!){cartCreate(input:{lines:$lines}){cart{' + CART_FIELDS + '}}}',
           { lines: [{ merchandiseId: variantId, quantity: 1 }] })
-        .then(function (r) { var c = r.data.cartCreate.cart; cartId = c.id; localStorage.setItem('bbCartId', cartId); renderCart(c); openCart(); });
+        .then(function (r) {
+          var c = r.json && r.json.data && r.json.data.cartCreate && r.json.data.cartCreate.cart;
+          if (!c) { return cartFail(r.raw); }
+          cartId = c.id; localStorage.setItem('bbCartId', cartId); renderCart(c); openCart();
+        }).catch(cartFail);
     } else {
       gql('mutation($id:ID!,$lines:[CartLineInput!]!){cartLinesAdd(cartId:$id,lines:$lines){cart{' + CART_FIELDS + '}}}',
           { id: cartId, lines: [{ merchandiseId: variantId, quantity: 1 }] })
         .then(function (r) {
-          var res = r.data.cartLinesAdd; if (!res || !res.cart) { cartId = null; localStorage.removeItem('bbCartId'); return addToCart(variantId); }
-          renderCart(res.cart); openCart();
-        });
+          var c = r.json && r.json.data && r.json.data.cartLinesAdd && r.json.data.cartLinesAdd.cart;
+          if (!c) { cartId = null; localStorage.removeItem('bbCartId'); return addToCart(variantId); }
+          renderCart(c); openCart();
+        }).catch(cartFail);
     }
   }
 
   function removeLine(lineId) {
     gql('mutation($id:ID!,$lineIds:[ID!]!){cartLinesRemove(cartId:$id,lineIds:$lineIds){cart{' + CART_FIELDS + '}}}',
         { id: cartId, lineIds: [lineId] })
-      .then(function (r) { renderCart(r.data.cartLinesRemove.cart); });
+      .then(function (r) {
+        var c = r.json && r.json.data && r.json.data.cartLinesRemove && r.json.data.cartLinesRemove.cart;
+        if (c) { renderCart(c); }
+      }).catch(cartFail);
   }
 
   function renderCart(cart) {
@@ -128,8 +171,8 @@
     var box = document.getElementById('bb-cart-lines');
     box.innerHTML = lines.length ? lines.map(function (l) {
       var m = l.merchandise, img = m.product.featuredImage ? m.product.featuredImage.url : '';
-      return '<div class="bb-line"><img src="' + img + '"><div class="ln">' + m.product.title +
-             '<br><span class="lp">' + money(m.price) + '</span> × ' + l.quantity +
+      return '<div class="bb-line"><img src="' + img + '"><div class="ln">' + esc(m.product.title) +
+             '<br><span class="lp">' + money(m.price) + '</span> &times; ' + l.quantity +
              '<br><button class="rm" data-line="' + l.id + '">Remove</button></div></div>';
     }).join('') : '<p style="color:#9bb2b6;text-align:center;padding:20px 0;">Your cart is empty.</p>';
     box.querySelectorAll('.rm').forEach(function (b) { b.addEventListener('click', function () { removeLine(b.getAttribute('data-line')); }); });
@@ -139,14 +182,15 @@
     btn.onclick = function () { if (cart && cart.checkoutUrl) window.location.href = cart.checkoutUrl; };
   }
 
-  // rehydrate an existing cart on load
   if (cartId) {
     gql('query($id:ID!){cart(id:$id){' + CART_FIELDS + '}}', { id: cartId })
-      .then(function (r) { if (r.data && r.data.cart) renderCart(r.data.cart); else { localStorage.removeItem('bbCartId'); cartId = null; } });
+      .then(function (r) {
+        var c = r.json && r.json.data && r.json.data.cart;
+        if (c) { renderCart(c); } else { localStorage.removeItem('bbCartId'); cartId = null; }
+      }).catch(function () { /* stale cart, ignore */ });
   }
 
-  // --- drawer open/close ---
-  function openCart() { document.getElementById('bb-cart-drawer').classList.add('open'); document.getElementById('bb-cart-backdrop').classList.add('open'); }
+  function openCart()  { document.getElementById('bb-cart-drawer').classList.add('open');    document.getElementById('bb-cart-backdrop').classList.add('open'); }
   function closeCart() { document.getElementById('bb-cart-drawer').classList.remove('open'); document.getElementById('bb-cart-backdrop').classList.remove('open'); }
   document.getElementById('bb-cart-toggle').addEventListener('click', openCart);
   document.getElementById('bb-cart-close').addEventListener('click', closeCart);
