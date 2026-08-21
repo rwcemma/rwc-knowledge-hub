@@ -1,4 +1,4 @@
-<!-- bb-store v5 - single owner of products, cart AND the product detail modal.
+<!-- bb-store v6 - single owner of products, cart, modal AND the hero card rendering.
      Other sections opt in with data-bb-handle / data-bb-add markup only.
      Append ?bbdebug=1 for detail. Do NOT add a second script or cart drawer. -->
 <div id="bb-store"></div>
@@ -80,8 +80,9 @@
   var TOKEN   = 'PASTE_STOREFRONT_ACCESS_TOKEN_HERE';
   var API     = 'https://' + DOMAIN + '/api/2026-07/graphql.json';
   var HANDLES = ['para-1-cellcore', 'para-2-cellcore', 'para-3-cellcore', 'para-kit'];
+  var HERO    = ['para-1-cellcore', 'para-2-cellcore', 'para-3-cellcore'];
   var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
-  var VERSION = 'v5';
+  var VERSION = 'v6';
 
   var grid = document.getElementById('bb-store');
   var byHandle = {};
@@ -97,38 +98,13 @@
   function dbg(msg) { if (DEBUG && window.console) { console.log('[bb-store] ' + msg); } }
 
   function report(headline, detail) {
-    if (grid) {
-      grid.innerHTML = '<div class="bb-empty"><strong>' + esc(headline) + '</strong>' +
-        (DEBUG && detail ? '<pre>' + esc(detail).slice(0, 1500) + '</pre>'
-                         : '<br><small>Add ?bbdebug=1 to the URL for technical detail.</small>') +
-        '</div>';
-    }
-    fallbackCards();
-  }
-
-  // Prices/labels only. Clicking never depends on this pass having run.
-  function decorateCards() {
-    var n = 0;
-    var cards = document.querySelectorAll('[data-bb-handle]');
-    for (var i = 0; i < cards.length; i++) {
-      var card = cards[i];
-      var p = byHandle[card.getAttribute('data-bb-handle')];
-      if (!p || !p.variants.nodes.length) { continue; }
-      var priceEl = card.querySelector('.p');
-      if (priceEl && !priceEl.textContent) { priceEl.textContent = money(p.variants.nodes[0].price); }
-      n++;
-    }
-    dbg('decorated ' + n + ' of ' + cards.length + ' cards on the page');
-  }
-
-  // Store unreachable: never dead-end a shopper.
-  function fallbackCards() {
-    var cards = document.querySelectorAll('[data-bb-handle]');
-    for (var i = 0; i < cards.length; i++) {
-      var btn = cards[i].querySelector('[data-bb-add]');
-      var url = cards[i].getAttribute('data-bb-url');
-      if (btn && url) { btn.textContent = 'View product'; btn.setAttribute('data-bb-fallback', url); }
-    }
+    if (!grid) { return; }
+    grid.innerHTML = '<div class="bb-empty"><strong>' + esc(headline) + '</strong>' +
+      (DEBUG && detail ? '<pre>' + esc(detail).slice(0, 1500) + '</pre>'
+                       : '<br><small>Add ?bbdebug=1 to the URL for technical detail.</small>') +
+      '</div>';
+    // The hero keeps its static link cards, so shoppers are never dead-ended.
+    dbg('store failed; hero left on static fallback markup');
   }
 
   function gql(query, variables) {
@@ -147,6 +123,29 @@
 
   var q = 'query($q:String!){products(first:20,query:$q){nodes{id title handle descriptionHtml featuredImage{url altText} images(first:4){nodes{url altText}} variants(first:1){nodes{id price{amount currencyCode} availableForSale}}}}}';
   var qStr = HANDLES.map(function (h) { return 'handle:' + h; }).join(' OR ');
+
+  // Every card on the page is rendered HERE, by this script. Static markup in
+  // other embeds is fallback only - Webflow can normalise away bare data-*
+  // attributes on publish, which is why hero cards must not rely on them.
+  function renderHero() {
+    var hero = document.getElementById('bbp');
+    if (!hero) { dbg('no #bbp hero container found'); return; }
+    var html = '';
+    for (var i = 0; i < HERO.length; i++) {
+      var p = byHandle[HERO[i]];
+      if (!p || !p.variants.nodes.length) { continue; }
+      var v = p.variants.nodes[0];
+      var img = p.featuredImage ? p.featuredImage.url : '';
+      html += '<div class="c" data-bb-handle="' + p.handle + '">' +
+              '<img src="' + img + '" alt="' + esc(p.title) + '">' +
+              '<div class="n">' + esc(p.title) + '</div>' +
+              '<span class="p">' + money(v.price) + '</span>' +
+              '<span class="lm">Learn more</span>' +
+              '<button data-bb-add="1">' + (v.availableForSale === false ? 'Sold out' : 'Add to Cart') + '</button>' +
+              '</div>';
+    }
+    if (html) { hero.innerHTML = html; dbg('hero rendered from API'); }
+  }
 
   gql(q, { q: qStr }).then(function (res) {
     if (!res.ok) {
@@ -174,9 +173,9 @@
              '<div class="t">' + esc(p.title) + '</div>' +
              '<div class="pr">' + money(v.price) + '</div>' +
              '<div class="lm">Learn more</div>' +
-             '<button data-bb-add>Add to Cart</button></div>';
+             '<button data-bb-add="1">' + (v.availableForSale === false ? 'Sold out' : 'Add to Cart') + '</button></div>';
     }).join('');
-    decorateCards();
+    renderHero();
   }).catch(function (e) {
     report('Store temporarily unavailable.', 'fetch() threw before any response arrived, so the browser never reached Shopify. Usual causes: bad hostname, CORS, a Content-Security-Policy, an extension, or offline. Detail: ' + (e && e.message ? e.message : e));
   });
@@ -189,6 +188,7 @@
   }
 
   function addToCart(variantId) {
+    dbg('addToCart ' + variantId);
     if (!cartId) {
       gql('mutation($lines:[CartLineInput!]!){cartCreate(input:{lines:$lines}){cart{' + CART_FIELDS + '}}}',
           { lines: [{ merchandiseId: variantId, quantity: 1 }] })
@@ -228,10 +228,6 @@
              '<br><span class="lp">' + money(m.price) + '</span> &times; ' + l.quantity +
              '<br><button class="rm" data-line="' + l.id + '">Remove</button></div></div>';
     }).join('') : '<p style="color:#9bb2b6;text-align:center;padding:20px 0;">Your cart is empty.</p>';
-    var rms = box.querySelectorAll('.rm');
-    for (var i = 0; i < rms.length; i++) {
-      rms[i].addEventListener('click', function (ev) { removeLine(ev.currentTarget.getAttribute('data-line')); });
-    }
     document.getElementById('bb-cart-subtotal').textContent = cart ? money(cart.cost.subtotalAmount) : '$0.00';
     var btn = document.getElementById('bb-checkout-btn');
     btn.disabled = !cart || count === 0;
@@ -263,7 +259,7 @@
       '<div class="bb-m-info"><h3>' + esc(p.title) + '</h3>' +
         '<div class="bb-m-price">' + money(v.price) + '</div>' +
         '<div class="bb-m-desc">' + (p.descriptionHtml || '<p>No description available.</p>') + '</div>' +
-        '<button data-bb-add>' + (v.availableForSale === false ? 'Sold out' : 'Add to Cart') + '</button>' +
+        '<button data-bb-add="1">' + (v.availableForSale === false ? 'Sold out' : 'Add to Cart') + '</button>' +
       '</div>';
     m.classList.add('open');
     document.getElementById('bb-modal-backdrop').classList.add('open');
@@ -275,7 +271,7 @@
     if (b) { b.classList.remove('open'); }
   }
 
-  // ONE delegated listener. Clicking works regardless of when cards appear.
+  // ONE delegated listener for the whole page.
   document.addEventListener('click', function (ev) {
     var t = ev.target;
     if (!t || !t.closest) { return; }
@@ -285,15 +281,17 @@
     var thumb = t.closest('[data-bb-thumb]');
     if (thumb) { document.getElementById('bb-m-main').src = thumb.getAttribute('src'); return; }
 
+    var rm = t.closest('.rm');
+    if (rm) { ev.preventDefault(); removeLine(rm.getAttribute('data-line')); return; }
+
     var add = t.closest('[data-bb-add]');
     if (add) {
       ev.preventDefault();
-      var fb = add.getAttribute('data-bb-fallback');
-      if (fb) { window.open(fb, '_blank', 'noopener'); return; }
       var addCard = add.closest('[data-bb-handle]');
-      if (!addCard) { return; }
+      if (!addCard) { dbg('add clicked but no [data-bb-handle] ancestor'); return; }
       var ap = byHandle[addCard.getAttribute('data-bb-handle')];
       if (ap && ap.variants.nodes.length) { addToCart(ap.variants.nodes[0].id); }
+      else { dbg('add clicked but product not loaded'); }
       return;
     }
 
@@ -303,9 +301,7 @@
     if (!card) { return; }
     ev.preventDefault();
     var p = byHandle[card.getAttribute('data-bb-handle')];
-    if (p) { openModal(p); return; }
-    var url = card.getAttribute('data-bb-url');
-    if (url) { window.open(url, '_blank', 'noopener'); }
+    if (p) { openModal(p); }
   });
 
   document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') { closeModal(); closeCart(); } });
