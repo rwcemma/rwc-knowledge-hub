@@ -18,7 +18,7 @@ session has lacked, and it is what this blocker now needs.
 | Page | `Home` `/` — `6a7635962dbaea8e6172ec58` (only page) |
 | Published at | `https://biohacking-bombshell-estore.webflow.io` (no custom domain) |
 | Shopify | `synergized-supplements.myshopify.com` / `synergizedsupps.com`, Advanced |
-| Storefront API | `https://synergized-supplements.myshopify.com/api/2024-10/graphql.json` |
+| Storefront API | `https://dr-jaban-moore-store.myshopify.com/api/2026-07/graphql.json` |
 
 Site has a **paid Webflow Site Plan** (confirmed by Emma). Workspace is **not**
 Enterprise, so page branching is unavailable — edit pages directly.
@@ -29,81 +29,74 @@ Enterprise, so page branching is unavailable — edit pages directly.
 |---|---|---|---|
 | `95c7e548-b7da-2e0f-a368-8d2c7cb9f05a` | Hero eyebrow badge | No | ✅ |
 | `d7a7c63a-ebc1-c926-210b-2c7da0e8115c` | Hero 3 Para cards → link out to synergizedsupps.com | No | ✅ |
-| `7c7f9b41-49f9-eda7-a3c5-f289f9bfec5c` | **Headless store + cart** (real token), `bb-store v2` | **Yes** | see below |
+| `7c7f9b41-49f9-eda7-a3c5-f289f9bfec5c` | **Headless store + cart** (real token), `bb-store v3` | **Yes** | see below |
 | `2148c621-673b-0a07-3ec6-1e86f60a7a63` | `#bb-learn` education section | No | ✅ |
 
 Source of `7c7f9b41` is committed alongside this doc as
 `bb-headless-store-embed.html`, **token redacted**. The live embed has the real
 publishable token in it.
 
-## THE BLOCKER
+## THE BLOCKER — ROOT CAUSE FOUND
 
-Shop section renders **nothing** — no product cards, and *not even* the embed's own
-`.bb-empty` fallback message. Hero and education embeds render fine.
+**The embed was calling a myshopify domain that does not exist.**
 
-### Ruled OUT — do not re-investigate
+| | |
+|---|---|
+| Embed called | `synergized-supplements.myshopify.com` |
+| Actual myshopify domain | **`dr-jaban-moore-store.myshopify.com`** |
 
-- **Duplicate store embeds.** There were two full copies of the headless store
-  (`7c7f9b41` with the real token, `9daa5c04` with `PASTE_STOREFRONT_ACCESS_TOKEN_HERE`),
-  both writing into the same `#bb-store` / `#bb-cart-toggle` / `#bb-cart-drawer` ids.
-  `getElementById` returns the first match, so the placeholder copy's failure wiped the
-  working copy's grid. **`9daa5c04` was deleted and the site republished. Did not fix it.**
-- **Wrong product query form.** Both copies already used
-  `products(first:20, query:"handle:… OR …")`, not the unsupported `product(handle:)`.
-- **Free-plan custom-code restriction.** Site has a paid Site Plan.
-- **Page branching mismatch.** Not an Enterprise workspace; `Home` is `isBranch: false`.
-- **Edits/publish not landing.** `lastPublished` advanced `15:38:59 → 15:51:51`, page
-  `lastUpdated 15:51:28` (before the publish), Webflow regenerated its screenshot, and
-  the hero design is visibly live. The publish pipeline is healthy.
-- **Stray custom code.** Site and page head/footer freeform blocks are both empty;
-  zero registered scripts. Those 4 embeds are the only code on the site.
+Verified via Admin API `shop { myshopifyDomain }`. The store was created as Dr. Jaban
+Moore's store and later rebranded to Synergized Supplements; the `.myshopify.com`
+subdomain is permanent and does **not** follow a rename, so the plausible-looking
+guess in the first handoff was simply wrong. DNS failed, `fetch` threw, and because
+the original embed had no `.catch()` the whole thing died silently — which is why
+three sessions chased tokens and sales channels instead.
 
-### `bb-store v2` — self-diagnosing embed (installed, published)
+Fixed in `bb-store v3`: correct domain, and API version `2024-10` → `2026-07`
+(2024-10 retired 2025-10-16; Shopify falls forward to the oldest accessible version,
+so this was not the blocker, but it was fragile).
 
-The store embed was replaced with a hardened version that **cannot fail silently**.
-It reads the same 4 handles with the same token; the changes are diagnostic and cosmetic.
+**Confirmed healthy via Admin API** — all four handles are `ACTIVE` and published to
+Online Store, Buy Button, Headless, Synergized Supplements Headless, and Biohacking
+Bombshell. The token originated in the Buy Button embed, and Buy Button carries all
+four, so channel visibility should not be a problem.
 
-Read the shop section on load — it now distinguishes the failure modes by itself:
+### How to diagnose this embed (bb-store v2+)
+
+The embed cannot fail silently any more. Read the shop section on load:
 
 | What you see | What it means |
 |---|---|
-| **Completely blank** | The script never executed. Not a Shopify problem — the embed's JS isn't running. |
+| **Completely blank** | The script never executed. Not a Shopify problem. |
 | `Loading products…` and it stays | The fetch never settled. |
-| *"fetch() threw…"* | Never reached Shopify — CORS, CSP, extension, or offline. |
+| *"fetch() threw…"* | Never reached Shopify — bad hostname, CORS, CSP, extension, offline. |
 | *"HTTP 401/403…"* | Token wrong, revoked, or not permitted. |
-| *"GraphQL errors…"* | Token reached Shopify but the query was rejected. |
-| *"No products found… token is VALID"* | Token fine; handles not visible to its sales channel. |
+| *"GraphQL errors…"* | Reached Shopify, query rejected. |
+| *"No products found… token is VALID"* | Token fine; handles not visible to its channel. |
 | Product cards | Working. |
 
-Append **`?bbdebug=1`** to the URL to get the raw HTTP status, response body, and
-GraphQL errors printed on the page. Without it, visitors see a neutral message.
+Append **`?bbdebug=1`** for raw HTTP status, response body, and GraphQL errors on the
+page. Without it, visitors see a neutral message.
 
-Also changed: `.catch()` on every fetch (this is what turns a blank into a message),
-grid `repeat(3,1fr)` → `repeat(4,1fr)` with a 2-up tablet breakpoint so `para-kit` no
-longer wraps alone, and the floating cart toggle moved from `top:18px` to `bottom:18px`
-so it stops colliding with the nav's "Book a Call" button.
+### Ruled out along the way — do not re-investigate
 
-### Remaining suspects, in priority order
+- **Duplicate store embeds.** Two full copies (`7c7f9b41` real token, `9daa5c04`
+  placeholder) shared `#bb-store` / `#bb-cart-toggle` / `#bb-cart-drawer` ids, so the
+  failing copy wiped the working copy's grid. `9daa5c04` deleted. Real bug, not the cause.
+- **Wrong product query form.** Both already used `products(first:20, query:…)`.
+- **Free-plan custom-code restriction.** Site has a paid Site Plan.
+- **Embed character limit.** It is 50,000, not 10,000 — nothing was truncated.
+- **Page branching mismatch.** Not Enterprise; `Home` is `isBranch: false`.
+- **Edits/publish not landing.** Publish pipeline verified healthy throughout.
+- **Stray custom code.** Site and page head/footer blocks empty; zero registered scripts.
+- **Token / sales channel.** Products published to every relevant publication.
 
-The absence of the `.bb-empty` message is the key signal — that message prints whenever
-the Shopify call *returns* anything at all, including a 401. Getting a blank instead means
-either the script never executed, or `fetch` **threw** before any response (the embed has
-no `.catch()`, so a network-level failure fails silently).
+### Also fixed in v3
 
-1. **Script not executing at all.** Confirm in DevTools → Elements that the `<script>`
-   survived into published HTML, and in Console whether it ran. Cheapest decisive test:
-   temporarily drop a trivial JS embed on the page and see if it fires.
-2. **`fetch` throwing.** Check the Network tab for the POST to `/api/2024-10/graphql.json`.
-   No request at all → suspect #1. Request present but failed/blocked (CORS, CSP,
-   `net::ERR_*`) → that's the cause.
-3. **Token ↔ channel mismatch.** Only reachable if a response *does* come back. Products
-   `para-1-cellcore`, `para-2-cellcore`, `para-3-cellcore`, `para-kit` are confirmed
-   published to the **Biohacking Bombshell** (`139575558241`) and **Synergized Supplements
-   Headless** (`139293524065`) channels. If the token maps elsewhere, mint a fresh one from
-   the Headless channel (or via `storefrontAccessTokenCreate` on the Admin API — note tokens
-   created that way bind to the creating app's publication, so verify visibility after).
-4. **Section collapsed, not empty.** `#bb-store` with no children has zero height; make
-   sure the section isn't simply scrolled past or visually collapsed.
+- Grid `repeat(3,1fr)` → `repeat(4,1fr)` + 2-up tablet breakpoint, so `para-kit` no
+  longer wraps onto its own row.
+- Floating cart toggle `top:18px` → `bottom:18px`, clearing the nav "Book a Call" button.
+- `.catch()` on every fetch.
 
 ## Open requirements (not yet built)
 

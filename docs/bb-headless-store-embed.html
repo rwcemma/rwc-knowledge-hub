@@ -1,4 +1,4 @@
-<!-- bb-store v2 — self-diagnosing. Append ?bbdebug=1 to the URL for detail. -->
+<!-- bb-store v3 — correct myshopify domain + API 2026-07. Append ?bbdebug=1 for detail. -->
 <div id="bb-store"></div>
 <div id="bb-cart-toggle" aria-label="Open cart">🛒 <span id="bb-cart-count">0</span></div>
 <div id="bb-cart-backdrop"></div>
@@ -47,12 +47,12 @@
 
 <script>
 (function () {
-  var DOMAIN  = 'synergized-supplements.myshopify.com';
+  var DOMAIN  = 'dr-jaban-moore-store.myshopify.com';
   var TOKEN   = 'PASTE_STOREFRONT_ACCESS_TOKEN_HERE';
-  var API     = 'https://' + DOMAIN + '/api/2024-10/graphql.json';
+  var API     = 'https://' + DOMAIN + '/api/2026-07/graphql.json';
   var HANDLES = ['para-1-cellcore', 'para-2-cellcore', 'para-3-cellcore', 'para-kit'];
   var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
-  var VERSION = 'v2';
+  var VERSION = 'v3';
 
   var grid = document.getElementById('bb-store');
 
