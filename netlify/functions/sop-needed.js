@@ -35,9 +35,13 @@ export default async (req) => {
     });
   }
 
+  // Optional source label (e.g. "Client Communication tab") so the team can
+  // tell which tool logged the gap. Older callers omit it — unchanged behavior.
+  const source = ((body && body.source) || "").toString().trim().slice(0, 120);
+
   // Slack incoming-webhook payload. The *bold* asterisks render as bold in Slack mrkdwn.
   const slackPayload = {
-    text: `*SOP NEEDED:*\nQuestion: ${question}`,
+    text: `*SOP NEEDED:*\nQuestion: ${question}` + (source ? `\n_Source: ${source}_` : ""),
   };
 
   try {

@@ -601,6 +601,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica N
 #panel-comms .gapbtn:disabled{cursor:default; opacity:1}
 #panel-comms .gapbtn.done{background:var(--teal)}
 #panel-comms .gapbtn:focus-visible{outline:2px solid var(--teal); outline-offset:2px}
+#panel-comms .gaplog{margin-top:14px; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.03em; color:var(--muted); display:flex; flex-wrap:wrap; align-items:center; gap:8px}
+#panel-comms .gaplog.ok{color:var(--teal)}
+#panel-comms .gaplog.warn{color:#a8791a}
 
 /* boundaries */
 #panel-comms .guard{
@@ -2177,12 +2180,36 @@ async function sendGap(btn){
   if(btn.dataset.sent==='1'||btn.dataset.sending==='1') return;
   btn.dataset.sending='1'; btn.disabled=true; btn.textContent='⏳ Sending to #sop-needed…';
   try{
-    const res = await fetch('/api/sop-needed',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:btn.dataset.gap})});
+    const res = await fetch('/api/sop-needed',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:btn.dataset.gap, source:'Client Communication tab'})});
     if(!res.ok) throw new Error('sop-needed api '+res.status);
     btn.dataset.sent='1'; btn.dataset.sending=''; btn.classList.add('done'); btn.textContent='✅ Sent to #sop-needed';
+    loggedGaps.add((btn.dataset.gap||'').trim().toLowerCase());
   }catch(e){
     console.error('sop-needed send failed:',e);
     btn.dataset.sending=''; btn.disabled=false; btn.textContent='❌ Couldn\'t send — tap to retry';
+  }
+}
+
+/* Auto-log every unknown question to #sop-needed so the answer library grows
+   over time. Deduped per page load; trivially short inputs are skipped. */
+const loggedGaps = new Set();
+async function autoLogGap(q, statusEl){
+  if(!statusEl) return;
+  const key = (q||'').trim().toLowerCase();
+  if(key.length < 6){ statusEl.textContent = ''; return; }
+  if(loggedGaps.has(key)){ statusEl.className = 'gaplog ok'; statusEl.textContent = '✓ Already sent to #sop-needed'; return; }
+  statusEl.className = 'gaplog'; statusEl.textContent = '⏳ Logging this question to #sop-needed…';
+  try{
+    const res = await fetch('/api/sop-needed',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q, source:'Client Communication tab'})});
+    if(!res.ok) throw new Error('sop-needed api '+res.status);
+    loggedGaps.add(key);
+    statusEl.className = 'gaplog ok';
+    statusEl.textContent = '✓ Logged to #sop-needed — the team will build an answer for next time';
+  }catch(e){
+    console.error('auto sop-needed failed:',e);
+    statusEl.className = 'gaplog warn';
+    statusEl.innerHTML = 'Could not log this automatically — ' + gapButton(q);
+    const b = statusEl.querySelector('[data-gap]'); if(b) b.onclick = () => sendGap(b);
   }
 }
 
@@ -2252,12 +2279,14 @@ function render(q){
           <ol>
             <li>Send the reply above.</li>
             <li>Leave the message marked as <strong>UNREAD</strong> for Front Desk.</li>
-            <li>Submit the question below so it becomes an SOP and nobody has to ask twice.</li>
+            <li>Nothing else — this question is logged automatically so we can build an answer for it.</li>
           </ol>
         </div>
-        ${gapButton(q)}
+        <div class="gaplog"></div>
       </div></div></div>`;
-    wire(); return;
+    wire();
+    autoLogGap(q, out.querySelector('.gaplog'));
+    return;
   }
 
   const t = ranked[0].t;
