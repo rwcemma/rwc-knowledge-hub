@@ -1,14 +1,15 @@
-<!-- bb-store markup v12 - MARKUP + CSS ONLY.
+<!-- bb-store markup v14 - MARKUP + CSS ONLY.
      The JavaScript lives in SITE FOOTER custom code (Project Settings > Custom Code).
      Do NOT add a script here - embed script serialization proved unreliable.
-     #bb-store  = featured Full Moon Cleanse products (Para 1-4 + Kit)
+     #bb-store  = the sale products (Para 1-4 + BioToxin Binder + Para Kit)
      #bb-all    = the rest of the catalogue, with search / brand filter / sort
      Toolbar ids the footer script binds to: #bb-q #bb-vendor #bb-sort #bb-count #bb-all-more -->
 <div id="bb-store"></div>
+<p class="bb-sale-note">Sale prices shown include 20% off, applied automatically at checkout.</p>
 
 <div id="bb-all-wrap">
   <h3 class="bb-all-h">Shop the rest of the store</h3>
-  <p class="bb-all-sub">Everything else in the dispensary, straight from our Shopify catalogue.</p>
+  <p class="bb-all-sub">Practitioner-grade products. Real Results.</p>
   <div class="bb-tools">
     <input id="bb-q" type="search" placeholder="Search products or brands..." autocomplete="off" aria-label="Search products">
     <select id="bb-vendor" aria-label="Filter by brand"><option value="">All brands</option></select>
@@ -45,7 +46,7 @@
 
 <style>
 #bb-store,#bb-all{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:22px;max-width:1100px;margin:0 auto;font-family:Montserrat,sans-serif;}
-#bb-store .bbp,#bb-all .bbp{background:#fff;border:1px solid #ecdfe6;border-radius:16px;padding:20px 18px 18px;text-align:center;display:flex;flex-direction:column;box-shadow:0 8px 24px rgba(21,79,97,.10);cursor:pointer;transition:transform .15s ease,box-shadow .15s ease;}
+#bb-store .bbp,#bb-all .bbp{position:relative;background:#fff;border:1px solid #ecdfe6;border-radius:16px;padding:20px 18px 18px;text-align:center;display:flex;flex-direction:column;box-shadow:0 8px 24px rgba(21,79,97,.10);cursor:pointer;transition:transform .15s ease,box-shadow .15s ease;}
 #bb-store .bbp:hover,#bb-all .bbp:hover{transform:translateY(-4px);box-shadow:0 14px 32px rgba(160,30,96,.20);}
 #bb-store .bbp img,#bb-all .bbp img{width:100%;height:170px;object-fit:contain;margin-bottom:12px;}
 #bb-store .bbp .t,#bb-all .bbp .t{font-weight:700;font-size:16px;line-height:1.35;color:#7c2a68;margin-bottom:4px;}
@@ -106,6 +107,16 @@
 .bb-m-desc i,.bb-m-desc em{font-style:italic;}
 .bb-m-info button{margin-top:22px;flex:none;background:#E5397F;color:#fff;font-family:Montserrat,sans-serif;font-weight:700;font-size:15px;letter-spacing:.04em;text-transform:uppercase;padding:14px 18px;border:none;border-radius:40px;cursor:pointer;transition:background .15s;}
 .bb-m-info button:hover{background:#B0286F;}
+/* Sale pricing: original struck through, discounted price bold red beneath. */
+.bb-was{color:#8b9aa3;font-weight:400;text-decoration:line-through;}
+.bb-now{display:block;color:#d0021b;font-weight:800;font-size:17px;line-height:1.2;margin-top:2px;}
+.bb-m-price .bb-now{font-size:24px;margin-top:4px;}
+.bb-sale-note{max-width:1100px;margin:16px auto 0;text-align:center;font-family:Montserrat,sans-serif;font-size:12px;color:#6d7f88;}
+/* 20% off sticker on the sale products in the shop grid. */
+#bb-store .bbp .bb-off,#bb-all .bbp .bb-off{position:absolute;top:-12px;right:-12px;z-index:3;width:62px;height:62px;border-radius:50%;background:#E5397F;border:3px solid #fff;box-shadow:0 6px 16px rgba(160,30,96,.45);transform:rotate(-12deg);display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;}
+#bb-store .bbp .bb-off svg,#bb-all .bbp .bb-off svg{width:27px;height:15px;display:block;margin-bottom:1px;}
+#bb-store .bbp .bb-off b,#bb-all .bbp .bb-off b{font-family:Montserrat,sans-serif;font-size:16px;font-weight:800;line-height:1;color:#fff;}
+#bb-store .bbp .bb-off span,#bb-all .bbp .bb-off span{font-family:Montserrat,sans-serif;font-size:8px;font-weight:700;letter-spacing:.12em;line-height:1.1;color:#fff;}
 @media screen and (max-width:900px){#bb-modal-body{grid-template-columns:1fr;}.bb-m-media{padding:18px;}#bb-m-main{max-height:190px;}.bb-m-info{padding:22px 20px;max-height:none;}}
-@media screen and (max-width:767px){.bb-tools{flex-direction:column;align-items:stretch;}.bb-tools input,.bb-tools select{max-width:none;width:100%;}#bb-store,#bb-all{grid-template-columns:repeat(2,1fr);gap:14px;}#bb-store .bbp,#bb-all .bbp{padding:14px 12px 12px;}#bb-store .bbp img,#bb-all .bbp img{height:120px;}}
+@media screen and (max-width:767px){.bb-tools{flex-direction:column;align-items:stretch;}.bb-tools input,.bb-tools select{max-width:none;width:100%;}#bb-store,#bb-all{grid-template-columns:repeat(2,1fr);gap:14px;}#bb-store .bbp,#bb-all .bbp{padding:14px 12px 12px;}#bb-store .bbp img,#bb-all .bbp img{height:120px;}#bb-store .bbp .bb-off,#bb-all .bbp .bb-off{width:50px;height:50px;top:-9px;right:-9px;}#bb-store .bbp .bb-off svg,#bb-all .bbp .bb-off svg{width:21px;height:12px;}#bb-store .bbp .bb-off b,#bb-all .bbp .bb-off b{font-size:13px;}#bb-store .bbp .bb-off span,#bb-all .bbp .bb-off span{font-size:7px;}}
 </style>

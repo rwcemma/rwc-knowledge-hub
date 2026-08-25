@@ -381,3 +381,60 @@ with no results. `vendor` had to be added to `ALL_PF` for this.
   publish all go through the REST Data API and work without it.
 - The Storefront access token is **publishable by design** — it already ships in the page
   HTML for anyone to read. It's redacted in this repo for git-history hygiene, not secrecy.
+
+---
+
+## v14 — section 1/2 restructure, sale pricing, copy pass (2026-08-25)
+
+### The overlap fix
+Section 1 and section 2 were both showing the same Para products as shoppable
+cards, which read as duplicated. They now do different jobs:
+
+| | Section 1 (`.bb-hero`) | Section 2 (`#bb-shop`) |
+|---|---|---|
+| Content | collage of Para 1-4 + BioToxin Binder | the same 6 products as cards |
+| Shoppable | **no** — images + names only | yes, add-to-cart + modal |
+| Discount sticker | one, on the panel corner | one per card |
+| Buttons | *Shop the Sale* → `#bb-shop`, *Learn Why Parasites Matter* | — |
+
+The collage container is `#bbp-strip` (was `#bbp`). Nothing inside it carries a
+`data-bb-handle`, so the global click delegate ignores it entirely.
+
+### Files
+| Piece | Location | Mirror |
+|---|---|---|
+| All JavaScript | site **footer** custom code (`bb-store v14`) | `docs/bb-store-footer-code.html` |
+| Layout CSS overrides | site **head** custom code | `docs/bb-store-head-code.html` |
+| Shop markup + CSS | embed `7c7f9b41…` (`bb-store markup v14`) | `docs/bb-store-embed-markup.html` |
+| Hero collage | embed `d7a7c63a…` (`hero collage v7`) | `docs/bb-hero-collage.html` |
+| Education section | embed `2148c621…` | `docs/bb-education-embed.html` |
+| Hero eyebrow | embed `95c7e548…` | — |
+
+`docs/bb-hero-product-row.html` was the pre-v14 shoppable hero row; it is gone.
+
+### Sale pricing
+`SALE_PCT = 0.20` in the footer script drives the struck-through original plus
+the bold red discounted price, and `HANDLES` is the list it applies to. **This is
+display only.** Shopify is what actually charges the customer, so the discount
+must exist there as an *automatic* discount (not a code) or the cart total will
+not match what the page advertises. Change the percentage in exactly two places:
+`SALE_PCT`, `BADGE`, and the `.bb-sale-note` line in the shop embed.
+
+### Cross-link from the education section
+"Drainage Duo" in the *Open drainage pathways first* card opens the Drainage
+Starter Bundle modal. It is bound by **id** (`#bb-drainage-link`), not a
+`data-*` attribute, because Webflow can normalise bare `data-*` attributes in
+static embeds on publish. `href="#bb-shop"` is the fallback if the catalogue
+has not loaded yet.
+
+### Known caveat
+The Drainage Starter Bundle's Shopify vendor is still literally
+`Dr Jaban Moore - Store`, so `VENDOR_ALIAS` relabels it to "Other" in the brand
+filter. Setting a real vendor on that product in Shopify is the proper fix.
+
+### Still open
+- "Made in Webflow" badge — Project Settings → General, Emma's toggle.
+- Page SEO title / description / Open Graph are all empty.
+- `.bb-intro` ("Meet Your Practitioner", `#bb-about`) is still hidden. Its
+  eyebrow is a Block, not a text element, so the Data API cannot set its text —
+  "Shop the Protocols" → "Parasite Cleanse Favorites" needs the Designer.
