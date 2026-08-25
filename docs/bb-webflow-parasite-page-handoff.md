@@ -508,3 +508,13 @@ phrases multi-word.
 
 Sale products (`HANDLES`) bypass `isHidden` entirely, so no rule here can
 swallow one of them.
+
+### Book a Call
+Both "Book a Call" links — header (`...f467`) and footer (`...f572`) — point at
+https://www.biohackingbombshell.com/breakthrough-sessions-j-page-165783
+
+Each also carried a leftover custom attribute `href="#"` from the original
+build. A custom `href` attribute can win over the Designer link setting in
+published output, so both were removed. If a link ever looks set correctly in
+the Designer but still goes nowhere on the live site, check its custom
+attributes first.
