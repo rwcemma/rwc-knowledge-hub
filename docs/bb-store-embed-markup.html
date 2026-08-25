@@ -1,11 +1,10 @@
-<!-- bb-store markup v15 - MARKUP + CSS ONLY.
+<!-- bb-store markup v16 - MARKUP + CSS ONLY.
      The JavaScript lives in SITE FOOTER custom code (Project Settings > Custom Code).
      Do NOT add a script here - embed script serialization proved unreliable.
      #bb-store  = the sale products (Para 1-4 + BioToxin Binder + Para Kit)
      #bb-all    = the rest of the catalogue, with search / brand filter / sort
      Toolbar ids the footer script binds to: #bb-q #bb-vendor #bb-sort #bb-count #bb-all-more -->
 <div id="bb-store"></div>
-<div id="bb-sale-note" class="bb-sale-note"><span class="pill">20% OFF</span><span class="txt">Use code <b>PARASITE</b> at checkout.</span></div>
 
 <div id="bb-all-wrap">
   <h3 class="bb-all-h">Shop the rest of the store</h3>
@@ -113,11 +112,11 @@
 .bb-was{color:#8b9aa3;font-weight:400;text-decoration:line-through;}
 .bb-now{display:block;color:#d0021b;font-weight:800;font-size:17px;line-height:1.2;margin-top:2px;}
 .bb-m-price .bb-now{font-size:24px;margin-top:4px;}
-/* Discount code callouts. The footer script rewrites the text of #bb-sale-note
-   and .bb-code so a scheduled sale never advertises a code that will not work. */
-.bb-sale-note{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;max-width:760px;margin:22px auto 0;padding:14px 20px;background:#fff4f9;border:1px dashed #E5397F;border-radius:14px;font-family:Montserrat,sans-serif;font-size:14px;line-height:1.5;color:#7c2a68;text-align:center;}
-.bb-sale-note .pill{flex:none;background:#E5397F;color:#fff;font-size:12px;font-weight:800;letter-spacing:.1em;padding:6px 12px;border-radius:40px;}
-.bb-sale-note b{color:#a01e60;font-weight:800;letter-spacing:.1em;}
+/* Discount code callouts. The footer script rewrites .bb-code so a scheduled
+   sale never advertises a code that will not work. The #bb-sale-note banner
+   that used to sit under the sale grid was removed - the promo bar, the collage
+   chip and the per-card chips already carry the code. fillCallouts() in the
+   footer script still looks for #bb-sale-note and no-ops when it is absent. */
 .bb-code{font-family:Montserrat,sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#a01e60;background:#fff4f9;border:1px dashed #f0a9c9;border-radius:40px;padding:4px 8px;margin:0 auto 8px;display:inline-block;}
 .bb-code b{letter-spacing:.12em;}
 .bb-m-info .bb-code{margin:0 0 16px;font-size:12px;padding:6px 12px;}

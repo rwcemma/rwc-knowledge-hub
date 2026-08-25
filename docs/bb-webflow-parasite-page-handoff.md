@@ -445,7 +445,6 @@ with them — nothing else needs touching.
   script. It measures its own height and offsets both `body` padding and the
   sticky `.bb-hdr` top, re-measured on resize.
 - `#bb-collage-code` — chip on the hero collage panel (hero embed).
-- `#bb-sale-note` — callout box under the sale grid (shop embed).
 - `.bb-code` — chip on every sale card and in the product modal (drawn by `codeHtml()`).
 - `#bb-cart-code` — status line in the cart drawer. Turns green once Shopify
   reports the code as `applicable` on the live cart.
