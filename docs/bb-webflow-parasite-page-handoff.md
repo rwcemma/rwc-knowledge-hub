@@ -412,25 +412,61 @@ The collage container is `#bbp-strip` (was `#bbp`). Nothing inside it carries a
 
 `docs/bb-hero-product-row.html` was the pre-v14 shoppable hero row; it is gone.
 
-### Sale pricing
-`SALE_PCT = 0.20` in the footer script drives the struck-through original plus
-the bold red discounted price, and `HANDLES` is the list it applies to. **This is
-display only.** Shopify is what actually charges the customer, so the discount
-must exist there as an *automatic* discount (not a code) or the cart total will
-not match what the page advertises. Change the percentage in exactly two places:
-`SALE_PCT`, `BADGE`, and the `.bb-sale-note` line in the shop embed.
+### The sale (v15)
+Four constants at the top of the footer script are the single source of truth,
+and they **must** match the Shopify discount exactly:
+
+```js
+var DISCOUNT   = 'PARASITE';
+var SALE_PCT   = 0.20;
+var SALE_START = '2026-08-31T20:45:45Z';
+var SALE_END   = '2026-09-08T03:59:59Z';
+```
+
+`HANDLES` is the product list, and it mirrors the eight products on the Shopify
+discount: Para 1-4, BioToxin Binder, Cellcore Full Moon Para Kit, Drainage
+Jumpstart Duo, Parasite Cleanse Power Duo.
+
+**The page only displays prices; Shopify is what charges the customer.** So the
+script is deliberately date-aware, via `saleState()`:
+
+| State | Prices | Sticker | Promo bar | Callouts |
+|---|---|---|---|---|
+| `before` | full price | shown | "Opens August 31" | code + open date |
+| `live` | struck through + red | shown | "Use code PARASITE" | code + end date |
+| `ended` | full price | hidden | hidden | hidden |
+
+That is what stops the page advertising a struck-through price for a code the
+checkout would reject. If the Shopify dates move, move `SALE_START`/`SALE_END`
+with them — nothing else needs touching.
+
+### Where the code appears
+- `#bb-promo` — fixed bar across the top of **every page**, injected by the
+  script. It measures its own height and offsets both `body` padding and the
+  sticky `.bb-hdr` top, re-measured on resize.
+- `#bb-collage-code` — chip on the hero collage panel (hero embed).
+- `#bb-sale-note` — callout box under the sale grid (shop embed).
+- `.bb-code` — chip on every sale card and in the product modal (drawn by `codeHtml()`).
+- `#bb-cart-code` — status line in the cart drawer. Turns green once Shopify
+  reports the code as `applicable` on the live cart.
+
+The shopper never has to type it: `cartCreate` attaches `discountCodes`,
+`cartDiscountCodesUpdate` re-attaches on every load (a cart begun before the
+sale opened has no code), and `checkoutHref()` also appends `?discount=PARASITE`
+to the checkout URL as a belt-and-braces fallback.
 
 ### Cross-link from the education section
-"Drainage Duo" in the *Open drainage pathways first* card opens the Drainage
-Starter Bundle modal. It is bound by **id** (`#bb-drainage-link`), not a
+"Drainage Duo" in the *Open drainage pathways first* card opens the **Drainage
+Jumpstart Duo** modal. It is bound by **id** (`#bb-drainage-link`), not a
 `data-*` attribute, because Webflow can normalise bare `data-*` attributes in
 static embeds on publish. `href="#bb-shop"` is the fallback if the catalogue
 has not loaded yet.
 
 ### Known caveat
-The Drainage Starter Bundle's Shopify vendor is still literally
-`Dr Jaban Moore - Store`, so `VENDOR_ALIAS` relabels it to "Other" in the brand
-filter. Setting a real vendor on that product in Shopify is the proper fix.
+The Drainage *Starter Bundle* (a different product, not linked from the page)
+still has the literal vendor `Dr Jaban Moore - Store`, so `VENDOR_ALIAS`
+relabels it to "Other" in the brand filter. Setting a real vendor on that
+product in Shopify is the proper fix.
 
 ### Still open
 - "Made in Webflow" badge — Project Settings → General, Emma's toggle.

@@ -1,5 +1,5 @@
 <script>
-/* bb-store v14 - lives in SITE FOOTER custom code, not an embed.
+/* bb-store v15 - lives in SITE FOOTER custom code, not an embed.
    Embeds hold markup + CSS only. Failures are isolated so one missing
    element cannot take down the rest. ?bbdebug=1 paints its own panel. */
 (function () {
@@ -9,7 +9,8 @@
   // Everything on sale. Drives the featured grid in #bb-shop, the 20% sticker
   // and the sale pricing. Order here is the order the featured grid renders in.
   var HANDLES = ['para-1-cellcore', 'para-2-cellcore', 'para-3-cellcore', 'para-4',
-                 'biotoxin-binder-cellcore', 'para-kit'];
+                 'biotoxin-binder-cellcore', 'para-kit',
+                 'drainage-jumpstart-duo', 'parasite-cleanse-power-duo'];
   // Section 1 is a NON-shoppable collage: images only, one sticker on the panel
   // itself (that sticker is static markup in the hero embed, not drawn here).
   // Add-to-cart lives only in section 2, so the two sections no longer overlap.
@@ -21,14 +22,38 @@
                  'gid://shopify/Product/4573257105505',
                  'gid://shopify/Product/6750255612001',
                  'gid://shopify/Product/4573256581217',
-                 'gid://shopify/Product/6782540349537'];
-  // Promo sticker + the discount it advertises. SALE_PCT must match the
-  // AUTOMATIC discount configured in Shopify - it only changes what is
-  // displayed, Shopify is what actually charges the customer.
-  var BADGE    = '20%';
-  var SALE_PCT = 0.20;
+                 'gid://shopify/Product/6782540349537',
+                 'gid://shopify/Product/7540961771617',
+                 'gid://shopify/Product/7540964556897'];
+  // ---- The sale ----
+  // These four MUST match the Shopify discount code exactly. The page only
+  // displays prices; Shopify is what actually charges the customer, so if these
+  // drift the page advertises a discount the checkout will not honour.
+  // Shopify discount "parasite": 20% off, the 8 products in HANDLES above.
+  var DISCOUNT   = 'PARASITE';
+  var SALE_PCT   = 0.20;
+  var SALE_START = '2026-08-31T20:45:45Z';
+  var SALE_END   = '2026-09-08T03:59:59Z';
+  var BADGE      = '20%';
+
+  // Before the code goes live, showing a struck-through price would promise a
+  // discount that checkout rejects, so prices stay at full and the copy says
+  // when the sale opens. Everything below keys off this.
+  function saleState() {
+    var now = new Date().getTime();
+    if (SALE_START && now < Date.parse(SALE_START)) { return 'before'; }
+    if (SALE_END && now > Date.parse(SALE_END)) { return 'ended'; }
+    return 'live';
+  }
+  var STATE = saleState();
+
+  function saleDate(iso) {
+    try {
+      return new Date(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+    } catch (e) { return ''; }
+  }
   var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
-  var VERSION = 'v14';
+  var VERSION = 'v15';
 
   var byHandle = {};
   var cartId = null;
@@ -90,13 +115,22 @@
   // sale products get the treatment; the rest of the catalogue prints as-is.
   function priceHtml(p, v) {
     var full = Number(v.price.amount);
-    if (!isSale(p) || !SALE_PCT) { return '$' + full.toFixed(2); }
+    if (!isSale(p) || !SALE_PCT || STATE !== 'live') { return '$' + full.toFixed(2); }
     return '<span class="bb-was">$' + full.toFixed(2) + '</span>' +
            '<span class="bb-now">$' + (full * (1 - SALE_PCT)).toFixed(2) + '</span>';
   }
 
+  // The code, repeated wherever a shopper is looking at a sale price.
+  function codeHtml() {
+    if (STATE === 'ended') { return ''; }
+    var txt = STATE === 'live'
+      ? 'Use code <b>' + DISCOUNT + '</b>'
+      : '<b>' + DISCOUNT + '</b> &middot; from ' + saleDate(SALE_START);
+    return '<div class="bb-code">' + txt + '</div>';
+  }
+
   function badgeHtml() {
-    if (!BADGE) { return ''; }
+    if (!BADGE || STATE === 'ended') { return ''; }
     return '<div class="bb-off" aria-hidden="true">' +
       '<svg viewBox="0 0 40 22"><path d="M4 15q5-10 10 0t10 0" fill="none" stroke="#ffd7ec" ' +
       'stroke-width="4.5" stroke-linecap="round"/><circle cx="28" cy="13" r="5.4" fill="#ffd7ec"/>' +
@@ -113,6 +147,7 @@
            '<img src="' + img + '" alt="' + esc(p.title) + '">' +
            '<div class="t">' + esc(p.title) + '</div>' +
            '<div class="pr">' + priceHtml(p, v) + '</div>' +
+           (isSale(p) ? codeHtml() : '') +
            '<div class="lm">Learn more</div>' +
            '<button data-bb-add="1">' + label + '</button></div>';
   }
@@ -342,6 +377,68 @@
       .catch(function () { p.descriptionHtml = ''; openModal(p); });
   }
 
+  // ---- Site-wide promo bar ----
+  // Injected rather than placed in an embed so it appears on every page. The
+  // Webflow header is position:sticky;top:0, so the bar is fixed above it and
+  // both the body padding and the header's top offset are re-measured on resize
+  // (the bar wraps to two lines on narrow phones).
+  function mountPromo() {
+    if (STATE === 'ended' || !document.body) { return; }
+    var css = document.createElement('style');
+    css.textContent =
+      '#bb-promo{position:fixed;top:0;left:0;right:0;z-index:9990;display:block;' +
+      'background:#a01e60;color:#fff;text-decoration:none;font-family:Montserrat,sans-serif;' +
+      'font-size:13px;font-weight:600;letter-spacing:.02em;line-height:1.45;text-align:center;' +
+      'padding:9px 14px;box-shadow:0 2px 10px rgba(0,0,0,.18);}' +
+      '#bb-promo b{color:#ffd7ec;font-weight:800;letter-spacing:.08em;}' +
+      '#bb-promo .sep{opacity:.55;padding:0 6px;}' +
+      '@media screen and (max-width:600px){#bb-promo{font-size:11.5px;padding:8px 10px;}' +
+      '#bb-promo .sep{padding:0 4px;}}';
+    document.head.appendChild(css);
+
+    var bar = document.createElement('a');
+    bar.id = 'bb-promo';
+    bar.href = '#bb-shop';
+    bar.innerHTML = STATE === 'live'
+      ? '20% OFF the Full Moon Parasite Sale<span class="sep">&middot;</span>' +
+        'Use code <b>' + DISCOUNT + '</b> at checkout<span class="sep">&middot;</span>' +
+        'Ends ' + saleDate(SALE_END)
+      : '20% OFF the Full Moon Parasite Sale<span class="sep">&middot;</span>' +
+        'Opens ' + saleDate(SALE_START) + '<span class="sep">&middot;</span>' +
+        'Code <b>' + DISCOUNT + '</b>';
+    document.body.insertBefore(bar, document.body.firstChild);
+
+    var hdr = document.createElement('style');
+    document.head.appendChild(hdr);
+    function offset() {
+      var h = bar.offsetHeight;
+      document.body.style.paddingTop = h + 'px';
+      hdr.textContent = '.bb-hdr{top:' + h + 'px !important;}';
+    }
+    offset();
+    window.addEventListener('resize', offset);
+  }
+  safe('promo bar', mountPromo);
+
+  // Two static callouts - one on the hero collage, one above the sale grid -
+  // are filled from the same state so the code never contradicts itself.
+  function fillCallouts() {
+    var live = STATE === 'live';
+    var short = live
+      ? 'Use code <b>' + DISCOUNT + '</b> for 20% off'
+      : 'Code <b>' + DISCOUNT + '</b> &middot; opens ' + saleDate(SALE_START);
+    var long = live
+      ? 'All ' + HANDLES.length + ' sale items below are 20% off with code <b>' + DISCOUNT +
+        '</b> &mdash; it is applied for you at checkout. Sale ends ' + saleDate(SALE_END) + '.'
+      : 'The 20% off sale opens ' + saleDate(SALE_START) + '. Use code <b>' + DISCOUNT +
+        '</b> at checkout on any of the items below.';
+    var a = $('bb-collage-code');
+    if (a) { if (STATE === 'ended') { a.style.display = 'none'; } else { a.innerHTML = short; } }
+    var b = $('bb-sale-note');
+    if (b) { if (STATE === 'ended') { b.style.display = 'none'; } else { b.innerHTML = long; } }
+  }
+  safe('callouts', fillCallouts);
+
   safe('boot placeholder', function () {
     var grid = $('bb-store');
     if (grid) { grid.innerHTML = '<div class="bb-empty">Loading products&hellip;</div>'; }
@@ -365,7 +462,7 @@
     report('Store temporarily unavailable.', 'fetch() threw, never reached Shopify (bad hostname, CORS, CSP, extension, offline). Detail: ' + (e && e.message ? e.message : e));
   });
 
-  var CART_FIELDS = 'id checkoutUrl totalQuantity cost{subtotalAmount{amount currencyCode}} lines(first:50){nodes{id quantity merchandise{... on ProductVariant{id price{amount currencyCode} product{title featuredImage{url}}}}}}';
+  var CART_FIELDS = 'id checkoutUrl totalQuantity discountCodes{code applicable} cost{subtotalAmount{amount currencyCode}} lines(first:50){nodes{id quantity merchandise{... on ProductVariant{id price{amount currencyCode} product{title featuredImage{url}}}}}}';
 
   function cartFail(e) {
     dbg('cart error: ' + (e && e.message ? e.message : e));
@@ -375,8 +472,8 @@
   function addToCart(variantId) {
     dbg('addToCart ' + variantId);
     if (!cartId) {
-      gql('mutation($lines:[CartLineInput!]!){cartCreate(input:{lines:$lines}){cart{' + CART_FIELDS + '}}}',
-          { lines: [{ merchandiseId: variantId, quantity: 1 }] })
+      gql('mutation($lines:[CartLineInput!]!,$codes:[String!]){cartCreate(input:{lines:$lines,discountCodes:$codes}){cart{' + CART_FIELDS + '}}}',
+          { lines: [{ merchandiseId: variantId, quantity: 1 }], codes: [DISCOUNT] })
         .then(function (r) {
           var c = r.json && r.json.data && r.json.data.cartCreate && r.json.data.cartCreate.cart;
           if (!c) { return cartFail(r.raw); }
@@ -408,7 +505,36 @@
       }).catch(cartFail);
   }
 
+  // The shopper never has to type the code: it is attached to the cart, and
+  // also passed on the checkout URL so Shopify applies it even if the cart-level
+  // attach was rejected (e.g. the sale had not opened yet when the cart began).
+  function checkoutHref(cart) {
+    if (!cart || !cart.checkoutUrl) { return ''; }
+    if (STATE === 'ended') { return cart.checkoutUrl; }
+    return cart.checkoutUrl + (cart.checkoutUrl.indexOf('?') === -1 ? '?' : '&') +
+           'discount=' + encodeURIComponent(DISCOUNT);
+  }
+
+  function renderCodeStatus(cart) {
+    var el = $('bb-cart-code');
+    if (!el) { return; }
+    if (STATE === 'ended') { el.style.display = 'none'; return; }
+    var codes = (cart && cart.discountCodes) || [];
+    var live = false;
+    for (var i = 0; i < codes.length; i++) {
+      if (codes[i].applicable && String(codes[i].code).toUpperCase() === DISCOUNT) { live = true; }
+    }
+    el.style.display = '';
+    el.className = live ? 'bb-cart-code on' : 'bb-cart-code';
+    el.innerHTML = live
+      ? '&#10003; Code <b>' + DISCOUNT + '</b> applied &mdash; 20% off the sale items in your cart.'
+      : (STATE === 'before'
+          ? 'Code <b>' + DISCOUNT + '</b> unlocks 20% off from ' + saleDate(SALE_START) + '.'
+          : 'Code <b>' + DISCOUNT + '</b> is applied automatically at checkout.');
+  }
+
   function renderCart(cart) {
+    renderCodeStatus(cart);
     var count = cart ? cart.totalQuantity : 0;
     var cnt = $('bb-cart-count'); if (cnt) { cnt.textContent = count; }
     var box = $('bb-cart-lines');
@@ -426,17 +552,22 @@
     var btn = $('bb-checkout-btn');
     if (btn) {
       btn.disabled = !cart || count === 0;
-      btn.onclick = function () { if (cart && cart.checkoutUrl) { window.location.href = cart.checkoutUrl; } };
+      btn.onclick = function () { var u = checkoutHref(cart); if (u) { window.location.href = u; } };
     }
   }
 
   if (cartId) {
-    gql('query($id:ID!){cart(id:$id){' + CART_FIELDS + '}}', { id: cartId })
+    // Re-attach on every load: a cart begun before the sale opened has no code.
+    gql('mutation($id:ID!,$codes:[String!]){cartDiscountCodesUpdate(cartId:$id,discountCodes:$codes){cart{' + CART_FIELDS + '}}}',
+        { id: cartId, codes: [DISCOUNT] })
       .then(function (r) {
-        var c = r.json && r.json.data && r.json.data.cart;
+        var d = r.json && r.json.data && r.json.data.cartDiscountCodesUpdate;
+        var c = d && d.cart;
         if (c) { renderCart(c); }
         else { try { localStorage.removeItem('bbCartId'); } catch (e) {} cartId = null; }
       }).catch(function () {});
+  } else {
+    renderCodeStatus(null);
   }
 
   function cls(id, name, on) { var el = $(id); if (el) { el.classList[on ? 'add' : 'remove'](name); } }
@@ -462,6 +593,7 @@
       '</div>' +
       '<div class="bb-m-info"><h3>' + esc(p.title) + '</h3>' +
         '<div class="bb-m-price">' + priceHtml(p, v) + '</div>' +
+        (isSale(p) ? codeHtml() : '') +
         '<div class="bb-m-desc">' + (p.descriptionHtml || '<p>No description available.</p>') + '</div>' +
         '<button data-bb-add="1">' + (v.availableForSale === false ? 'Sold out' : 'Add to Cart') + '</button>' +
       '</div>';
@@ -476,9 +608,9 @@
     // Bound by id, not a data-* attribute: the education section is a static
     // Webflow embed, and Webflow can normalise bare data-* attributes on publish.
     if (t.closest('#bb-drainage-link')) {
-      if (byHandle['drainage-starter-bundle']) {
+      if (byHandle['drainage-jumpstart-duo']) {
         ev.preventDefault();
-        openModalByHandle('drainage-starter-bundle');
+        openModalByHandle('drainage-jumpstart-duo');
       } // else fall through to the href, which scrolls to the shop
       return;
     }
