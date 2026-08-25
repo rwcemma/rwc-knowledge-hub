@@ -267,7 +267,10 @@ const CLINICAL = [
   /\b(advil|tylenol|ibuprofen|motrin|aspirin|benadryl|zyrtec|claritin|antibiotic|prescription)\b/i,
   /\b(is (this|that|it) normal|is (this|that) (bad|serious|concerning)|should i be worried|worse|getting worse)\b/i,
   /\b(what do my (results|labs|numbers) mean|explain my (results|labs)|is my .{0,20}(high|low|normal))\b/i,
-  /\b(feeling (worse|awful|terrible|off)|reacting to|reaction to|side effect)\b/i
+  /\b(feeling (worse|awful|terrible|off)|reacting to|reaction to|side effect)\b/i,
+  /\b(it'?s|is it|looks?|seems?|think it'?s|pretty|probably|maybe)\s+(it\s+)?(normal|fine|okay|ok|good|bad|high|low|elevated|off|concerning|healthy)\b/i,
+  /\bis (this|that|it|my|the)\b[^.?!]{0,30}\b(normal|fine|okay|ok|high|low|elevated|good|bad|healthy)\b/i,
+  /\b(results?|labs?|lab|numbers?|levels?|panel|test|bloodwork|blood work)\b[^.?!]{0,60}\b(normal|fine|okay|ok|good|bad|high|low|elevated|mean|means|interpret|worried|worry|concern|concerning|right|healthy)\b/i
 ];
 
 /* Payment detectors — any money question goes to Front Desk. */
@@ -487,19 +490,32 @@ async function sendGap(btn){
   }
 }
 
+/* Common words that must never carry a match on their own — a bare "does"
+   or "labs" appearing in a key/topic used to produce confident wrong answers. */
+const STOP = new Set("the a an and or but if then is are was were be been being to of in on at by for with from as it its this that these those i you he she we they me my your his her our their do does did have has had will would can could should may might not no yes get got see know let want need send sent back about please thank thanks hi hello hey good morning afternoon evening day today tomorrow just also so up out am pm here there what when where who why how".split(/\s+/));
+
+/* A key only scores when its actual phrase appears. Multi-word keys are a
+   strong signal; a single distinctive whole word is weak. No credit for a
+   word merely appearing inside a key or in the topic title. */
 function score(q, t){
-  const s = q.toLowerCase();
+  const norm = ' ' + q.toLowerCase().replace(/[^a-z0-9\s]+/g,' ').replace(/\s+/g,' ').trim() + ' ';
   let n = 0;
-  for(const k of t.keys){
-    if(s.includes(k.toLowerCase())) n += k.split(' ').length * 3;
-  }
-  const words = s.split(/\W+/).filter(w => w.length > 3);
-  for(const w of words){
-    if(t.keys.some(k => k.toLowerCase().includes(w))) n += 1;
-    if(t.topic.toLowerCase().includes(w)) n += 1;
+  for(const k of (t.keys||[])){
+    const key = (k||'').toLowerCase().replace(/[^a-z0-9\s]+/g,' ').replace(/\s+/g,' ').trim();
+    if(!key) continue;
+    const kw = key.split(' ');
+    if(kw.length > 1){
+      if(norm.includes(' ' + key + ' ')) n += 8 + kw.length;   // full phrase = strong
+    } else if(key.length >= 4 && !STOP.has(key)){
+      if(norm.includes(' ' + key + ' ')) n += 3;               // one distinctive word = weak
+    }
   }
   return n;
 }
+
+/* Need a real phrase hit (or 2+ distinctive words) before we'll say "you can
+   answer". Below this we hand off — under-answering is safe, guessing isn't. */
+const MIN_SCORE = 6;
 
 function esc(x){ return x.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
@@ -525,7 +541,7 @@ function render(q){
     wire(); return;
   }
 
-  const ranked = topics.map(t => ({t, n:score(q, t)})).filter(x => x.n > 0).sort((a,b) => b.n - a.n);
+  const ranked = topics.map(t => ({t, n:score(q, t)})).filter(x => x.n >= MIN_SCORE).sort((a,b) => b.n - a.n);
 
   /* Lane B — nothing matched */
   if(!ranked.length){
