@@ -473,3 +473,38 @@ product in Shopify is the proper fix.
 - `.bb-intro` ("Meet Your Practitioner", `#bb-about`) is still hidden. Its
   eyebrow is a Block, not a text element, so the Data API cannot set its text —
   "Shop the Protocols" → "Parasite Cleanse Favorites" needs the Designer.
+
+---
+
+## v16 — catalogue exclusions (2026-08-25)
+
+`isHidden()` in the footer script decides what never appears in
+"Shop the rest of the store". Two rules, both in `isHidden`:
+
+**1. Price is $0.** Placeholder SKUs, welcome-gift line items and client-only
+lab kits are all priced at zero, and a $0 add-to-cart button is worse than
+useless. Currently removes: Welcome Gift, Welcome Gift Black Friday, Starter Kit
+(the bare `2251434` one), Mito Restore (`mito-atp`), Relyte sticks / Aegis Calm
+strips / Redmond's toothpaste / Dr. Jess Consulting Welcome Gift, **Mosiac OAT
+Test Kit** and **HTMA**. The last two were not on the removal list but are $0 —
+if they should sell publicly, give them a real price in Shopify and they come
+back automatically.
+
+**2. `HIDE_WORDS` substring match** on title + handle, lowercased:
+`jaban`, `resistance band`, `kinesiology`, `welcome gift`, `chasing health`,
+`parasites 101`.
+
+⚠️ **Handles are hyphenated, so any phrase containing a space only ever matches
+the TITLE.** This is load bearing, not incidental: `chasing health` must not
+match the handle `chasing-health-monthly-subscription-...`, which belongs to the
+still-for-sale **Beginner Gallbladder Flush** ($203.85). Keep multi-word
+phrases multi-word.
+
+### Deliberately NOT hidden
+- **Parasite Cleanse Starter Kit** ($123.90) — "starter kit" was on the removal
+  list, but adding it as a hide word would take this real, on-topic parasite
+  product with it. The $0 "Starter Kit" placeholder is removed by rule 1.
+- Dr. Jaban's various Starter Kits are already removed by `jaban`.
+
+Sale products (`HANDLES`) bypass `isHidden` entirely, so no rule here can
+swallow one of them.

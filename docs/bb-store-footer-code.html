@@ -1,5 +1,5 @@
 <script>
-/* bb-store v15 - lives in SITE FOOTER custom code, not an embed.
+/* bb-store v16 - lives in SITE FOOTER custom code, not an embed.
    Embeds hold markup + CSS only. Failures are isolated so one missing
    element cannot take down the rest. ?bbdebug=1 paints its own panel. */
 (function () {
@@ -53,7 +53,7 @@
     } catch (e) { return ''; }
   }
   var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
-  var VERSION = 'v15';
+  var VERSION = 'v16';
 
   var byHandle = {};
   var cartId = null;
@@ -226,12 +226,23 @@
   // This Shopify store is shared with Dr. Jaban, and Shopify defaults a product's
   // vendor to the old shop name ("Dr Jaban Moore - Store") whenever no brand is
   // set. So: hide Jaban-branded products outright, and relabel that default
-  // vendor so it never shows up as a brand option. Generic items that merely
-  // inherited the default vendor (resistance bands, tape, bundles) are kept.
-  var HIDE_WORDS = ['jaban'];
+  // vendor so it never shows up as a brand option.
+  // Matched against title + handle, lowercased. NOTE: handles are hyphenated,
+  // so any phrase containing a space only ever matches the TITLE. That is load
+  // bearing - 'chasing health' must not match the handle
+  // 'chasing-health-monthly-subscription-...', which belongs to the still-for-sale
+  // Beginner Gallbladder Flush.
+  var HIDE_WORDS = ['jaban', 'resistance band', 'kinesiology', 'welcome gift',
+                    'chasing health', 'parasites 101'];
   var VENDOR_ALIAS = { 'dr jaban moore - store': 'Other' };
 
   function isHidden(p) {
+    // $0 products are placeholders, client-only lab kits and welcome-gift line
+    // items. None of them should ever appear in a public catalogue, and a $0
+    // add-to-cart button is worse than useless. Sale products bypass isHidden
+    // entirely, so this cannot swallow one of them.
+    var v = p.variants && p.variants.nodes && p.variants.nodes[0];
+    if (v && v.price && Number(v.price.amount) === 0) { return true; }
     var hay = ((p.title || '') + ' ' + (p.handle || '')).toLowerCase();
     for (var i = 0; i < HIDE_WORDS.length; i++) {
       if (hay.indexOf(HIDE_WORDS[i]) !== -1) { return true; }
