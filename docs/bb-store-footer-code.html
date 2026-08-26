@@ -1,5 +1,5 @@
 <script>
-/* bb-store v16 - lives in SITE FOOTER custom code, not an embed.
+/* bb-store v17 - lives in SITE FOOTER custom code, not an embed.
    Embeds hold markup + CSS only. Failures are isolated so one missing
    element cannot take down the rest. ?bbdebug=1 paints its own panel. */
 (function () {
@@ -53,7 +53,7 @@
     } catch (e) { return ''; }
   }
   var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
-  var VERSION = 'v16';
+  var VERSION = 'v17';
 
   var byHandle = {};
   var cartId = null;
@@ -175,7 +175,7 @@
     else { dbg('collage: no matching products, static fallback kept'); }
   }
 
-  var PF = 'id title handle descriptionHtml featuredImage{url altText} images(first:4){nodes{url altText}} variants(first:1){nodes{id price{amount currencyCode} availableForSale}}';
+  var PF = 'id title handle vendor descriptionHtml featuredImage{url altText} images(first:4){nodes{url altText}} variants(first:1){nodes{id price{amount currencyCode} availableForSale}}';
 
   // PRIMARY: aliased product(handle:) with GraphQL variables, so no quoting is
   // needed in the query string. NOTE: products(query:"handle:...") does NOT work
@@ -388,6 +388,58 @@
       .catch(function () { p.descriptionHtml = ''; openModal(p); });
   }
 
+  // ---- Featured-product landing pages ----
+  // Unlinked pages the quiz routes people to. Slug -> Shopify handle. Adding a
+  // page is a one-line change here plus a duplicated Webflow page carrying an
+  // empty #bb-feature-buy container; everything else on those pages is static.
+  var FEATURE = {
+    '/parasite-power-duo': 'parasite-cleanse-power-duo'
+  };
+
+  function featuredHandle() {
+    var path = (window.location.pathname || '/').toLowerCase().replace(/\/+$/, '');
+    return FEATURE[path || '/'] || null;
+  }
+
+  function renderFeature(p) {
+    var box = $('bb-feature-buy');
+    if (!box) { return; }
+    var v = p.variants.nodes[0];
+    var img = p.featuredImage ? p.featuredImage.url : '';
+    // data-bb-handle on the card means the existing delegate already handles
+    // both add-to-cart and open-the-modal. No new click wiring needed.
+    box.innerHTML = '<div class="bb-f-card" data-bb-handle="' + p.handle + '">' +
+      '<div class="bb-f-media">' + (isSale(p) ? badgeHtml() : '') +
+        '<img src="' + img + '" alt="' + esc(p.title) + '"></div>' +
+      '<div class="bb-f-info">' +
+        (p.vendor ? '<div class="bb-f-kicker">' + esc(p.vendor) + '</div>' : '') +
+        '<h2 class="bb-f-title">' + esc(p.title) + '</h2>' +
+        '<div class="bb-f-price">' + priceHtml(p, v) + '</div>' +
+        (isSale(p) ? codeHtml() : '') +
+        '<button data-bb-add="1">' +
+          (v.availableForSale === false ? 'Sold out' : 'Add to Cart') + '</button>' +
+        '<button class="bb-f-more" type="button">See full product details</button>' +
+      '</div></div>';
+    dbg('feature rendered: ' + p.handle);
+  }
+
+  // Featured products are usually in HANDLES and already loaded; fetch on demand
+  // when a feature page points at something outside the sale set.
+  function ensureFeature() {
+    if (!$('bb-feature-buy')) { return; }
+    var h = featuredHandle();
+    if (!h) { dbg('no FEATURE mapping for ' + window.location.pathname); return; }
+    if (byHandle[h]) { renderFeature(byHandle[h]); return; }
+    gql('query($h:String!){product(handle:$h){' + PF + '}}', { h: h })
+      .then(function (r) {
+        var p = r.json && r.json.data && r.json.data.product;
+        if (!p || !p.variants.nodes.length) { dbg('feature not found: ' + h); return; }
+        byHandle[p.handle] = p;
+        renderFeature(p);
+      })
+      .catch(function (e) { dbg('feature fetch failed: ' + (e && e.message ? e.message : e)); });
+  }
+
   // ---- Site-wide promo bar ----
   // Injected rather than placed in an embed so it appears on every page. The
   // Webflow header is position:sticky;top:0, so the bar is fixed above it and
@@ -468,6 +520,7 @@
     dbg('resolved ' + items.length + ' of ' + HANDLES.length + ' wanted: ' + items.map(function (p) { return p.handle; }).join(', '));
     safe('renderGrid', function () { renderGrid(items); });
     safe('renderCollage', function () { renderCollage(); });
+    safe('feature', ensureFeature);
     safe('catalog', function () { loadAllCatalog(null); });
   }).catch(function (e) {
     report('Store temporarily unavailable.', 'fetch() threw, never reached Shopify (bad hostname, CORS, CSP, extension, offline). Detail: ' + (e && e.message ? e.message : e));
@@ -618,12 +671,17 @@
 
     // Bound by id, not a data-* attribute: the education section is a static
     // Webflow embed, and Webflow can normalise bare data-* attributes on publish.
-    if (t.closest('#bb-drainage-link')) {
-      if (byHandle['drainage-jumpstart-duo']) {
-        ev.preventDefault();
-        openModalByHandle('drainage-jumpstart-duo');
-      } // else fall through to the href, which scrolls to the shop
-      return;
+    var COPY_LINKS = { 'bb-drainage-link': 'drainage-jumpstart-duo',
+                       'bb-bowel-link': 'bowel-mover' };
+    for (var k in COPY_LINKS) {
+      if (!COPY_LINKS.hasOwnProperty(k)) { continue; }
+      if (t.closest('#' + k)) {
+        if (byHandle[COPY_LINKS[k]]) {
+          ev.preventDefault();
+          openModalByHandle(COPY_LINKS[k]);
+        } // else fall through to the href, which scrolls to the shop
+        return;
+      }
     }
     if (t.closest('#bb-all-more')) { ev.preventDefault(); renderChunk(); return; }
     if (t.closest('#bb-cart-toggle')) { openCart(); return; }

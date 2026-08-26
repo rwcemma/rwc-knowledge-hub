@@ -1,0 +1,54 @@
+<!-- bb feature block v1 - MARKUP + CSS ONLY. Used on the hidden product landing
+     pages (/parasite-power-duo etc). bb-store v17 fills #bb-feature-buy from the
+     Shopify handle mapped to this page's slug in the footer script's FEATURE map.
+     The static column beside it is per-page copy and is safe to edit here.
+     Do NOT add a script tag or data-bb-* attributes here. -->
+<style>
+#bb-feature{display:grid;grid-template-columns:1.15fr 1fr;gap:26px;align-items:stretch;max-width:940px;margin:26px auto 0;text-align:left;}
+#bb-feature-buy{display:flex;}
+.bb-f-card{position:relative;display:flex;gap:20px;align-items:center;background:#fff;border-radius:20px;padding:24px;box-shadow:0 10px 30px rgba(21,79,97,.22);width:100%;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease;}
+.bb-f-card:hover{transform:translateY(-3px);box-shadow:0 16px 38px rgba(160,30,96,.26);}
+.bb-f-media{position:relative;flex:0 0 40%;}
+.bb-f-media img{width:100%;height:190px;object-fit:contain;display:block;}
+.bb-f-info{flex:1;min-width:0;font-family:Montserrat,sans-serif;}
+.bb-f-kicker{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#9bb2b6;margin-bottom:6px;}
+.bb-f-title{font-size:22px;font-weight:800;line-height:1.2;color:#7c2a68;margin:0 0 10px;}
+.bb-f-price{font-size:16px;color:#4a5a63;margin-bottom:10px;}
+.bb-f-info button[data-bb-add]{width:100%;background:#E5397F;color:#fff;font-family:Montserrat,sans-serif;font-weight:700;font-size:14px;letter-spacing:.05em;text-transform:uppercase;padding:14px 16px;border:none;border-radius:40px;cursor:pointer;transition:background .15s;}
+.bb-f-info button[data-bb-add]:hover{background:#B0286F;}
+.bb-f-more{display:block;width:100%;margin-top:10px;background:none;border:none;font-family:Montserrat,sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#a01e60;text-decoration:underline;cursor:pointer;padding:4px 0;}
+.bb-f-card .bb-off{position:absolute;top:-14px;left:-14px;z-index:3;width:66px;height:66px;border-radius:50%;background:#E5397F;border:3px solid #fff;box-shadow:0 6px 16px rgba(160,30,96,.45);transform:rotate(-12deg);display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;}
+.bb-f-card .bb-off svg{width:28px;height:16px;display:block;margin-bottom:1px;}
+.bb-f-card .bb-off b{font-family:Montserrat,sans-serif;font-size:17px;font-weight:800;line-height:1;color:#fff;}
+.bb-f-card .bb-off span{font-family:Montserrat,sans-serif;font-size:8px;font-weight:700;letter-spacing:.12em;line-height:1.1;color:#fff;}
+.bb-f-why{background:rgba(255,255,255,.94);border-radius:20px;padding:24px 26px;box-shadow:0 10px 30px rgba(21,79,97,.18);font-family:Montserrat,sans-serif;}
+.bb-f-why h3{margin:0 0 12px;font-size:14px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#a01e60;}
+.bb-f-why ul{margin:0;padding:0;list-style:none;}
+.bb-f-why li{position:relative;padding-left:24px;margin-bottom:12px;font-size:14px;line-height:1.55;color:#3d4d56;}
+.bb-f-why li:last-child{margin-bottom:0;}
+.bb-f-why li:before{content:'\2714';position:absolute;left:0;top:0;color:#E5397F;font-size:13px;font-weight:700;}
+.bb-f-why b{color:#7c2a68;}
+.bb-f-load{font-family:Montserrat,sans-serif;font-size:13px;color:#7c2a68;background:#fff;border-radius:20px;padding:40px 24px;text-align:center;width:100%;box-shadow:0 10px 30px rgba(21,79,97,.22);}
+@media screen and (max-width:860px){
+  #bb-feature{grid-template-columns:1fr;gap:18px;margin-top:20px;}
+  .bb-f-card{flex-direction:column;gap:12px;padding:20px;}
+  .bb-f-media{flex:none;width:70%;}
+  .bb-f-media img{height:160px;}
+  .bb-f-info{text-align:center;}
+  .bb-f-card .bb-off{top:-12px;left:-8px;width:56px;height:56px;}
+  .bb-f-card .bb-off b{font-size:15px;}
+  .bb-f-why{padding:20px;}
+}
+</style>
+<div id="bb-feature">
+  <div id="bb-feature-buy"><div class="bb-f-load">Loading&hellip;</div></div>
+  <div class="bb-f-why">
+    <h3>What's in the duo</h3>
+    <ul>
+      <li><b>Para 3</b> &mdash; a liquid blend of seven herbs including clove, black walnut hull and holy basil. The tincture format means you control the dose drop by drop.</li>
+      <li><b>BioToxin Binder</b> &mdash; bioactive carbon, not activated charcoal or bentonite, so it doesn't strip the vitamins and minerals your body needs while it binds.</li>
+      <li>My go-to pairing for the <b>most stubborn</b> parasites &mdash; and easy to work into a smoothie for kiddos.</li>
+      <li><b>Para 3 is cycled:</b> three weeks on, one week off. The other Para products don't need that.</li>
+    </ul>
+  </div>
+</div>

@@ -518,3 +518,58 @@ build. A custom `href` attribute can win over the Designer link setting in
 published output, so both were removed. If a link ever looks set correctly in
 the Designer but still goes nowhere on the live site, check its custom
 attributes first.
+
+---
+
+## v17 — hidden product landing pages (2026-08-26)
+
+Unlinked pages the quiz routes people to. Nothing on the site links to them; the
+only way in is the URL.
+
+| Page | Slug | Featured product | Webflow page id |
+|---|---|---|---|
+| Parasite Cleanse Power Duo | `/parasite-power-duo` | `parasite-cleanse-power-duo` | `6a8ef755097ed2415857b9f0` |
+
+### How to add the next one
+1. Duplicate the Home page in Webflow (`create_page` with `duplicateOf`). The
+   duplicate keeps every element id — only the `component` half of each id
+   changes to the new page id — so all the ids in this doc still apply.
+2. Swap four embeds on the duplicate:
+   - hero eyebrow `95c7e548…` → the page's kicker line
+   - collage `d7a7c63a…` → the feature block (`docs/bb-feature-*.html`)
+   - education `2148c621…` → the page's teaching content (`docs/bb-learn-*.html`)
+   - store `7c7f9b41…` → `docs/bb-store-embed-featurepage.html` (same as the
+     home embed minus `#bb-store` and the embed's own catalogue heading)
+3. Set H1 `…f46d`, subhead `…f46f`, buttons `…f471` / `…f473`, shop heading
+   `…f488` / `…f48a`.
+4. Add one line to `FEATURE` in the footer script mapping the slug to the
+   Shopify handle. That is the only script change needed.
+
+`ensureFeature()` renders `#bb-feature-buy` from that map. Products already in
+`HANDLES` are reused from the existing fetch; anything else is fetched on demand.
+The rendered card carries `data-bb-handle`, so add-to-cart and open-the-modal are
+handled by the existing click delegate with no new wiring.
+
+### In-copy product links
+`COPY_LINKS` in the click delegate maps an element id to a product handle, so
+teaching copy can link a product name straight to its modal:
+`#bb-drainage-link` → Drainage Jumpstart Duo, `#bb-bowel-link` → Bowel Mover.
+Bound by **id**, never a `data-*` attribute, because Webflow can normalise bare
+`data-*` attributes in static embeds on publish. Each link keeps `href="#bb-shop"`
+as a fallback for the moment before the catalogue loads.
+
+### Two URLs still needed
+The teaching section's "free drainage clinic" and "free parasite masterclass"
+CTAs currently point at `https://www.biohackingbombshell.com/` as a safe interim
+so nothing is a dead link. Swap in the real deep links in embed `2148c621…`.
+
+### Not hidden from search engines
+Webflow's noindex toggle is not exposed through the Data API, and page-level
+custom code returns HTTP 406 on this site. The pages are unlinked, which keeps
+them out of the nav, but a crawler that finds the URL can index them. To close
+that off properly, add them to Project Settings → SEO → robots.txt:
+
+```
+User-agent: *
+Disallow: /parasite-power-duo
+```
