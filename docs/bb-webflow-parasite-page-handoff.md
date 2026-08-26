@@ -606,3 +606,29 @@ still in the embeds, dormant.
 **Still in Shopify:** the `parasite` discount code (20%, scheduled Aug 31 - Sep 7)
 has NOT been deleted, only un-advertised. Delete or disable it in Shopify if it
 should not be redeemable by anyone who already has the code.
+
+---
+
+## v19 — duo page: product features + FAQ accordion (2026-08-26)
+
+Embed `2148c621…` on the duo page now holds **two** sections:
+
+- **`#bb-learn`** (blue, unchanged background) — the header, then one feature
+  block per bottle: product shot on a white rounded panel beside its copy. Para 3
+  is image-left; BioToxin Binder uses `.bb-ft.flip` for image-right. Both stack
+  image-first under 860px.
+- **`#bb-faq`** (light `#fdf7fa`) — four collapsible answers: *Why is it a duo? /
+  What is the protocol? / What to do before you start / What if I'm sensitive?*
+  The "why it's a duo" band, the protocol card, the drainage card and the
+  sensitivity callout all moved in here.
+
+**The accordion uses native `<details>`/`<summary>` — no JavaScript.** Given how
+much trouble embed-hosted scripts caused on this site, that matters: the FAQ
+cannot break even if the storefront script fails to load. The chevron is a CSS
+border square rotated 45° that flips to -135° on `[open]`; the default disclosure
+triangle is suppressed with `list-style:none` plus
+`summary::-webkit-details-marker{display:none}`.
+
+The hero's "Why I Recommend This" button still targets `#bb-learn`, so it lands
+on the feature section. The FAQ's closing CTA targets `#bb-feature` to send
+people back up to the buy card.
