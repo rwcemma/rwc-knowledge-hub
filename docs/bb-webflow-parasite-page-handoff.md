@@ -632,3 +632,47 @@ triangle is suppressed with `list-style:none` plus
 The hero's "Why I Recommend This" button still targets `#bb-learn`, so it lands
 on the feature section. The FAQ's closing CTA targets `#bb-feature` to send
 people back up to the buy card.
+
+---
+
+## v20 — sale scoped to the home page (2026-08-26)
+
+The sale is back on, but it advertises on the **home page only**. Two flags in
+the footer script, and they answer different questions on purpose:
+
+```js
+var SALE_ENABLED = true;      // is a discount actually running in Shopify?
+var SALE_PAGES   = ['/'];     // which paths ADVERTISE it?
+```
+
+which resolve to:
+
+| | Drives | Home `/` | `/parasite-power-duo` |
+|---|---|---|---|
+| `WINDOW` | the **cart** and the checkout URL | `before` | `before` |
+| `STATE` | every **pixel** | `before` | `off` |
+
+So the home page carries the promo bar, the 20% stickers, the code chips, the
+sale pricing and the cart status line. The product landing page shows none of
+it and prints full prices.
+
+**Why the split matters.** The discount code is attached to the cart and the
+checkout URL from `SALE_ENABLED`, *not* from the page. If it followed the page,
+the on-load `cartDiscountCodesUpdate` would strip the code every time someone
+visited the duo page and re-attach it on the home page — the discount would
+flip-flop with navigation, and a shopper who landed from the quiz would be
+charged more than one who came via the home page for the same product. The
+Power Duo is one of the eight discounted products, so it gets the discount
+either way. The page just does not shout about it.
+
+### Adding another page to the sale
+Add its path to `SALE_PAGES`. Nothing else. The promo bar is injected by the
+script, so it needs no per-page markup; the collage chip and cart line are
+markup that already hides itself when the page is not in the list.
+
+### Current dates
+Shopify has `parasite` **SCHEDULED**, Aug 31 3:45pm CT → Sep 7 11:00pm CT, so
+today the home page reads "Opens August 31 · Code PARASITE" and prices stay at
+full. It flips to struck-through pricing and "Ends September 7" on its own when
+the window opens, and hides itself after it closes. No action needed on either
+date.
