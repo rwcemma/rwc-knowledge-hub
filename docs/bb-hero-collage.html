@@ -1,40 +1,29 @@
-<!-- bb hero collage v8 - FALLBACK MARKUP + CSS ONLY.
-     bb-store v15 (SITE FOOTER custom code) replaces the contents of #bbp-strip
+<!-- bb hero collage v9 - FALLBACK MARKUP + CSS ONLY.
+     bb-store v18 (SITE FOOTER custom code) replaces the contents of #bbp-strip
      with the live product images once Shopify responds. The static images below
      are what shows if the store is unreachable.
      This section is deliberately NOT shoppable - add-to-cart lives in #bb-shop
      below, so section 1 and section 2 no longer overlap.
-     The 20% sticker is static markup here (not drawn by JS) so it is visible
-     even when the storefront is down.
-     Do NOT add a <script> or data-bb-* attributes here: Webflow can normalise
+     No discount is being offered, so the promo sticker and discount-code chip
+     that used to sit on this panel are gone. If a sale runs again, flip SALE_ON
+     in the footer script and re-add a .bb-off sticker here.
+     Do NOT add a script tag or data-bb-* attributes here: Webflow can normalise
      bare data-* attributes on publish. -->
 <style>
-#bb-collage{position:relative;max-width:720px;margin:26px auto 0;background:rgba(255,255,255,.95);border-radius:20px;padding:22px 20px 16px;box-shadow:0 10px 30px rgba(21,79,97,.22);}
+#bb-collage{position:relative;max-width:720px;margin:26px auto 0;background:rgba(255,255,255,.95);border-radius:20px;padding:22px 20px 18px;box-shadow:0 10px 30px rgba(21,79,97,.22);}
 #bbp-strip{display:flex;gap:8px;justify-content:center;align-items:flex-end;flex-wrap:wrap;}
 #bbp-strip .ci{width:120px;text-align:center;}
 #bbp-strip .ci img{width:100%;height:104px;object-fit:contain;display:block;margin:0 auto 6px;}
 #bbp-strip .ci .n{font-family:Montserrat,sans-serif;font-size:11px;font-weight:700;letter-spacing:.04em;line-height:1.3;color:#7c2a68;}
-#bb-collage-code{margin:14px auto 0;display:block;text-align:center;font-family:Montserrat,sans-serif;font-size:13px;font-weight:600;color:#7c2a68;background:#fff4f9;border:1px dashed #E5397F;border-radius:40px;padding:8px 16px;max-width:max-content;}
-#bb-collage-code b{color:#a01e60;font-weight:800;letter-spacing:.12em;}
-#bb-collage .bb-off{position:absolute;top:-16px;right:-14px;z-index:3;width:80px;height:80px;border-radius:50%;background:#E5397F;border:4px solid #fff;box-shadow:0 8px 22px rgba(160,30,96,.45);transform:rotate(-12deg);display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;}
-#bb-collage .bb-off svg{width:34px;height:19px;display:block;margin-bottom:2px;}
-#bb-collage .bb-off b{font-family:Montserrat,sans-serif;font-size:21px;font-weight:800;line-height:1;color:#fff;}
-#bb-collage .bb-off span{font-family:Montserrat,sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;line-height:1.2;color:#fff;}
 @media screen and (max-width:767px){
-  #bb-collage{margin-top:20px;padding:18px 12px 12px;border-radius:16px;}
+  #bb-collage{margin-top:20px;padding:18px 12px 14px;border-radius:16px;}
   #bbp-strip{gap:6px;}
   #bbp-strip .ci{width:30%;}
   #bbp-strip .ci img{height:82px;}
   #bbp-strip .ci .n{font-size:10px;}
-  #bb-collage-code{font-size:11.5px;padding:7px 12px;margin-top:12px;}
-  #bb-collage .bb-off{width:62px;height:62px;top:-12px;right:-8px;}
-  #bb-collage .bb-off svg{width:27px;height:15px;}
-  #bb-collage .bb-off b{font-size:17px;}
-  #bb-collage .bb-off span{font-size:8px;}
 }
 </style>
 <div id="bb-collage">
-  <div class="bb-off" aria-hidden="true"><svg viewBox="0 0 40 22"><path d="M4 15q5-10 10 0t10 0" fill="none" stroke="#ffd7ec" stroke-width="4.5" stroke-linecap="round"/><circle cx="28" cy="13" r="5.4" fill="#ffd7ec"/><circle cx="30.4" cy="11.2" r="1.3" fill="#a01e60"/></svg><b>20%</b><span>OFF</span></div>
   <div id="bbp-strip">
     <div class="ci"><img src="https://cdn.shopify.com/s/files/1/0278/4326/4609/files/Para_1_f1e834e1-a43f-4364-aa3e-da247b3dabc3.png?v=1771981843" alt="Para 1 by CellCore"><div class="n">Para 1</div></div>
     <div class="ci"><img src="https://cdn.shopify.com/s/files/1/0278/4326/4609/files/Para_2_c87ede60-31d2-46af-8765-d1dceea0b36e.png?v=1771981898" alt="Para 2 by CellCore"><div class="n">Para 2</div></div>
@@ -42,5 +31,4 @@
     <div class="ci"><img src="https://cdn.shopify.com/s/files/1/0278/4326/4609/files/Para_4_377b84b2-5b36-40a2-91b2-ed6cb9341509.png?v=1771982001" alt="Para 4 by CellCore"><div class="n">Para 4</div></div>
     <div class="ci"><img src="https://cdn.shopify.com/s/files/1/0278/4326/4609/files/BioToxin_Binder_-_FRONT.png?v=1771950389" alt="BioToxin Binder by CellCore"><div class="n">BioToxin Binder</div></div>
   </div>
-  <div id="bb-collage-code">Use code <b>PARASITE</b> for 20% off</div>
 </div>

@@ -1,5 +1,5 @@
 <script>
-/* bb-store v17 - lives in SITE FOOTER custom code, not an embed.
+/* bb-store v18 - lives in SITE FOOTER custom code, not an embed.
    Embeds hold markup + CSS only. Failures are isolated so one missing
    element cannot take down the rest. ?bbdebug=1 paints its own panel. */
 (function () {
@@ -26,20 +26,26 @@
                  'gid://shopify/Product/7540961771617',
                  'gid://shopify/Product/7540964556897'];
   // ---- The sale ----
-  // These four MUST match the Shopify discount code exactly. The page only
-  // displays prices; Shopify is what actually charges the customer, so if these
-  // drift the page advertises a discount the checkout will not honour.
-  // Shopify discount "parasite": 20% off, the 8 products in HANDLES above.
-  var DISCOUNT   = 'PARASITE';
-  var SALE_PCT   = 0.20;
-  var SALE_START = '2026-08-31T20:45:45Z';
-  var SALE_END   = '2026-09-08T03:59:59Z';
-  var BADGE      = '20%';
+  // SALE_ON is the master switch. false = no discount is being offered, so no
+  // promo bar, no % stickers, no code chips, no struck-through prices, and no
+  // discount code attached to the cart or the checkout URL.
+  //
+  // To run a sale again: set SALE_ON true and set the four values below to match
+  // the Shopify discount EXACTLY. The page only displays prices - Shopify is
+  // what charges the customer - so if these drift the page advertises a discount
+  // the checkout will not honour.
+  var SALE_ON    = false;
+  var DISCOUNT   = '';
+  var SALE_PCT   = 0;
+  var SALE_START = '';
+  var SALE_END   = '';
+  var BADGE      = '';
 
-  // Before the code goes live, showing a struck-through price would promise a
-  // discount that checkout rejects, so prices stay at full and the copy says
-  // when the sale opens. Everything below keys off this.
+  // With a scheduled sale, showing a struck-through price before the code goes
+  // live would promise a discount that checkout rejects. So prices stay at full
+  // until the window opens. Everything sale-related keys off this.
   function saleState() {
+    if (!SALE_ON) { return 'off'; }
     var now = new Date().getTime();
     if (SALE_START && now < Date.parse(SALE_START)) { return 'before'; }
     if (SALE_END && now > Date.parse(SALE_END)) { return 'ended'; }
@@ -53,7 +59,7 @@
     } catch (e) { return ''; }
   }
   var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
-  var VERSION = 'v17';
+  var VERSION = 'v18';
 
   var byHandle = {};
   var cartId = null;
@@ -122,7 +128,7 @@
 
   // The code, repeated wherever a shopper is looking at a sale price.
   function codeHtml() {
-    if (STATE === 'ended') { return ''; }
+    if (!SALE_ON || STATE === 'ended') { return ''; }
     var txt = STATE === 'live'
       ? 'Use code <b>' + DISCOUNT + '</b>'
       : '<b>' + DISCOUNT + '</b> &middot; from ' + saleDate(SALE_START);
@@ -446,7 +452,7 @@
   // both the body padding and the header's top offset are re-measured on resize
   // (the bar wraps to two lines on narrow phones).
   function mountPromo() {
-    if (STATE === 'ended' || !document.body) { return; }
+    if (!SALE_ON || STATE === 'ended' || !document.body) { return; }
     var css = document.createElement('style');
     css.textContent =
       '#bb-promo{position:fixed;top:0;left:0;right:0;z-index:9990;display:block;' +
@@ -486,6 +492,12 @@
   // Two static callouts - one on the hero collage, one above the sale grid -
   // are filled from the same state so the code never contradicts itself.
   function fillCallouts() {
+    var a0 = $('bb-collage-code'), b0 = $('bb-sale-note');
+    if (!SALE_ON) {
+      if (a0) { a0.style.display = 'none'; }
+      if (b0) { b0.style.display = 'none'; }
+      return;
+    }
     var live = STATE === 'live';
     var short = live
       ? 'Use code <b>' + DISCOUNT + '</b> for 20% off'
@@ -537,7 +549,7 @@
     dbg('addToCart ' + variantId);
     if (!cartId) {
       gql('mutation($lines:[CartLineInput!]!,$codes:[String!]){cartCreate(input:{lines:$lines,discountCodes:$codes}){cart{' + CART_FIELDS + '}}}',
-          { lines: [{ merchandiseId: variantId, quantity: 1 }], codes: [DISCOUNT] })
+          { lines: [{ merchandiseId: variantId, quantity: 1 }], codes: SALE_ON ? [DISCOUNT] : [] })
         .then(function (r) {
           var c = r.json && r.json.data && r.json.data.cartCreate && r.json.data.cartCreate.cart;
           if (!c) { return cartFail(r.raw); }
@@ -574,7 +586,7 @@
   // attach was rejected (e.g. the sale had not opened yet when the cart began).
   function checkoutHref(cart) {
     if (!cart || !cart.checkoutUrl) { return ''; }
-    if (STATE === 'ended') { return cart.checkoutUrl; }
+    if (!SALE_ON || STATE === 'ended') { return cart.checkoutUrl; }
     return cart.checkoutUrl + (cart.checkoutUrl.indexOf('?') === -1 ? '?' : '&') +
            'discount=' + encodeURIComponent(DISCOUNT);
   }
@@ -582,7 +594,7 @@
   function renderCodeStatus(cart) {
     var el = $('bb-cart-code');
     if (!el) { return; }
-    if (STATE === 'ended') { el.style.display = 'none'; return; }
+    if (!SALE_ON || STATE === 'ended') { el.style.display = 'none'; return; }
     var codes = (cart && cart.discountCodes) || [];
     var live = false;
     for (var i = 0; i < codes.length; i++) {
@@ -621,9 +633,12 @@
   }
 
   if (cartId) {
-    // Re-attach on every load: a cart begun before the sale opened has no code.
+    // Rewrite the cart's discount codes on every load. With a sale running this
+    // re-attaches the code to a cart begun before it opened; with SALE_ON false
+    // it STRIPS a code left on a returning shopper's cart from a previous sale,
+    // so an old cart cannot quietly discount an order we are not discounting.
     gql('mutation($id:ID!,$codes:[String!]){cartDiscountCodesUpdate(cartId:$id,discountCodes:$codes){cart{' + CART_FIELDS + '}}}',
-        { id: cartId, codes: [DISCOUNT] })
+        { id: cartId, codes: SALE_ON ? [DISCOUNT] : [] })
       .then(function (r) {
         var d = r.json && r.json.data && r.json.data.cartDiscountCodesUpdate;
         var c = d && d.cart;

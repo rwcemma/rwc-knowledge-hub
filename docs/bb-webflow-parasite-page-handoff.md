@@ -573,3 +573,36 @@ that off properly, add them to Project Settings → SEO → robots.txt:
 User-agent: *
 Disallow: /parasite-power-duo
 ```
+
+---
+
+## v18 — sale switched off (2026-08-26)
+
+No discount is being offered. One switch controls all of it:
+
+```js
+var SALE_ON = false;   // footer script, top of the file
+```
+
+With it false: no promo bar, no % stickers, no code chips, no struck-through
+prices, no discount code attached to the cart, and a plain checkout URL. The
+static 20% sticker and code chip were removed from the hero collage embed, the
+cart-drawer code line was removed from both store embeds, and the home page
+eyebrow now reads "Full Moon Parasite Cleanse" instead of "Parasite Cleanse
+Product Sale".
+
+**One thing worth knowing:** the on-load `cartDiscountCodesUpdate` call now sends
+an EMPTY code list when `SALE_ON` is false. That actively STRIPS a leftover code
+from a returning shopper's saved cart, so a cart started during a previous sale
+cannot quietly discount an order that is no longer discounted.
+
+### Turning a sale back on
+1. Set `SALE_ON = true` and fill in `DISCOUNT`, `SALE_PCT`, `SALE_START`,
+   `SALE_END`, `BADGE` to match the Shopify discount exactly.
+2. Re-add a `.bb-off` sticker to the hero collage embed if you want one there.
+All the CSS for stickers, sale prices, code chips and the cart status line is
+still in the embeds, dormant.
+
+**Still in Shopify:** the `parasite` discount code (20%, scheduled Aug 31 - Sep 7)
+has NOT been deleted, only un-advertised. Delete or disable it in Shopify if it
+should not be redeemable by anyone who already has the code.
