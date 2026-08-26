@@ -676,3 +676,28 @@ today the home page reads "Opens August 31 · Code PARASITE" and prices stay at
 full. It flips to struck-through pricing and "Ends September 7" on its own when
 the window opens, and hides itself after it closes. No action needed on either
 date.
+
+---
+
+## v21 — cart quantity stepper (2026-08-26)
+
+Each cart line now has a **&minus; / count / +** control alongside Remove, backed by
+the Storefront `cartLinesUpdate` mutation. Dropping to 0 removes the line.
+
+Two details that matter:
+
+- **`data-qty` on each button carries the TARGET quantity**, not the current one.
+  The handler never reads a number back out of the DOM, so it cannot act on a
+  stale value after a re-render.
+- **`cartBusy` serialises cart mutations.** Without it, tapping + three times
+  quickly fires three concurrent updates that each computed their target from
+  the same starting quantity — last one to land wins, and the count ends up
+  wrong. While a mutation is in flight the drawer gets `.busy`
+  (`opacity:.55; pointer-events:none`), which is both the lock and the feedback.
+
+Shopify caps the quantity at available stock and returns the corrected cart, so
+the drawer re-renders to the real number rather than the one requested.
+
+**The stepper CSS is injected by the script, not added to the store embeds.**
+There are two copies of that embed (home + each product landing page) and they
+would drift; injecting keeps one source.

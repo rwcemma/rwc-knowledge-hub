@@ -1,5 +1,5 @@
 <script>
-/* bb-store v20 - lives in SITE FOOTER custom code, not an embed.
+/* bb-store v21 - lives in SITE FOOTER custom code, not an embed.
    Embeds hold markup + CSS only. Failures are isolated so one missing
    element cannot take down the rest. ?bbdebug=1 paints its own panel. */
 (function () {
@@ -73,7 +73,7 @@
     } catch (e) { return ''; }
   }
   var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
-  var VERSION = 'v20';
+  var VERSION = 'v21';
 
   var byHandle = {};
   var cartId = null;
@@ -503,8 +503,26 @@
   }
   safe('promo bar', mountPromo);
 
-  // Two static callouts - one on the hero collage, one above the sale grid -
-  // are filled from the same state so the code never contradicts itself.
+  // Cart quantity stepper styling. Injected rather than added to the store
+  // embeds so the home page and every product landing page stay in sync from
+  // one place - there are two copies of that embed and they would drift.
+  safe('cart qty css', function () {
+    var css = document.createElement('style');
+    css.textContent =
+      '.bb-qty{display:flex;align-items:center;gap:8px;margin-top:8px;}' +
+      '.bb-qty .qb{width:26px;height:26px;flex:none;border:1px solid #ecdfe6;background:#fff;' +
+      'border-radius:50%;color:#a01e60;font-family:Montserrat,sans-serif;font-size:15px;' +
+      'font-weight:700;line-height:1;cursor:pointer;display:flex;align-items:center;' +
+      'justify-content:center;padding:0;transition:background .15s,border-color .15s;}' +
+      '.bb-qty .qb:hover{background:#fff4f9;border-color:#E5397F;}' +
+      '.bb-qty .qv{min-width:22px;text-align:center;font-weight:700;font-size:14px;color:#20303a;}' +
+      '.bb-qty .rm{margin-left:auto;}' +
+      '#bb-cart-drawer.busy{opacity:.55;pointer-events:none;}';
+    document.head.appendChild(css);
+  });
+
+  // Static sale callouts, filled from the same state so nothing contradicts.
+  // On a page outside SALE_PAGES they are hidden outright.
   function fillCallouts() {
     var a0 = $('bb-collage-code'), b0 = $('bb-sale-note');
     if (!SALE_ON) {
@@ -586,18 +604,48 @@
     }
   }
 
+  // One cart mutation at a time. Without this, tapping + three times fires three
+  // concurrent updates that each computed their target from the same starting
+  // quantity, and the last one to land wins - so the count ends up wrong.
+  var cartBusy = false;
+  function cartLock(on) {
+    cartBusy = on;
+    var d = $('bb-cart-drawer');
+    if (d) { d.classList[on ? 'add' : 'remove']('busy'); }
+  }
+
   function removeLine(lineId) {
+    if (cartBusy) { return; }
+    cartLock(true);
     gql('mutation($id:ID!,$lineIds:[ID!]!){cartLinesRemove(cartId:$id,lineIds:$lineIds){cart{' + CART_FIELDS + '}}}',
         { id: cartId, lineIds: [lineId] })
       .then(function (r) {
+        cartLock(false);
         var c = r.json && r.json.data && r.json.data.cartLinesRemove && r.json.data.cartLinesRemove.cart;
         if (c) { renderCart(c); }
-      }).catch(cartFail);
+      }).catch(function (e) { cartLock(false); cartFail(e); });
   }
 
-  // The shopper never has to type the code: it is attached to the cart, and
-  // also passed on the checkout URL so Shopify applies it even if the cart-level
-  // attach was rejected (e.g. the sale had not opened yet when the cart began).
+  // Shopify caps the quantity at what is actually in stock and returns the
+  // corrected cart, so the drawer re-renders to the real number rather than the
+  // one that was asked for.
+  function setLineQty(lineId, qty) {
+    if (cartBusy) { return; }
+    if (qty < 1) { return removeLine(lineId); }
+    cartLock(true);
+    gql('mutation($id:ID!,$lines:[CartLineUpdateInput!]!){cartLinesUpdate(cartId:$id,lines:$lines){cart{' + CART_FIELDS + '}}}',
+        { id: cartId, lines: [{ id: lineId, quantity: qty }] })
+      .then(function (r) {
+        cartLock(false);
+        var c = r.json && r.json.data && r.json.data.cartLinesUpdate && r.json.data.cartLinesUpdate.cart;
+        if (c) { renderCart(c); }
+        else { dbg('qty update returned no cart: ' + r.raw); }
+      }).catch(function (e) { cartLock(false); cartFail(e); });
+  }
+
+  // The code follows the SITE-WIDE window, not the page. A shopper who buys the
+  // Power Duo from its quiet landing page still gets the discount they are
+  // entitled to; that page simply does not advertise it.
   function checkoutHref(cart) {
     if (!cart || !cart.checkoutUrl) { return ''; }
     if (!SALE_ENABLED || WINDOW === 'ended') { return cart.checkoutUrl; }
@@ -632,9 +680,19 @@
       var lines = (cart && cart.lines.nodes) || [];
       box.innerHTML = lines.length ? lines.map(function (l) {
         var m = l.merchandise, img = m.product.featuredImage ? m.product.featuredImage.url : '';
+        // data-qty carries the TARGET quantity for each button, so the handler
+        // never has to read a number back out of the DOM and cannot act on a
+        // stale one.
         return '<div class="bb-line"><img src="' + img + '"><div class="ln">' + esc(m.product.title) +
-               '<br><span class="lp">' + money(m.price) + '</span> &times; ' + l.quantity +
-               '<br><button class="rm" data-line="' + l.id + '">Remove</button></div></div>';
+               '<br><span class="lp">' + money(m.price) + '</span>' +
+               '<div class="bb-qty">' +
+                 '<button class="qb" data-line="' + l.id + '" data-qty="' + (l.quantity - 1) +
+                   '" aria-label="Decrease quantity">&minus;</button>' +
+                 '<span class="qv">' + l.quantity + '</span>' +
+                 '<button class="qb" data-line="' + l.id + '" data-qty="' + (l.quantity + 1) +
+                   '" aria-label="Increase quantity">+</button>' +
+                 '<button class="rm" data-line="' + l.id + '">Remove</button>' +
+               '</div></div></div>';
       }).join('') : '<p style="color:#9bb2b6;text-align:center;padding:20px 0;">Your cart is empty.</p>';
     }
     var sub = $('bb-cart-subtotal');
@@ -719,6 +777,13 @@
 
     var thumb = t.closest('[data-bb-thumb]');
     if (thumb) { var mn = $('bb-m-main'); if (mn) { mn.src = thumb.getAttribute('src'); } return; }
+
+    var qb = t.closest('.qb');
+    if (qb) {
+      ev.preventDefault();
+      setLineQty(qb.getAttribute('data-line'), parseInt(qb.getAttribute('data-qty'), 10));
+      return;
+    }
 
     var rm = t.closest('.rm');
     if (rm) { ev.preventDefault(); removeLine(rm.getAttribute('data-line')); return; }
