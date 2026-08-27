@@ -1,5 +1,5 @@
 <script>
-/* bb-store v21 - lives in SITE FOOTER custom code, not an embed.
+/* bb-store v22 - lives in SITE FOOTER custom code, not an embed.
    Embeds hold markup + CSS only. Failures are isolated so one missing
    element cannot take down the rest. ?bbdebug=1 paints its own panel. */
 (function () {
@@ -73,7 +73,7 @@
     } catch (e) { return ''; }
   }
   var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
-  var VERSION = 'v21';
+  var VERSION = 'v22';
 
   var byHandle = {};
   var cartId = null;
@@ -413,7 +413,8 @@
   // page is a one-line change here plus a duplicated Webflow page carrying an
   // empty #bb-feature-buy container; everything else on those pages is static.
   var FEATURE = {
-    '/parasite-power-duo': 'parasite-cleanse-power-duo'
+    '/parasite-power-duo': 'parasite-cleanse-power-duo',
+    '/full-moon-para-kit': 'para-kit'
   };
 
   function featuredHandle() {

@@ -701,3 +701,90 @@ the drawer re-renders to the real number rather than the one requested.
 **The stepper CSS is injected by the script, not added to the store embeds.**
 There are two copies of that embed (home + each product landing page) and they
 would drift; injecting keeps one source.
+
+---
+
+## v22 — the Full Moon Para Kit landing page (2026-08-27)
+
+Second hidden product page, same layout and design as `/parasite-power-duo`.
+Nothing on the site links to it; the quiz is the only way in.
+
+| Page | Slug | Featured product | Webflow page id |
+|---|---|---|---|
+| Parasite Cleanse Power Duo | `/parasite-power-duo` | `parasite-cleanse-power-duo` | `6a8ef755097ed2415857b9f0` |
+| Full Moon Para Kit | `/full-moon-para-kit` | `para-kit` ($234.95) | `6a905bd4a1f642eb3652c1db` |
+
+Built to the recipe in v17: duplicated the Home page, swapped the four embeds,
+set the H1 / subhead / buttons / shop heading, and added one line to `FEATURE`
+in the footer script. Two things the recipe does not spell out and that bit here:
+
+- **The duplicate inherits the Home page's leftover `href` attribute** on the
+  solid hero button (`…f471`, `href="#bb-shop"`). A custom attribute overrides
+  the Designer link setting on publish, so it has to be removed with
+  `remove_attribute` after `set_link`. Check `get_attributes` on both hero
+  buttons on every new page.
+- **The eyebrow embed on the Home page says "Parasite Cleanse Product Sale."**
+  On a landing page it has to be reset to "Your Recommended Protocol", otherwise
+  the page advertises a sale it deliberately stays quiet about.
+
+### What is different from the duo page
+The kit is **four** products, not two, so the blue `#bb-learn` section carries
+four alternating `.bb-ft` / `.bb-ft.flip` blocks — Para 1, Para 2, Para 3,
+BioToxin Binder — instead of two. Everything else (CSS, FAQ accordion markup,
+`#bb-bowel-link` / `#bb-drainage-link` ids, closing CTA) is identical.
+
+Source copy: the Tier 3 "Full Spectrum Approach Recommended" quiz-result email.
+Unlike the Power Duo there was **no product/copy contradiction to resolve** —
+the Shopify description's ingredient list (mimosa pudica, black walnut hull,
+clove, holy basil, Carbon Technology) lines up with what the email describes.
+
+The FAQ answers carry the Tier 3 protocol as written: 30 days on, a week off,
+**most cases at this tier need two rounds**; Para 1/2/3 on an empty stomach
+20–30 min before food or 2 hours after; binder at breakfast and dinner, 30 min
+away from Para 1; follow the dosing chart insert that ships in the box. The
+"what if I'm sensitive" answer routes down to the Starter Duo or Power Duo with
+an explicit instruction to transition into the full kit within a couple of
+months — starting smaller is fine, staying there is not.
+
+### Drainage prep is stated as non-optional here
+On the duo page the two-week drainage prep is strongly recommended. At this tier
+the email calls it non-negotiable, and the page says so: three anti-parasitics
+running at once mobilises a lot, and without open pathways it recirculates.
+
+### New files
+- `docs/bb-feature-full-moon-para-kit.html` — feature block ("What's in the kit")
+- `docs/bb-learn-full-moon-para-kit.html` — blue four-product section + FAQ
+
+### Script change
+One line, plus the version string:
+
+```js
+  var FEATURE = {
+    '/parasite-power-duo': 'parasite-cleanse-power-duo',
+    '/full-moon-para-kit': 'para-kit'
+  };
+```
+
+`para-kit` is already in `HANDLES`, so `ensureFeature()` reuses the product from
+the sale fetch rather than issuing a second request.
+
+### The footer script cannot be read back
+`data_scripts_tool` exposes `set_site_freeform_code` but **no matching getter**,
+and the published site is not reachable from this environment. Every footer
+upload is therefore write-only: the mirror in `docs/bb-store-footer-code.html` is
+the only diffable copy, so it must be updated *before* the upload, never after.
+Run `node --check` on it (minus the `<script>` wrapper) each time.
+
+### Still open
+- **robots.txt.** Both hidden pages are unlinked but indexable. Project Settings
+  → SEO → robots.txt:
+  ```
+  User-agent: *
+  Disallow: /parasite-power-duo
+  Disallow: /full-moon-para-kit
+  ```
+- **Two URLs.** The free drainage clinic and the free parasite masterclass CTAs
+  both point at `https://www.biohackingbombshell.com/` as a safe interim.
+- **Remaining pages.** Starter Duo (no such Shopify product exists yet — it needs
+  creating as a bundle, or the page features Para 1 + BioToxin Binder as two
+  items) and the Drainage starter kit.
