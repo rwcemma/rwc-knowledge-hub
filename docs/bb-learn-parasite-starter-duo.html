@@ -1,0 +1,161 @@
+<!-- Parasite Starter Duo page teaching + FAQ. Same two sections and the same CSS
+     as the other landing pages - only the copy differs.
+     #bb-learn = blue product feature section (hero button links here)
+     #bb-faq   = light FAQ accordion, native <details>/<summary> so it needs no
+     JavaScript at all. The chevron is a CSS border triangle that rotates on [open].
+     #bb-bowel-link / #bb-drainage-link are bound BY ID in the footer script and
+     open those products' modals. Never use data-* attributes in a Webflow embed.
+     This page is routed to by the quiz's Sensitivity Override, so the through-line
+     is "this tier is the right one for you", never "this is the smaller option". -->
+<style>
+#bb-learn{background:#154f61;color:#eaf5f5;padding:70px 20px;font-family:inherit;}
+#bb-learn *,#bb-faq *{box-sizing:border-box;}
+#bb-learn .in,#bb-faq .in{max-width:1040px;margin:0 auto;}
+#bb-learn .head{text-align:center;max-width:820px;margin:0 auto 40px;}
+#bb-learn .pill{display:inline-block;background:#7fc6c6;color:#154f61;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;padding:8px 18px;border-radius:50px;}
+#bb-learn h2{font-size:clamp(26px,4vw,40px);font-weight:800;color:#fff;margin:18px 0 16px;letter-spacing:.4px;line-height:1.14;}
+#bb-learn h2 .em{color:#7fc6c6;font-style:italic;}
+#bb-learn .lead{font-size:17px;color:#cfe6e6;margin:0;line-height:1.65;}
+#bb-learn .lead strong{color:#fff;}
+.bb-ft{display:grid;grid-template-columns:340px 1fr;gap:34px;align-items:center;padding:32px 0;border-top:1px solid rgba(127,198,198,.25);}
+.bb-ft:last-of-type{border-bottom:1px solid rgba(127,198,198,.25);}
+.bb-ft.flip{grid-template-columns:1fr 340px;}
+.bb-ft.flip .bb-ft-media{order:2;}
+.bb-ft-media{background:#fff;border-radius:18px;padding:26px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(0,0,0,.22);}
+.bb-ft-media img{width:100%;max-height:230px;object-fit:contain;display:block;}
+.bb-ft-no{font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#7fc6c6;margin-bottom:10px;}
+.bb-ft h3{margin:0 0 14px;font-size:clamp(22px,2.6vw,28px);font-weight:800;color:#fff;line-height:1.22;letter-spacing:.2px;}
+.bb-ft p{margin:0 0 12px;font-size:15.5px;color:#cfe6e6;line-height:1.7;}
+.bb-ft p:last-child{margin-bottom:0;}
+.bb-ft b{color:#fff;}
+#bb-learn .disc{max-width:820px;margin:28px auto 0;font-size:12px;line-height:1.6;color:#9dc0c0;text-align:center;}
+#bb-faq{background:#fdf7fa;padding:70px 20px;font-family:Montserrat,sans-serif;}
+#bb-faq .fhead{text-align:center;max-width:680px;margin:0 auto 34px;}
+#bb-faq .fpill{display:inline-block;background:#ffe3f0;color:#a01e60;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;padding:8px 18px;border-radius:50px;}
+#bb-faq h2{font-size:clamp(25px,3.6vw,36px);font-weight:800;color:#7c2a68;margin:18px 0 0;line-height:1.16;letter-spacing:.2px;}
+#bb-faq details{background:#fff;border:1px solid #f0dbe6;border-radius:14px;margin-bottom:12px;box-shadow:0 4px 14px rgba(21,79,97,.06);overflow:hidden;}
+#bb-faq details[open]{border-color:#E5397F;box-shadow:0 8px 24px rgba(160,30,96,.13);}
+#bb-faq summary{display:flex;align-items:center;justify-content:space-between;gap:16px;cursor:pointer;padding:22px 26px;font-size:17px;font-weight:700;color:#7c2a68;line-height:1.35;list-style:none;}
+#bb-faq summary::-webkit-details-marker{display:none;}
+#bb-faq summary:hover{color:#a01e60;}
+#bb-faq summary::after{content:'';flex:none;width:10px;height:10px;margin-top:-5px;border-right:2.5px solid #E5397F;border-bottom:2.5px solid #E5397F;transform:rotate(45deg);transition:transform .2s ease,margin .2s ease;}
+#bb-faq details[open] summary::after{transform:rotate(-135deg);margin-top:4px;}
+#bb-faq .ans{padding:0 26px 24px;}
+#bb-faq .ans p{margin:0 0 12px;font-size:15px;line-height:1.7;color:#3d4d56;}
+#bb-faq .ans p:last-child{margin-bottom:0;}
+#bb-faq .ans b{color:#7c2a68;}
+#bb-faq .ans ul{margin:0 0 12px;padding:0;list-style:none;}
+#bb-faq .ans li{position:relative;padding-left:24px;margin-bottom:10px;font-size:15px;line-height:1.6;color:#3d4d56;}
+#bb-faq .ans li:last-child{margin-bottom:0;}
+#bb-faq .ans li:before{content:'';position:absolute;left:2px;top:8px;width:8px;height:8px;border-radius:50%;background:#E5397F;}
+#bb-faq .ans a{color:#a01e60;font-weight:700;text-decoration:underline;cursor:pointer;}
+#bb-faq .cta{display:inline-block;margin-top:6px;background:#E5397F;color:#fff;font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:12px 22px;border-radius:40px;text-decoration:none;transition:background .15s;}
+#bb-faq .cta:hover{background:#B0286F;color:#fff;}
+#bb-faq .close{margin-top:36px;text-align:center;}
+#bb-faq .close p{font-size:17px;color:#7c2a68;font-weight:700;margin:0 0 16px;}
+#bb-faq .close .cta{font-size:14px;padding:16px 34px;letter-spacing:.06em;}
+@media screen and (max-width:860px){
+  #bb-learn{padding:50px 18px;}
+  .bb-ft,.bb-ft.flip{grid-template-columns:1fr;gap:20px;padding:28px 0;}
+  .bb-ft.flip .bb-ft-media{order:0;}
+  .bb-ft-media{padding:20px;}
+  .bb-ft-media img{max-height:180px;}
+  #bb-faq{padding:50px 18px;}
+  #bb-faq summary{padding:18px 20px;font-size:16px;}
+  #bb-faq .ans{padding:0 20px 20px;}
+}
+</style>
+<section id="bb-learn"><div class="in">
+  <div class="head">
+    <span class="pill">Why This Duo</span>
+    <h2>This isn&rsquo;t the beginner version.<br>For a reactive body it&rsquo;s the <span class="em">right</span> one.</h2>
+    <p class="lead">If you flare from most supplements &mdash; MCAS, POTS, histamine intolerance, or just a body that reacts to everything &mdash; the usual advice to &ldquo;start strong and push through&rdquo; is exactly how people end up bedbound for a week and afraid to try again.</p>
+    <p class="lead" style="margin-top:14px;"><strong>So I route sensitive bodies here on purpose, and I mean that clinically, not softly.</strong> Both bottles in this duo were chosen for how gently they work, not for how little they do.</p>
+  </div>
+
+  <div class="bb-ft">
+    <div class="bb-ft-media"><img src="https://cdn.shopify.com/s/files/1/0278/4326/4609/files/Para_1_f1e834e1-a43f-4364-aa3e-da247b3dabc3.png?v=1771981843" alt="Para 1 by CellCore"></div>
+    <div class="bb-ft-copy">
+      <div class="bb-ft-no">Bottle One</div>
+      <h3>Para 1 &mdash; it sweeps, it doesn&rsquo;t attack</h3>
+      <p>CellCore&rsquo;s flagship gut formula, made from <b>100% pure mimosa pudica seed.</b> It&rsquo;s naturally gelatinous &mdash; it turns jelly-like and sticky as it moves through the GI tract, and takes foreign organisms and intestinal buildup with it.</p>
+      <p>That mechanism is the whole point for you. It works <b>mechanically rather than through aggressive kill-off</b>, which means minimal die-off for a reactive body. Nothing is being blown apart inside you and dumped into circulation.</p>
+    </div>
+  </div>
+
+  <div class="bb-ft flip">
+    <div class="bb-ft-media"><img src="https://cdn.shopify.com/s/files/1/0278/4326/4609/files/BioToxin_Binder_-_FRONT.png?v=1771950389" alt="BioToxin Binder by CellCore"></div>
+    <div class="bb-ft-copy">
+      <div class="bb-ft-no">Bottle Two</div>
+      <h3>BioToxin Binder &mdash; without the usual cost</h3>
+      <p>A binder escorts what you mobilize out of the body instead of letting it recirculate. The problem with most binders is that they&rsquo;re indiscriminate: activated charcoal and bentonite clay grab your supplements and medications too, and leave you more depleted than they found you.</p>
+      <p>This one uses <b>bioactive carbon technology</b> instead, so it does not bind most other supplements and medications the way traditional binders do. You get the escort without the stripping.</p>
+      <p>It also supports the gut microbiome while it works &mdash; which for a sensitive body is the difference between a cleanse and a setback.*</p>
+    </div>
+  </div>
+
+  <p class="disc">* These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure or prevent any disease.</p>
+</div></section>
+
+<section id="bb-faq"><div class="in">
+  <div class="fhead">
+    <span class="fpill">Before You Buy</span>
+    <h2>The questions I get asked most</h2>
+  </div>
+
+  <details>
+    <summary>Why is it a duo?</summary>
+    <div class="ans">
+      <p>Because an anti-parasitic on its own is half a protocol. You mobilize the load &mdash; and then leave it circulating. A binder on its own is the other half of the problem: it gives your body nothing new to carry out.</p>
+      <p><b>Together they do one job: open the door, and walk the mess through it.</b></p>
+      <p>Skipping the binder is the single most common reason a cleanse feels brutal. People assume feeling awful means it&rsquo;s working. Usually it just means what got mobilized had nowhere to go &mdash; and if you&rsquo;re reactive, that is the exact thing you cannot afford.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Am I missing out by not starting with something stronger?</summary>
+    <div class="ans">
+      <p>No. <b>This is not a downgrade for you &mdash; it&rsquo;s the correct starting point</b>, and I&rsquo;d put you here regardless of what the rest of your quiz score looked like.</p>
+      <p>A stronger formula in a reactive body doesn&rsquo;t clear more. It mobilizes faster than your drainage can keep up with, you feel terrible, you stop &mdash; and you end up further from a cleared parasite load than if you&rsquo;d gone slowly and finished.</p>
+      <p>Gentle and completed beats aggressive and abandoned. Every time.</p>
+      <p>And if your sensitivity is stacked on top of <b>active mold, active Lyme or significant MCAS</b>, please don&rsquo;t work this out alone. Generic protocols in complex cases either work beautifully or backfire badly, and which one you get comes down to bio-individualized protocol design.</p>
+      <p><a class="cta" href="https://www.biohackingbombshell.com/breakthrough-sessions-j-page-165783" target="_blank" rel="noopener">Book a free breakthrough session</a></p>
+    </div>
+  </details>
+
+  <details>
+    <summary>What is the protocol?</summary>
+    <div class="ans">
+      <p><b>Go slow, dose low.</b> That&rsquo;s your rule, and it overrides anything on the label.</p>
+      <ul>
+        <li><b>Start at a half, a quarter, or even an eighth</b> of the standard dose. Build only as you tolerate.</li>
+        <li><b>Para 1 on an empty stomach:</b> upon waking and before bed &mdash; 20&ndash;30 minutes before food, or 2 hours after.</li>
+        <li><b>BioToxin Binder at breakfast and dinner</b> &mdash; at least 30 minutes away from Para 1, so it doesn&rsquo;t bind up the Para 1 before it gets to work.</li>
+        <li><b>If you start feeling more reactive, back off.</b> Don&rsquo;t push through. Reacting harder is information, not progress.</li>
+      </ul>
+      <p>Before you start, go through the masterclass &mdash; it covers modifying dosing for sensitivity, how to spot a detox reaction, and the full FAQ.</p>
+      <p><a class="cta" href="https://www.biohackingbombshell.com/" target="_blank" rel="noopener">Watch my free parasite masterclass</a></p>
+    </div>
+  </details>
+
+  <details>
+    <summary>What to do before you start</summary>
+    <div class="ans">
+      <p>Open your drainage pathways. <b>This is the step that protects sensitive bodies from reactions</b> &mdash; and it&rsquo;s the one people skip. If your bowels, liver and kidneys aren&rsquo;t moving, everything you mobilize has nowhere to go, so it recirculates.</p>
+      <p>For at least <b>2 weeks before</b> you touch Para 1:</p>
+      <ul>
+        <li>Daily full bowel movements &mdash; two is ideal</li>
+        <li>Sweat, move your lymph, hydrate with minerals</li>
+        <li>Open the liver and kidney pathways</li>
+      </ul>
+      <p>Not moving twice a day yet? Get <a id="bb-bowel-link" href="#bb-shop">Bowel Mover</a> and the <a id="bb-drainage-link" href="#bb-shop">Drainage Duo</a> on board first.</p>
+      <p>Your cleanse doesn&rsquo;t have to happen this week. <b>The drainage prep should start now</b> &mdash; for a sensitive body that&rsquo;s the piece that changes everything.</p>
+      <p><a class="cta" href="https://www.biohackingbombshell.com/" target="_blank" rel="noopener">Go through my free drainage clinic</a></p>
+    </div>
+  </details>
+
+  <div class="close">
+    <p>Ready to start in the way your body can actually handle?</p>
+    <a class="cta" href="#bb-feature">Get the Parasite Starter Duo</a>
+  </div>
+</div></section>

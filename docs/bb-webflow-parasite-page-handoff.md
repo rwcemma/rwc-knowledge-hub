@@ -865,3 +865,84 @@ bottles in Shopify — nothing in this repo can fix it.
   at `https://www.biohackingbombshell.com/`.
 - **Page four, Starter Duo** — no such Shopify product exists. It needs creating
   as a bundle first, or the page features Para 1 + BioToxin Binder as two items.
+
+---
+
+## v24 — the Parasite Starter Duo page (2026-08-27)
+
+Fourth and final hidden product page. **Built with no footer-script change** —
+the first one to run purely on the `bb-handle-` marker introduced in v23.
+
+| Page | Slug | Featured product | Webflow page id |
+|---|---|---|---|
+| Parasite Cleanse Power Duo | `/parasite-power-duo` | `parasite-cleanse-power-duo` ($130.90) | `6a8ef755097ed2415857b9f0` |
+| Full Moon Para Kit | `/full-moon-para-kit` | `para-kit` ($234.95) | `6a905bd4a1f642eb3652c1db` |
+| Drainage Jumpstart Duo | `/drainage-duo` | `drainage-jumpstart-duo` ($141.90) | `6a906230259f8b264cee8582` |
+| Parasite Starter Duo | `/parasite-starter-duo` | `parasite-cleanse-starter-kit` ($123.90) | `6a90648071b928216fcc048c` |
+
+### Correction: the product exists, under a different name
+v17 recorded that no "Parasite Starter Duo" product existed in Shopify. That was
+wrong. It is listed as **"Parasite Cleanse Starter Kit"**, handle
+`parasite-cleanse-starter-kit`, and the arithmetic confirms it is the same two
+bottles: Para 1 ($46.95) + BioToxin Binder ($76.95) = **$123.90** exactly, and
+the Shopify description covers only those two products.
+
+The buy card renders the Shopify title, so it reads **"Parasite Cleanse Starter
+Kit"** while the page headline says "Parasite Starter Duo". The feature panel
+names the discrepancy in a bullet so nobody thinks they landed on the wrong
+product. Renaming the Shopify product would remove the mismatch — Emma's call,
+since the name may be doing work elsewhere.
+
+This is also the first featured product **outside `HANDLES`**, which exercises
+the on-demand branch of `ensureFeature()`: not in the sale fetch, so it issues
+its own `product(handle:)` query. It works, and it means a landing page can
+feature anything in the catalogue.
+
+Note it is *not* caught by `isHidden()` — `HIDE_WORDS` deliberately omits
+`'starter kit'` precisely to protect this product. Do not add that phrase.
+
+### Copy source and the through-line
+The Sensitivity Override email. The whole page is written against one risk: that
+a reader routed here reads "gentlest option" as "lesser option", doesn't buy, and
+comes back later to something that will hurt them.
+
+So the second FAQ is **"Am I missing out by not starting with something
+stronger?"** and answers it flatly — this is the correct starting point, not a
+downgrade, and a stronger formula in a reactive body mobilises faster than
+drainage can keep up with. Gentle and completed beats aggressive and abandoned.
+The blue section's headline carries the same claim.
+
+The FDA disclaimer footnote (`#bb-learn .disc`, added in v23) is here too — the
+BioToxin Binder block restates CellCore structure/function claims.
+
+### New files
+- `docs/bb-feature-parasite-starter-duo.html`
+- `docs/bb-learn-parasite-starter-duo.html`
+
+### Building a fifth page, if it ever comes
+1. `create_page` with `duplicateOf: "6a7635962dbaea8e6172ec58"` (Home) + SEO.
+2. Swap four embeds: eyebrow `95c7e548…` (→ "Your Recommended Protocol", NOT the
+   home page's sale line), feature `d7a7c63a…`, learn+FAQ `2148c621…`, store
+   `7c7f9b41…` (feature-page variant).
+3. Put the Shopify handle in the feature embed's marker span.
+4. Set H1 `…f46d`, subhead `…f46f`, buttons `…f471` → `#bb-learn` / `…f473` →
+   `#bb-shop`, shop heading `…f488` / `…f48a`.
+5. **`remove_attribute` `href` on `…f471`** — the Home duplicate carries a
+   leftover `href="#bb-shop"` that overrides the Designer link on publish.
+6. Publish. No footer upload.
+
+### Still open
+- **robots.txt** — all four pages are unlinked but indexable:
+  ```
+  User-agent: *
+  Disallow: /parasite-power-duo
+  Disallow: /full-moon-para-kit
+  Disallow: /drainage-duo
+  Disallow: /parasite-starter-duo
+  ```
+- **Two URLs** — free drainage clinic and free parasite masterclass still point
+  at `https://www.biohackingbombshell.com/`. They appear on all four pages now.
+- **Two Shopify images** — `drainage-jumpstart-duo` has only `UvaUrsi_4.png` and
+  `parasite-cleanse-starter-kit` only `UvaUrsi_3.png`. Both bundles show that
+  image on their buy card and in the shop grid, because both come straight from
+  `featuredImage`. Nothing in this repo can fix it.
