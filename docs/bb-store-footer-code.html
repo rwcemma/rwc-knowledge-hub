@@ -1,5 +1,5 @@
 <script>
-/* bb-store v22 - lives in SITE FOOTER custom code, not an embed.
+/* bb-store v23 - lives in SITE FOOTER custom code, not an embed.
    Embeds hold markup + CSS only. Failures are isolated so one missing
    element cannot take down the rest. ?bbdebug=1 paints its own panel. */
 (function () {
@@ -73,7 +73,7 @@
     } catch (e) { return ''; }
   }
   var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
-  var VERSION = 'v22';
+  var VERSION = 'v23';
 
   var byHandle = {};
   var cartId = null;
@@ -409,15 +409,23 @@
   }
 
   // ---- Featured-product landing pages ----
-  // Unlinked pages the quiz routes people to. Slug -> Shopify handle. Adding a
-  // page is a one-line change here plus a duplicated Webflow page carrying an
-  // empty #bb-feature-buy container; everything else on those pages is static.
+  // Unlinked pages the quiz routes people to. The feature embed on each page
+  // names its own product with <span id="bb-handle-THE-SHOPIFY-HANDLE" hidden>.
+  // An element id survives publish where a bare data-* attribute may not, so a
+  // NEW landing page needs no change to this script at all - just the marker.
+  // The map below is the fallback for the pages built before the marker existed.
+  var HANDLE_PREFIX = 'bb-handle-';
   var FEATURE = {
     '/parasite-power-duo': 'parasite-cleanse-power-duo',
-    '/full-moon-para-kit': 'para-kit'
+    '/full-moon-para-kit': 'para-kit',
+    '/drainage-duo': 'drainage-jumpstart-duo'
   };
 
   function featuredHandle() {
+    var marker = document.querySelector('[id^="' + HANDLE_PREFIX + '"]');
+    if (marker && marker.id.length > HANDLE_PREFIX.length) {
+      return marker.id.slice(HANDLE_PREFIX.length);
+    }
     var path = (window.location.pathname || '/').toLowerCase().replace(/\/+$/, '');
     return FEATURE[path || '/'] || null;
   }

@@ -1,0 +1,162 @@
+<!-- Drainage Jumpstart Duo page teaching + FAQ. Same two sections and the same
+     CSS as the other landing pages - only the copy differs.
+     #bb-learn = blue product feature section (hero button links here)
+     #bb-faq   = light FAQ accordion, native <details>/<summary> so it needs no
+     JavaScript at all. The chevron is a CSS border triangle that rotates on [open].
+     #bb-bowel-link is bound BY ID in the footer script and opens Bowel Mover's
+     modal. There is no #bb-drainage-link here - the Drainage Duo IS this page.
+     The .disc footnote is required: this section restates CellCore structure /
+     function claims, which carry the FDA disclaimer wherever they appear.
+     Never use data-* attributes in a Webflow embed. -->
+<style>
+#bb-learn{background:#154f61;color:#eaf5f5;padding:70px 20px;font-family:inherit;}
+#bb-learn *,#bb-faq *{box-sizing:border-box;}
+#bb-learn .in,#bb-faq .in{max-width:1040px;margin:0 auto;}
+#bb-learn .head{text-align:center;max-width:820px;margin:0 auto 40px;}
+#bb-learn .pill{display:inline-block;background:#7fc6c6;color:#154f61;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;padding:8px 18px;border-radius:50px;}
+#bb-learn h2{font-size:clamp(26px,4vw,40px);font-weight:800;color:#fff;margin:18px 0 16px;letter-spacing:.4px;line-height:1.14;}
+#bb-learn h2 .em{color:#7fc6c6;font-style:italic;}
+#bb-learn .lead{font-size:17px;color:#cfe6e6;margin:0;line-height:1.65;}
+#bb-learn .lead strong{color:#fff;}
+.bb-ft{display:grid;grid-template-columns:340px 1fr;gap:34px;align-items:center;padding:32px 0;border-top:1px solid rgba(127,198,198,.25);}
+.bb-ft:last-of-type{border-bottom:1px solid rgba(127,198,198,.25);}
+.bb-ft.flip{grid-template-columns:1fr 340px;}
+.bb-ft.flip .bb-ft-media{order:2;}
+.bb-ft-media{background:#fff;border-radius:18px;padding:26px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(0,0,0,.22);}
+.bb-ft-media img{width:100%;max-height:230px;object-fit:contain;display:block;}
+.bb-ft-no{font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#7fc6c6;margin-bottom:10px;}
+.bb-ft h3{margin:0 0 14px;font-size:clamp(22px,2.6vw,28px);font-weight:800;color:#fff;line-height:1.22;letter-spacing:.2px;}
+.bb-ft p{margin:0 0 12px;font-size:15.5px;color:#cfe6e6;line-height:1.7;}
+.bb-ft p:last-child{margin-bottom:0;}
+.bb-ft b{color:#fff;}
+#bb-learn .disc{max-width:820px;margin:28px auto 0;font-size:12px;line-height:1.6;color:#9dc0c0;text-align:center;}
+#bb-faq{background:#fdf7fa;padding:70px 20px;font-family:Montserrat,sans-serif;}
+#bb-faq .fhead{text-align:center;max-width:680px;margin:0 auto 34px;}
+#bb-faq .fpill{display:inline-block;background:#ffe3f0;color:#a01e60;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;padding:8px 18px;border-radius:50px;}
+#bb-faq h2{font-size:clamp(25px,3.6vw,36px);font-weight:800;color:#7c2a68;margin:18px 0 0;line-height:1.16;letter-spacing:.2px;}
+#bb-faq details{background:#fff;border:1px solid #f0dbe6;border-radius:14px;margin-bottom:12px;box-shadow:0 4px 14px rgba(21,79,97,.06);overflow:hidden;}
+#bb-faq details[open]{border-color:#E5397F;box-shadow:0 8px 24px rgba(160,30,96,.13);}
+#bb-faq summary{display:flex;align-items:center;justify-content:space-between;gap:16px;cursor:pointer;padding:22px 26px;font-size:17px;font-weight:700;color:#7c2a68;line-height:1.35;list-style:none;}
+#bb-faq summary::-webkit-details-marker{display:none;}
+#bb-faq summary:hover{color:#a01e60;}
+#bb-faq summary::after{content:'';flex:none;width:10px;height:10px;margin-top:-5px;border-right:2.5px solid #E5397F;border-bottom:2.5px solid #E5397F;transform:rotate(45deg);transition:transform .2s ease,margin .2s ease;}
+#bb-faq details[open] summary::after{transform:rotate(-135deg);margin-top:4px;}
+#bb-faq .ans{padding:0 26px 24px;}
+#bb-faq .ans p{margin:0 0 12px;font-size:15px;line-height:1.7;color:#3d4d56;}
+#bb-faq .ans p:last-child{margin-bottom:0;}
+#bb-faq .ans b{color:#7c2a68;}
+#bb-faq .ans ul{margin:0 0 12px;padding:0;list-style:none;}
+#bb-faq .ans li{position:relative;padding-left:24px;margin-bottom:10px;font-size:15px;line-height:1.6;color:#3d4d56;}
+#bb-faq .ans li:last-child{margin-bottom:0;}
+#bb-faq .ans li:before{content:'';position:absolute;left:2px;top:8px;width:8px;height:8px;border-radius:50%;background:#E5397F;}
+#bb-faq .ans a{color:#a01e60;font-weight:700;text-decoration:underline;cursor:pointer;}
+#bb-faq .cta{display:inline-block;margin-top:6px;background:#E5397F;color:#fff;font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:12px 22px;border-radius:40px;text-decoration:none;transition:background .15s;}
+#bb-faq .cta:hover{background:#B0286F;color:#fff;}
+#bb-faq .close{margin-top:36px;text-align:center;}
+#bb-faq .close p{font-size:17px;color:#7c2a68;font-weight:700;margin:0 0 16px;}
+#bb-faq .close .cta{font-size:14px;padding:16px 34px;letter-spacing:.06em;}
+@media screen and (max-width:860px){
+  #bb-learn{padding:50px 18px;}
+  .bb-ft,.bb-ft.flip{grid-template-columns:1fr;gap:20px;padding:28px 0;}
+  .bb-ft.flip .bb-ft-media{order:0;}
+  .bb-ft-media{padding:20px;}
+  .bb-ft-media img{max-height:180px;}
+  #bb-faq{padding:50px 18px;}
+  #bb-faq summary{padding:18px 20px;font-size:16px;}
+  #bb-faq .ans{padding:0 20px 20px;}
+}
+</style>
+<section id="bb-learn"><div class="in">
+  <div class="head">
+    <span class="pill">Why This Duo</span>
+    <h2>Everyone wants to start with the <span class="em">kill</span>.<br>The people who feel good started here.</h2>
+    <p class="lead">A detox has two halves. Mobilizing what your body is holding onto is the loud half &mdash; the one people talk about. Getting it out is the half that decides how the next four weeks actually feel.</p>
+    <p class="lead" style="margin-top:14px;"><strong>If your bowels, liver and kidneys aren&rsquo;t moving first, nothing you mobilize leaves.</strong> It recirculates &mdash; and that is the headaches, the brain fog, the &ldquo;I feel worse than before I started.&rdquo; This duo is how you open the exit routes before you ask anything of them.</p>
+  </div>
+
+  <div class="bb-ft">
+    <div class="bb-ft-media"><img src="https://cdn.shopify.com/s/files/1/0278/4326/4609/files/BioToxin_Binder_-_FRONT.png?v=1771950389" alt="BioToxin Binder by CellCore"></div>
+    <div class="bb-ft-copy">
+      <div class="bb-ft-no">Bottle One</div>
+      <h3>BioToxin Binder &mdash; what carries it out</h3>
+      <p>A binder is what escorts mobilized toxins out of the body instead of letting them recirculate. This one promotes your body&rsquo;s natural ability to detoxify and lends increased support to the gut microbiome, which is where immunity and digestive function are decided.*</p>
+      <p>It&rsquo;s built on <b>BioActive Carbon&reg; Technology</b> &mdash; a proprietary blend of fulvic acids that supports cellular repair and energy production. Its low pH also protects the ingredients from being broken down by stomach acid, so they arrive intact where they&rsquo;re meant to work.*</p>
+      <p>This is the <b>first-step</b> binder, and the order is deliberate: it comes before Carboxy, HM-ET Binder or ViRadChem Binder, not after.</p>
+    </div>
+  </div>
+
+  <div class="bb-ft flip">
+    <div class="bb-ft-media"><img src="https://cdn.shopify.com/s/files/1/0278/4326/4609/files/KL_Support_eade9472-b3b1-40b6-a6fb-a993242e8079.png?v=1771976765" alt="KL Support by CellCore"></div>
+    <div class="bb-ft-copy">
+      <div class="bb-ft-no">Bottle Two</div>
+      <h3>KL Support &mdash; the filter behind everything</h3>
+      <p>Your kidneys and liver are the cleaning and filtering system the whole thing runs through. During any period of cleansing, that is the machinery under the most load &mdash; and the machinery most people never support.</p>
+      <p>KL Support combines herbs and nutrients traditionally used for kidney and liver health: <b>beetroot, gynostemma extract, marshmallow root, milk thistle seed, N-Acetyl Cysteine (NAC) and parsley leaf.</b> Together they support fat metabolism, hepatic blood flow, and healthy urinary tract and bladder function while the body carries out its natural detoxification processes.*</p>
+      <p>Also formulated with <b>BioActive Carbon&reg;</b>, for the same reason: what you swallow has to survive the trip.*</p>
+    </div>
+  </div>
+
+  <p class="disc">* These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure or prevent any disease.</p>
+</div></section>
+
+<section id="bb-faq"><div class="in">
+  <div class="fhead">
+    <span class="fpill">Before You Buy</span>
+    <h2>The questions I get asked most</h2>
+  </div>
+
+  <details>
+    <summary>Why is it a duo?</summary>
+    <div class="ans">
+      <p>Because a binder and an open filter are two different jobs, and either one alone leaves you half-covered.</p>
+      <ul>
+        <li><b>BioToxin Binder</b> catches what is circulating and carries it out.*</li>
+        <li><b>KL Support</b> keeps the kidneys and liver &mdash; the route everything has to travel through &mdash; doing their job while you ask more of them.*</li>
+      </ul>
+      <p>Take a binder with a sluggish liver and congested kidneys and you have caught the toxins but not moved them. Support the filter without a binder and you have opened the road with nothing loaded onto it. <b>Together they open the exit and walk the load through it.</b></p>
+    </div>
+  </details>
+
+  <details>
+    <summary>What is the protocol?</summary>
+    <div class="ans">
+      <p>Start here, and give it <b>at least two weeks</b> before you begin any parasite or deeper detox protocol. Then keep it running <b>through</b> that protocol &mdash; drainage isn&rsquo;t a phase you finish, it&rsquo;s the thing that has to stay open the whole time.</p>
+      <ul>
+        <li>Follow the dosing on each bottle &mdash; both are dosed on their own labels, not against each other.</li>
+        <li><b>Keep the binder away from food and other supplements</b> by about 30 minutes. A binder taken alongside them will bind some of what you actually wanted absorbed.</li>
+        <li>Hydrate with minerals, sweat, and move your lymph daily. Binders without water is how people get stopped up.</li>
+      </ul>
+      <p>Not moving your bowels at least once a day yet? Add <a id="bb-bowel-link" href="#bb-shop">Bowel Mover</a> before anything else. A binder with no bowel movement has nowhere to take what it caught.</p>
+      <p><a class="cta" href="https://www.biohackingbombshell.com/" target="_blank" rel="noopener">Go through my free drainage clinic</a></p>
+    </div>
+  </details>
+
+  <details>
+    <summary>How do I know my drainage is actually open?</summary>
+    <div class="ans">
+      <p>You don&rsquo;t have to guess. There are four things I want to see before I&rsquo;d clear anyone to start a cleanse:</p>
+      <ul>
+        <li><b>Two full, relieving bowel movements a day.</b> Not one, not &ldquo;most days.&rdquo;</li>
+        <li>You sweat &mdash; sauna, movement, hot bath. Something.</li>
+        <li>Urine is pale and frequent, not dark and scarce.</li>
+        <li>You&rsquo;re not permanently puffy, and mornings don&rsquo;t start with a headache.</li>
+      </ul>
+      <p>If you&rsquo;re there, you&rsquo;re ready for the next step. If you&rsquo;re not, <b>this is exactly where you should be</b> &mdash; and the fix is time on this duo, not a stronger product.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>What if I&rsquo;m sensitive?</summary>
+    <div class="ans">
+      <p>This is the gentlest place to start in the whole line, which is precisely why I route reactive people here first. Nothing in it is designed to kill anything &mdash; it&rsquo;s support, not attack.</p>
+      <p>That said, if you flare from most supplements, go slow and dose low: a half, a quarter, even an eighth of the label dose while you evaluate tolerance. And keep the bowels moving. <b>Most bad reactions to a binder are a constipation problem, not a binder problem.</b></p>
+      <p>If that sensitivity is stacked on top of active mold, active Lyme or significant MCAS, please don&rsquo;t work this out alone. Generic protocols in complex cases either work beautifully or backfire badly, and which one you get comes down to bio-individualized protocol design.</p>
+      <p><a class="cta" href="https://www.biohackingbombshell.com/breakthrough-sessions-j-page-165783" target="_blank" rel="noopener">Book a free breakthrough session</a></p>
+    </div>
+  </details>
+
+  <div class="close">
+    <p>Ready to start your detox the right way round?</p>
+    <a class="cta" href="#bb-feature">Get the Drainage Jumpstart Duo</a>
+  </div>
+</div></section>

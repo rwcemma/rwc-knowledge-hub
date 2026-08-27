@@ -788,3 +788,80 @@ Run `node --check` on it (minus the `<script>` wrapper) each time.
 - **Remaining pages.** Starter Duo (no such Shopify product exists yet — it needs
   creating as a bundle, or the page features Para 1 + BioToxin Binder as two
   items) and the Drainage starter kit.
+
+---
+
+## v23 — the Drainage Jumpstart Duo page, and no more script edits per page (2026-08-27)
+
+Third hidden product page, and the last one that will need a footer-script change.
+
+| Page | Slug | Featured product | Webflow page id |
+|---|---|---|---|
+| Parasite Cleanse Power Duo | `/parasite-power-duo` | `parasite-cleanse-power-duo` ($188.85) | `6a8ef755097ed2415857b9f0` |
+| Full Moon Para Kit | `/full-moon-para-kit` | `para-kit` ($234.95) | `6a905bd4a1f642eb3652c1db` |
+| Drainage Jumpstart Duo | `/drainage-duo` | `drainage-jumpstart-duo` ($141.90) | `6a906230259f8b264cee8582` |
+
+### The page names its own product now
+Each feature embed carries a hidden marker naming its Shopify handle:
+
+```html
+<span id="bb-handle-drainage-jumpstart-duo" hidden></span>
+```
+
+`featuredHandle()` reads `document.querySelector('[id^="bb-handle-"]')` first and
+falls back to the `FEATURE` slug map only if no marker is present. An **element
+id** is used rather than a `data-*` attribute for the same reason as
+`#bb-bowel-link`: Webflow can normalise bare `data-*` attributes in a static
+embed on publish, but it leaves ids alone.
+
+**So building page four is now a pure copy job** — duplicate the Home page, swap
+the four embeds, set the H1 / subhead / buttons, put the right handle in the
+marker. No footer upload, no `FEATURE` entry, no publish-the-whole-script risk.
+The map is kept only as the fallback for the two pages built before the marker.
+
+### Copy source and the FDA disclaimer
+Copy came from the CellCore product description Emma supplied. Because the blue
+section restates CellCore **structure/function claims** (the ones carrying `*`),
+the section ends with the disclaimer those claims legally travel with:
+
+> \* These statements have not been evaluated by the Food and Drug
+> Administration. This product is not intended to diagnose, treat, cure or
+> prevent any disease.
+
+Styled by `#bb-learn .disc`, which exists only in this page's embed. Any future
+page that restates a manufacturer's `*` claims needs the same footnote.
+
+### Where this page deliberately differs
+- **No `#bb-drainage-link`.** On the parasite pages that link routes people to
+  the Drainage Duo. Here the Drainage Duo *is* the page, so only
+  `#bb-bowel-link` (Bowel Mover) appears.
+- **FAQ three is "How do I know my drainage is actually open?"** rather than
+  "What to do before you start" — on a drainage page, this *is* the before.
+  It gives four concrete checkpoints so a reader can self-assess.
+- **The protocol answer stays at the level Emma gave.** Two weeks before a
+  cleanse, keep it running through, binder 30 minutes clear of food and other
+  supplements, follow each bottle's own label. No invented per-bottle dosing —
+  if Emma has specific numbers for this duo, they drop into that `<ul>`.
+
+### New files
+- `docs/bb-feature-drainage-duo.html` — feature block, carries the handle marker
+- `docs/bb-learn-drainage-duo.html` — blue two-product section + FAQ + disclaimer
+
+### Shopify: this product has one image, and it looks wrong
+`drainage-jumpstart-duo` has a single media item, `UvaUrsi_4.png`. The feature
+card and the shop grid both pull `featuredImage` straight from Shopify, so
+whatever that file is, it is what shows. Worth replacing with a photo of the two
+bottles in Shopify — nothing in this repo can fix it.
+
+### Still open
+- **robots.txt** — all three pages are unlinked but indexable:
+  ```
+  User-agent: *
+  Disallow: /parasite-power-duo
+  Disallow: /full-moon-para-kit
+  Disallow: /drainage-duo
+  ```
+- **Two URLs** — free drainage clinic and free parasite masterclass still point
+  at `https://www.biohackingbombshell.com/`.
+- **Page four, Starter Duo** — no such Shopify product exists. It needs creating
+  as a bundle first, or the page features Para 1 + BioToxin Binder as two items.
