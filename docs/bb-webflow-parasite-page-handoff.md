@@ -946,3 +946,66 @@ BioToxin Binder block restates CellCore structure/function claims.
   `parasite-cleanse-starter-kit` only `UvaUrsi_3.png`. Both bundles show that
   image on their buy card and in the shop grid, because both come straight from
   `featuredImage`. Nothing in this repo can fix it.
+
+---
+
+## v25 — sale wording, and the grid list split from the sale list (2026-08-31)
+
+Four home-page changes. The last one needed a structural change to keep the page
+honest.
+
+### 1. Promo bar copy
+"Full Moon Parasite Sale" → **"Parasite Cleanse Product Sale"**, in both the live
+and the pre-open variants. The bar now reads:
+
+> 20% OFF the Parasite Cleanse Product Sale · Use code **PARASITE** at checkout · Ends September 7
+
+### 2. "Use code PARASITE at checkout for 20% off"
+Two places produce that phrasing and both were updated: `codeHtml()` (the chip on
+the product modal and the feature card) and the `short` string in
+`fillCallouts()` (the chip on the hero collage panel). The promo bar keeps its own
+wording, which already leads with "20% OFF" — appending "for 20% off" would say it
+twice in one line.
+
+### 3. No code chip on the shop-grid cards
+`card()` no longer calls `codeHtml()`. The 20% sticker stays; the code itself is
+stated once, by the bar. `.bb-code` CSS is still used by the modal and the
+feature card, so it stays in the embeds.
+
+### 4. FEATURED vs SALE — the important one
+The grid gains the Parasite Starter Duo and moves the Drainage Jumpstart Duo to
+the end. But **the Starter Duo is not in the Shopify discount.** Verified:
+
+```
+codeDiscountNodeByCode(code:"parasite") → 8 products
+  BioToxin Binder, Para 1, Para 2, Para 3, Para 4,
+  Cellcore Full Moon Para Kit, Drainage Jumpstart Duo, Parasite Cleanse Power Duo
+```
+
+`parasite-cleanse-starter-kit` is not among them. One list could no longer serve
+both jobs, so `HANDLES` was split:
+
+```js
+var FEATURED = [ ...9 handles, grid order... ];  // what the grid shows
+var SALE     = [ ...8 handles... ];              // what PARASITE actually covers
+```
+
+`isSale()` now reads `SALE`; everything else (the handle query, the `IDS`
+fallback, the catalogue de-dupe, the render order) reads `FEATURED`. The
+"All N sale items below are 20% off" callout counts `SALE.length`, so it says 8,
+not 9.
+
+**Net effect:** the Starter Duo sits in the grid at full price with no sticker and
+no code chip, while the other eight show struck-through pricing. That is correct,
+not a bug — the checkout would reject a 20% discount on it.
+
+If Emma adds the Starter Kit to the Shopify discount, the fix is one line: add
+`'parasite-cleanse-starter-kit'` to `SALE`. **Do not add it before the Shopify
+discount actually covers it.**
+
+### Grid order now
+Para 1 · Para 2 · Para 3 · Para 4 · BioToxin Binder · Full Moon Para Kit ·
+Parasite Cleanse Starter Kit · Parasite Cleanse Power Duo · Drainage Jumpstart Duo
+
+`IDS` is in the same order — it is the fallback path, and a mismatch there would
+silently render the wrong set.

@@ -1,30 +1,40 @@
 <script>
-/* bb-store v23 - lives in SITE FOOTER custom code, not an embed.
+/* bb-store v25 - lives in SITE FOOTER custom code, not an embed.
    Embeds hold markup + CSS only. Failures are isolated so one missing
    element cannot take down the rest. ?bbdebug=1 paints its own panel. */
 (function () {
   var DOMAIN  = 'dr-jaban-moore-store.myshopify.com';
   var TOKEN   = 'TOKENPLACEHOLDER';
   var API     = 'https://' + DOMAIN + '/api/2026-07/graphql.json';
-  // Everything on sale. Drives the featured grid in #bb-shop, the 20% sticker
-  // and the sale pricing. Order here is the order the featured grid renders in.
-  var HANDLES = ['para-1-cellcore', 'para-2-cellcore', 'para-3-cellcore', 'para-4',
-                 'biotoxin-binder-cellcore', 'para-kit',
-                 'drainage-jumpstart-duo', 'parasite-cleanse-power-duo'];
+  // TWO SEPARATE LISTS, deliberately.
+  // FEATURED = what the #bb-store grid shows, in the order it renders.
+  // SALE     = what the Shopify PARASITE discount actually covers, verified
+  //            against codeDiscountNodeByCode. The Parasite Cleanse Starter Kit
+  //            is in the grid but NOT in the discount, so it must never get a
+  //            20% sticker or a struck-through price - the page would be
+  //            advertising a discount the checkout will refuse.
+  var FEATURED = ['para-1-cellcore', 'para-2-cellcore', 'para-3-cellcore', 'para-4',
+                  'biotoxin-binder-cellcore', 'para-kit',
+                  'parasite-cleanse-starter-kit', 'parasite-cleanse-power-duo',
+                  'drainage-jumpstart-duo'];
+  var SALE     = ['para-1-cellcore', 'para-2-cellcore', 'para-3-cellcore', 'para-4',
+                  'biotoxin-binder-cellcore', 'para-kit',
+                  'drainage-jumpstart-duo', 'parasite-cleanse-power-duo'];
   // Section 1 is a NON-shoppable collage: images only, one sticker on the panel
   // itself (that sticker is static markup in the hero embed, not drawn here).
   // Add-to-cart lives only in section 2, so the two sections no longer overlap.
   var COLLAGE = ['para-1-cellcore', 'para-2-cellcore', 'para-3-cellcore', 'para-4',
                  'biotoxin-binder-cellcore'];
-  // Fallback ids, same order as HANDLES. Verified via Admin API.
+  // Fallback ids, same order as FEATURED. Verified via Admin API.
   var IDS     = ['gid://shopify/Product/4573257007201',
                  'gid://shopify/Product/4573257039969',
                  'gid://shopify/Product/4573257105505',
                  'gid://shopify/Product/6750255612001',
                  'gid://shopify/Product/4573256581217',
                  'gid://shopify/Product/6782540349537',
-                 'gid://shopify/Product/7540961771617',
-                 'gid://shopify/Product/7540964556897'];
+                 'gid://shopify/Product/7540960133217',
+                 'gid://shopify/Product/7540964556897',
+                 'gid://shopify/Product/7540961771617'];
   // ---- The sale ----
   // SALE_ENABLED = is a discount actually running in Shopify. These five values
   // MUST match the Shopify discount EXACTLY: the page only displays prices,
@@ -73,7 +83,7 @@
     } catch (e) { return ''; }
   }
   var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
-  var VERSION = 'v23';
+  var VERSION = 'v25';
 
   var byHandle = {};
   var cartId = null;
@@ -129,7 +139,7 @@
     });
   }
 
-  function isSale(p) { return HANDLES.indexOf(p.handle) !== -1; }
+  function isSale(p) { return SALE.indexOf(p.handle) !== -1; }
 
   // Original struck through, discounted price bold red underneath. Only the
   // sale products get the treatment; the rest of the catalogue prints as-is.
@@ -144,7 +154,7 @@
   function codeHtml() {
     if (!SALE_ON || STATE === 'ended') { return ''; }
     var txt = STATE === 'live'
-      ? 'Use code <b>' + DISCOUNT + '</b>'
+      ? 'Use code <b>' + DISCOUNT + '</b> at checkout for 20% off'
       : '<b>' + DISCOUNT + '</b> &middot; from ' + saleDate(SALE_START);
     return '<div class="bb-code">' + txt + '</div>';
   }
@@ -167,7 +177,6 @@
            '<img src="' + img + '" alt="' + esc(p.title) + '">' +
            '<div class="t">' + esc(p.title) + '</div>' +
            '<div class="pr">' + priceHtml(p, v) + '</div>' +
-           (isSale(p) ? codeHtml() : '') +
            '<div class="lm">Learn more</div>' +
            '<button data-bb-add="1">' + label + '</button></div>';
   }
@@ -202,10 +211,10 @@
   // on the Storefront API - handle is not a supported filter field and Shopify
   // silently ignores it, returning the first N products in the store instead.
   function queryByHandle() {
-    var decls = HANDLES.map(function (h, i) { return '$h' + i + ':String!'; }).join(',');
-    var fields = HANDLES.map(function (h, i) { return 'p' + i + ':product(handle:$h' + i + '){' + PF + '}'; }).join(' ');
+    var decls = FEATURED.map(function (h, i) { return '$h' + i + ':String!'; }).join(',');
+    var fields = FEATURED.map(function (h, i) { return 'p' + i + ':product(handle:$h' + i + '){' + PF + '}'; }).join(' ');
     var vars = {};
-    HANDLES.forEach(function (h, i) { vars['h' + i] = h; });
+    FEATURED.forEach(function (h, i) { vars['h' + i] = h; });
     return gql('query(' + decls + '){' + fields + '}', vars).then(function (res) {
       if (res.json && res.json.errors) {
         dbg('handle query errors: ' + JSON.stringify(res.json.errors));
@@ -213,7 +222,7 @@
       }
       var d = (res.json && res.json.data) || {};
       var out = [];
-      HANDLES.forEach(function (h, i) { if (d['p' + i]) { out.push(d['p' + i]); } });
+      FEATURED.forEach(function (h, i) { if (d['p' + i]) { out.push(d['p' + i]); } });
       return out;
     });
   }
@@ -301,7 +310,7 @@
         }
         (conn.nodes || []).forEach(function (p) {
           if (!p || !p.variants || !p.variants.nodes.length) { return; }
-          if (HANDLES.indexOf(p.handle) !== -1) { return; }
+          if (FEATURED.indexOf(p.handle) !== -1) { return; }
           if (isHidden(p)) { return; }
           if (byHandle[p.handle]) { return; }
           byHandle[p.handle] = p;
@@ -452,7 +461,7 @@
     dbg('feature rendered: ' + p.handle);
   }
 
-  // Featured products are usually in HANDLES and already loaded; fetch on demand
+  // Featured products are usually in FEATURED and already loaded; fetch on demand
   // when a feature page points at something outside the sale set.
   function ensureFeature() {
     if (!$('bb-feature-buy')) { return; }
@@ -492,10 +501,10 @@
     bar.id = 'bb-promo';
     bar.href = '#bb-shop';
     bar.innerHTML = STATE === 'live'
-      ? '20% OFF the Full Moon Parasite Sale<span class="sep">&middot;</span>' +
+      ? '20% OFF the Parasite Cleanse Product Sale<span class="sep">&middot;</span>' +
         'Use code <b>' + DISCOUNT + '</b> at checkout<span class="sep">&middot;</span>' +
         'Ends ' + saleDate(SALE_END)
-      : '20% OFF the Full Moon Parasite Sale<span class="sep">&middot;</span>' +
+      : '20% OFF the Parasite Cleanse Product Sale<span class="sep">&middot;</span>' +
         'Opens ' + saleDate(SALE_START) + '<span class="sep">&middot;</span>' +
         'Code <b>' + DISCOUNT + '</b>';
     document.body.insertBefore(bar, document.body.firstChild);
@@ -541,10 +550,10 @@
     }
     var live = STATE === 'live';
     var short = live
-      ? 'Use code <b>' + DISCOUNT + '</b> for 20% off'
+      ? 'Use code <b>' + DISCOUNT + '</b> at checkout for 20% off'
       : 'Code <b>' + DISCOUNT + '</b> &middot; opens ' + saleDate(SALE_START);
     var long = live
-      ? 'All ' + HANDLES.length + ' sale items below are 20% off with code <b>' + DISCOUNT +
+      ? 'All ' + SALE.length + ' sale items below are 20% off with code <b>' + DISCOUNT +
         '</b> &mdash; it is applied for you at checkout. Sale ends ' + saleDate(SALE_END) + '.'
       : 'The 20% off sale opens ' + saleDate(SALE_START) + '. Use code <b>' + DISCOUNT +
         '</b> at checkout on any of the items below.';
@@ -562,15 +571,15 @@
   });
 
   loadProducts().then(function (found) {
-    // Keep ONLY the products we asked for, in HANDLES order.
-    var items = found.filter(function (p) { return HANDLES.indexOf(p.handle) !== -1; })
-      .sort(function (a, b) { return HANDLES.indexOf(a.handle) - HANDLES.indexOf(b.handle); });
+    // Keep ONLY the products we asked for, in FEATURED order.
+    var items = found.filter(function (p) { return FEATURED.indexOf(p.handle) !== -1; })
+      .sort(function (a, b) { return FEATURED.indexOf(a.handle) - FEATURED.indexOf(b.handle); });
     if (!items.length) {
-      report('No products found.', 'Neither the handle query nor the id query returned any of: ' + HANDLES.join(', '));
+      report('No products found.', 'Neither the handle query nor the id query returned any of: ' + FEATURED.join(', '));
       return;
     }
     items.forEach(function (p) { byHandle[p.handle] = p; });
-    dbg('resolved ' + items.length + ' of ' + HANDLES.length + ' wanted: ' + items.map(function (p) { return p.handle; }).join(', '));
+    dbg('resolved ' + items.length + ' of ' + FEATURED.length + ' wanted: ' + items.map(function (p) { return p.handle; }).join(', '));
     safe('renderGrid', function () { renderGrid(items); });
     safe('renderCollage', function () { renderCollage(); });
     safe('feature', ensureFeature);
