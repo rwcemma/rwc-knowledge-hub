@@ -1059,3 +1059,43 @@ The `WINDOW` / `STATE` block and `checkoutHref` both described the landing pages
 as deliberately quiet, which is no longer true. They now explain the real reason
 the two stay separate: the cart must carry the discount to checkout from any
 page, including one later taken off `SALE_PAGES`.
+
+---
+
+## v27 — Starter Kit shows the sale treatment (2026-08-31)
+
+`'parasite-cleanse-starter-kit'` added to `SALE`, so it now gets the 20% worm
+sticker, the struck-through price and the code chip everywhere it appears — the
+home grid, the product modal, and its own landing page's feature card.
+
+### Read this before changing anything here
+**The Shopify discount does not cover it.** Emma was shown the consequence and
+chose this deliberately on 2026-08-31. The card advertises **$99.12**; checkout
+charges the full **$123.90**. The cart drawer's subtotal comes straight from
+Shopify, so a shopper who adds it sees the real number there and at checkout.
+
+`SALE` therefore no longer means "what the discount covers" — it means "what the
+page displays as discounted". The two are the same for the other eight handles
+and differ for this one. The header comment in the script spells this out with
+`!!` markers so it does not read as an oversight and get "fixed" back.
+
+Verified live at time of writing — `codeDiscountNodeByCode(code:"parasite")`
+returns exactly eight products:
+
+```
+biotoxin-binder-cellcore, para-1-cellcore, para-2-cellcore, para-3-cellcore,
+para-4, para-kit, drainage-jumpstart-duo, parasite-cleanse-power-duo
+```
+
+**To close the gap:** add Parasite Cleanse Starter Kit to the `parasite` discount
+in Shopify. Nothing in this repo needs to change — the display is already on.
+
+**To back it out:** remove the handle from `SALE`. Nothing else moves.
+
+**Before adding any other handle to `SALE`,** re-run that query. This is the one
+place where the page can promise a price the checkout will refuse.
+
+### Knock-on
+`fillCallouts()` counts `SALE.length`, so the collage callout now reads "All 9
+sale items below are 20% off" — one of which is not, until the Shopify discount
+is updated.

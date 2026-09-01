@@ -1,24 +1,34 @@
 <script>
-/* bb-store v26 - lives in SITE FOOTER custom code, not an embed.
+/* bb-store v27 - lives in SITE FOOTER custom code, not an embed.
    Embeds hold markup + CSS only. Failures are isolated so one missing
    element cannot take down the rest. ?bbdebug=1 paints its own panel. */
 (function () {
   var DOMAIN  = 'dr-jaban-moore-store.myshopify.com';
   var TOKEN   = 'TOKENPLACEHOLDER';
   var API     = 'https://' + DOMAIN + '/api/2026-07/graphql.json';
-  // TWO SEPARATE LISTS, deliberately.
+  // TWO SEPARATE LISTS.
   // FEATURED = what the #bb-store grid shows, in the order it renders.
-  // SALE     = what the Shopify PARASITE discount actually covers, verified
-  //            against codeDiscountNodeByCode. The Parasite Cleanse Starter Kit
-  //            is in the grid but NOT in the discount, so it must never get a
-  //            20% sticker or a struck-through price - the page would be
-  //            advertising a discount the checkout will refuse.
+  // SALE     = what the page DISPLAYS as on sale: 20% sticker, struck-through
+  //            price, code chip.
+  //
+  // !! KNOWN MISMATCH, DELIBERATE. Emma's call on 2026-08-31, made with the
+  // !! consequence stated. 'parasite-cleanse-starter-kit' is in SALE but the
+  // !! Shopify `parasite` discount does NOT cover it, so its card advertises
+  // !! $99.12 while checkout charges the full $123.90. Verified against
+  // !! codeDiscountNodeByCode, which returns these eight and only these eight:
+  // !!   biotoxin-binder-cellcore, para-1-cellcore, para-2-cellcore,
+  // !!   para-3-cellcore, para-4, para-kit, drainage-jumpstart-duo,
+  // !!   parasite-cleanse-power-duo
+  // !! To close the gap, add the Starter Kit to that discount in Shopify. To
+  // !! back the display out instead, drop the handle from SALE below.
+  // !! Do NOT add any OTHER handle to SALE without checking the discount first.
   var FEATURED = ['para-1-cellcore', 'para-2-cellcore', 'para-3-cellcore', 'para-4',
                   'biotoxin-binder-cellcore', 'para-kit',
                   'parasite-cleanse-starter-kit', 'parasite-cleanse-power-duo',
                   'drainage-jumpstart-duo'];
   var SALE     = ['para-1-cellcore', 'para-2-cellcore', 'para-3-cellcore', 'para-4',
                   'biotoxin-binder-cellcore', 'para-kit',
+                  'parasite-cleanse-starter-kit',
                   'drainage-jumpstart-duo', 'parasite-cleanse-power-duo'];
   // Section 1 is a NON-shoppable collage: images only, one sticker on the panel
   // itself (that sticker is static markup in the hero embed, not drawn here).
@@ -52,10 +62,6 @@
   // struck-through pricing, code chips. Anywhere else stays quiet and shows full
   // prices. The quiz landing pages are on the list too, so a shopper who arrives
   // from the quiz sees the same offer as one who came via the home page.
-  // NOTE /parasite-starter-duo: its featured product is NOT in the Shopify
-  // discount (see SALE above), so the bar appears but that product's own card
-  // correctly shows full price with no sticker. Add the handle to SALE only
-  // once Shopify's discount actually covers it.
   var SALE_PAGES = ['/', '/parasite-power-duo', '/full-moon-para-kit',
                     '/drainage-duo', '/parasite-starter-duo'];
 
@@ -88,7 +94,7 @@
     } catch (e) { return ''; }
   }
   var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
-  var VERSION = 'v26';
+  var VERSION = 'v27';
 
   var byHandle = {};
   var cartId = null;
