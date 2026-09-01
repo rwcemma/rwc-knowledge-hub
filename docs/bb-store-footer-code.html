@@ -1,5 +1,5 @@
 <script>
-/* bb-store v25 - lives in SITE FOOTER custom code, not an embed.
+/* bb-store v26 - lives in SITE FOOTER custom code, not an embed.
    Embeds hold markup + CSS only. Failures are isolated so one missing
    element cannot take down the rest. ?bbdebug=1 paints its own panel. */
 (function () {
@@ -48,11 +48,16 @@
   var SALE_END     = '2026-09-08T03:59:59Z';
   var BADGE        = '20%';
 
-  // SALE_PAGES = which paths ADVERTISE the sale. Everywhere else stays quiet:
-  // no promo bar, no stickers, no code chips, full prices shown. The product
-  // landing pages the quiz routes to are deliberately not on this list - they
-  // sell one product on its own merits.
-  var SALE_PAGES = ['/'];
+  // SALE_PAGES = which paths ADVERTISE the sale: promo bar, 20% stickers,
+  // struck-through pricing, code chips. Anywhere else stays quiet and shows full
+  // prices. The quiz landing pages are on the list too, so a shopper who arrives
+  // from the quiz sees the same offer as one who came via the home page.
+  // NOTE /parasite-starter-duo: its featured product is NOT in the Shopify
+  // discount (see SALE above), so the bar appears but that product's own card
+  // correctly shows full price with no sticker. Add the handle to SALE only
+  // once Shopify's discount actually covers it.
+  var SALE_PAGES = ['/', '/parasite-power-duo', '/full-moon-para-kit',
+                    '/drainage-duo', '/parasite-starter-duo'];
 
   function onSalePage() {
     var path = (window.location.pathname || '/').toLowerCase().replace(/\/+$/, '');
@@ -62,10 +67,10 @@
   // Two separate questions, deliberately:
   //   WINDOW - is the code redeemable right now? Site-wide. Drives the CART.
   //   STATE  - should THIS page talk about it? Drives every pixel.
-  // Keeping them apart means a quiet page still carries the discount through to
-  // checkout. The Power Duo is one of the discounted products, so a shopper who
-  // arrives from the quiz is not silently charged more than one who came via the
-  // home page - that page just does not shout about it.
+  // Every current page is in SALE_PAGES, so today the two agree. They stay
+  // separate because the cart must carry the discount to checkout from ANY page,
+  // including one later taken off the list - nobody should be charged more just
+  // because the page they landed on was quiet about the offer.
   function windowState() {
     if (!SALE_ENABLED) { return 'off'; }
     var now = new Date().getTime();
@@ -83,7 +88,7 @@
     } catch (e) { return ''; }
   }
   var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
-  var VERSION = 'v25';
+  var VERSION = 'v26';
 
   var byHandle = {};
   var cartId = null;
@@ -661,9 +666,8 @@
       }).catch(function (e) { cartLock(false); cartFail(e); });
   }
 
-  // The code follows the SITE-WIDE window, not the page. A shopper who buys the
-  // Power Duo from its quiet landing page still gets the discount they are
-  // entitled to; that page simply does not advertise it.
+  // The code follows the SITE-WIDE window, not the page, so the discount reaches
+  // checkout from anywhere - including a page that is not advertising it.
   function checkoutHref(cart) {
     if (!cart || !cart.checkoutUrl) { return ''; }
     if (!SALE_ENABLED || WINDOW === 'ended') { return cart.checkoutUrl; }
@@ -671,8 +675,23 @@
            'discount=' + encodeURIComponent(DISCOUNT);
   }
 
+  // The feature-page store embed carries the .bb-cart-code STYLING but not the
+  // element - it was cut when those pages were quiet about the sale. Rather than
+  // re-upload four embeds, create it on demand so every page's cart drawer can
+  // confirm the code is applied.
+  function ensureCartCode() {
+    if ($('bb-cart-code')) { return $('bb-cart-code'); }
+    var foot = document.querySelector('.bb-cart-foot');
+    if (!foot) { return null; }
+    var p = document.createElement('p');
+    p.id = 'bb-cart-code';
+    p.className = 'bb-cart-code';
+    foot.insertBefore(p, foot.firstChild);
+    return p;
+  }
+
   function renderCodeStatus(cart) {
-    var el = $('bb-cart-code');
+    var el = ensureCartCode();
     if (!el) { return; }
     if (!SALE_ON || STATE === 'ended') { el.style.display = 'none'; return; }
     var codes = (cart && cart.discountCodes) || [];

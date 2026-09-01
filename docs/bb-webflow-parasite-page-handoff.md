@@ -1009,3 +1009,53 @@ Parasite Cleanse Starter Kit · Parasite Cleanse Power Duo · Drainage Jumpstart
 
 `IDS` is in the same order — it is the fallback path, and a mismatch there would
 silently render the wrong set.
+
+---
+
+## v26 — the sale runs on every page (2026-08-31)
+
+The four quiz landing pages now advertise the sale exactly as the home page
+does: promo bar, 20% stickers, struck-through pricing, code chips.
+
+```js
+var SALE_PAGES = ['/', '/parasite-power-duo', '/full-moon-para-kit',
+                  '/drainage-duo', '/parasite-starter-duo'];
+```
+
+That is the whole change to the display logic. `SALE_ON` was already the only
+switch — everything downstream (`STATE`, `priceHtml`, `badgeHtml`, `codeHtml`,
+`mountPromo`, `fillCallouts`) reads it, so no other display code moved.
+
+### `/parasite-starter-duo` is the one to watch
+Its featured product, `parasite-cleanse-starter-kit`, is **not in the Shopify
+discount** (see v25). With the sale now advertised on that page, the promo bar
+appears above a product card that correctly shows **$123.90 with no sticker and
+no struck-through price**, while the discounted products below it in "shop the
+rest of the store" do show the sale treatment.
+
+That is honest but not ideal — the bar advertises an offer the hero product is
+not part of. Two ways to resolve it, both one line:
+
+- **Preferred:** add the Starter Kit to the `parasite` discount in Shopify, then
+  add `'parasite-cleanse-starter-kit'` to `SALE`. Never the second without the
+  first.
+- **Or:** drop `'/parasite-starter-duo'` from `SALE_PAGES` and that page goes
+  quiet again.
+
+### The cart drawer's code line is now injected, not authored
+The feature-page store embed carries the `.bb-cart-code` **styling** but not the
+element — it was cut back when those pages were quiet. With the sale on, all four
+carts would have been missing the "Code PARASITE is applied automatically at
+checkout" reassurance.
+
+Rather than re-upload four ~12 KB embeds, `ensureCartCode()` creates the
+paragraph at the top of `.bb-cart-foot` when it is absent, and `renderCodeStatus`
+calls it instead of a bare lookup. One place to maintain, and any future page
+gets it free. `renderCodeStatus` still no-ops safely if there is no cart drawer
+at all.
+
+### Two comments corrected
+The `WINDOW` / `STATE` block and `checkoutHref` both described the landing pages
+as deliberately quiet, which is no longer true. They now explain the real reason
+the two stay separate: the cart must carry the discount to checkout from any
+page, including one later taken off `SALE_PAGES`.
