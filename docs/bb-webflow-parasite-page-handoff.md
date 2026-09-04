@@ -1099,3 +1099,66 @@ place where the page can promise a price the checkout will refuse.
 `fillCallouts()` counts `SALE.length`, so the collage callout now reads "All 9
 sale items below are 20% off" — one of which is not, until the Shopify discount
 is updated.
+
+---
+
+## v28 — cart attributes, so orders can be traced back to a page (2026-09-04)
+
+Every cart created on this storefront is now stamped with two attributes:
+
+```js
+_bb_source        = 'biohacking-bombshell-webflow'
+_bb_landing_page  = '/full-moon-para-kit'   (whatever page they added from)
+```
+
+Passed via `attributes` on the `cartCreate` mutation. They ride through to the
+Shopify **order** and to the **abandoned-checkout** record.
+
+### Why this exists
+Two questions that had no durable answer before:
+
+**1. Which orders are ours?** Shopify's sales-channel field already answers this
+(channel "Headless" / publication "Biohacking Bombshell") — but only for orders.
+Abandoned checkouts carry no channel field at all. Today they can be identified
+by the `parasite` discount code, because the script attaches it to every cart —
+but that stops the moment the sale ends, and a Dr. Jaban shopper who types the
+code by hand is indistinguishable. Verified: one abandoned checkout on
+2026-09-03 carries `parasite` alongside the Online Store theme's "Agreed to the
+Terms and Conditions" attribute and Jaban-only products.
+
+**2. Which page produced the sale?** Nothing answered this. The order's referrer
+is only ever the bare origin `https://biohacking-bombshell-estore.webflow.io/` —
+browsers strip the path on cross-site navigation, so all five pages look
+identical. `_bb_landing_page` is the only way to tell them apart.
+
+### Semantics worth knowing
+- Set once, at cart **creation**. So it records where the shopper **first** added
+  something — first touch, not last. Adding more items later from a different
+  page does not overwrite it.
+- Keys are underscore-prefixed, which keeps Shopify from showing them on the
+  customer's order confirmation. Still fully queryable through the Admin API.
+- Only applies to carts created from **v28 onward**. Existing localStorage carts
+  keep whatever they had (nothing).
+
+### How to read it back
+```graphql
+orders(first: 50, query: "created_at:>=2026-09-04") {
+  nodes { name customAttributes { key value } }
+}
+abandonedCheckouts(first: 50) {
+  nodes { createdAt completedAt customAttributes { key value } }
+}
+```
+
+### Caveat on abandoned-checkout counts
+Do NOT publish a "checkout abandonment rate" from `abandonedCheckouts` without
+reconciling first. `completedAt` came back **null even for checkouts that clearly
+converted** — e.g. one created 2026-09-03T21:28:35Z for $244.60 matches order
+#63965 placed 40 seconds later for the same amount. Counting those as abandoned
+would overstate dropoff badly. Reconcile against orders before reporting.
+
+### Related, not yet done
+The top of the funnel — page views, product opens, add-to-cart, checkout clicks —
+still needs a web analytics tool on the Webflow site. Nothing is recording it and
+`dataCollectionEnabled` is false with no Google tag attached. See v29 when that
+lands.

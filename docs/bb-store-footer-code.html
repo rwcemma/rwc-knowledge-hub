@@ -1,5 +1,5 @@
 <script>
-/* bb-store v27 - lives in SITE FOOTER custom code, not an embed.
+/* bb-store v28 - lives in SITE FOOTER custom code, not an embed.
    Embeds hold markup + CSS only. Failures are isolated so one missing
    element cannot take down the rest. ?bbdebug=1 paints its own panel. */
 (function () {
@@ -94,7 +94,7 @@
     } catch (e) { return ''; }
   }
   var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
-  var VERSION = 'v27';
+  var VERSION = 'v28';
 
   var byHandle = {};
   var cartId = null;
@@ -606,11 +606,29 @@
     alert('Sorry, the cart could not be updated. Please try again.');
   }
 
+  // Stamp every cart with where it came from. These attributes ride through to
+  // the Shopify ORDER and to the abandoned-checkout record, which makes them the
+  // only DURABLE way to tell this storefront's traffic from Dr. Jaban's Online
+  // Store - and the only way to attribute a sale to the landing page that
+  // produced it. The PARASITE discount code happens to do the first job today,
+  // but it stops the moment the sale ends, and a Jaban shopper who types the
+  // code by hand looks identical. This does not have either problem.
+  // Keys are underscore-prefixed so Shopify keeps them out of the customer's
+  // order confirmation; they stay fully queryable through the Admin API.
+  // Set once at cart CREATION, so the page recorded is where the shopper first
+  // added something - first touch, not last.
+  function cartAttrs() {
+    var path = (window.location.pathname || '/').toLowerCase().replace(/\/+$/, '') || '/';
+    return [{ key: '_bb_source', value: 'biohacking-bombshell-webflow' },
+            { key: '_bb_landing_page', value: path }];
+  }
+
   function addToCart(variantId) {
     dbg('addToCart ' + variantId);
     if (!cartId) {
-      gql('mutation($lines:[CartLineInput!]!,$codes:[String!]){cartCreate(input:{lines:$lines,discountCodes:$codes}){cart{' + CART_FIELDS + '}}}',
-          { lines: [{ merchandiseId: variantId, quantity: 1 }], codes: SALE_ENABLED ? [DISCOUNT] : [] })
+      gql('mutation($lines:[CartLineInput!]!,$codes:[String!],$attrs:[AttributeInput!]){cartCreate(input:{lines:$lines,discountCodes:$codes,attributes:$attrs}){cart{' + CART_FIELDS + '}}}',
+          { lines: [{ merchandiseId: variantId, quantity: 1 }], codes: SALE_ENABLED ? [DISCOUNT] : [],
+            attrs: cartAttrs() })
         .then(function (r) {
           var c = r.json && r.json.data && r.json.data.cartCreate && r.json.data.cartCreate.cart;
           if (!c) { return cartFail(r.raw); }
