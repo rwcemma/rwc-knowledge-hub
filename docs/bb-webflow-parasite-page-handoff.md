@@ -1160,5 +1160,99 @@ would overstate dropoff badly. Reconcile against orders before reporting.
 ### Related, not yet done
 The top of the funnel — page views, product opens, add-to-cart, checkout clicks —
 still needs a web analytics tool on the Webflow site. Nothing is recording it and
-`dataCollectionEnabled` is false with no Google tag attached. See v29 when that
-lands.
+`dataCollectionEnabled` is false with no Google tag attached. Still open — it is
+not what v29 did.
+
+---
+
+## v29 — the sale is over, every trace of it removed (2026-09-08)
+
+Emma: *"Can we remove any verbiage from any of the pages about a sale happening?
+The sale is over now."*
+
+The Shopify discount had already expired on its own — `codeDiscountNodeByCode(code:"parasite")`
+returns `status: EXPIRED`, `endsAt: 2026-09-08T03:59:59Z` — so nothing here changed
+what a customer is charged. **No Shopify discount was created, edited or deleted.**
+
+### The one switch
+
+```js
+var SALE_ENABLED = false;   // footer script, was true
+```
+
+That single flag silences every *dynamic* sale surface on all five pages at once,
+because they all read `SALE_ON` / `STATE`, which derive from it:
+
+| Surface | Function | With the flag off |
+|---|---|---|
+| Fixed pink promo bar | `mountPromo()` | never mounts; no body top-padding, header sits back at 0 |
+| 20% worm sticker on cards | `badgeHtml()` | returns `''` |
+| Struck-through price + red sale price | `priceHtml()` | returns the plain `$xx.xx` |
+| "Use code PARASITE…" chip on cards, feature blocks and the modal | `codeHtml()` | returns `''` |
+| Hero-collage callout `#bb-collage-code` | `fillCallouts()` | `display:none` |
+| Cart-drawer code line `#bb-cart-code` | `renderCodeStatus()` | `display:none` |
+| `?discount=PARASITE` appended to the checkout URL | `checkoutHref()` | not appended |
+| PARASITE attached to a **new** cart | `addToCart()` → `cartCreate` | `discountCodes: []` |
+| PARASITE left on a **returning shopper's saved** cart | `cartDiscountCodesUpdate` on load | **stripped**, so an old cart cannot quietly discount an order |
+
+Those last two mattered even with the Shopify discount expired: without the flag
+the script kept sending a dead code, which surfaces in checkout as a rejected
+discount — sale verbiage by another name.
+
+`SALE_START` / `SALE_END` / `SALE_PCT` / `BADGE` / `DISCOUNT` / `SALE` / `SALE_PAGES`
+are all **left in place**. They are inert while the flag is false and they are the
+historical record. The next sale is: confirm the Shopify discount exists and covers
+every handle in `SALE`, update the four values to match it, flip the flag. Do **not**
+flip it on before the Shopify discount is live, or the page advertises a price
+checkout will refuse.
+
+### The date check was NOT enough on its own
+`windowState()` already returned `'ended'` past `SALE_END`, which is why the promo
+bar had gone quiet before this change. But that check runs against **the visitor's
+device clock**. A shopper with a slow or wrong clock would still have seen the whole
+sale. `SALE_ENABLED` is clock-independent. Use the flag, not the dates, to end a sale.
+
+### Three pieces of static markup also had to go
+The flag cannot reach text that is authored into an embed rather than drawn by the
+script. All three were on the **Home page only**; the four landing pages were already
+clean (their eyebrows all read "Your Recommended Protocol", verified).
+
+| What | Where | Now |
+|---|---|---|
+| Hero eyebrow read "Parasite Cleanse Product Sale" | embed `95c7e548…` | "Parasite Cleanse Protocols" |
+| Hero solid CTA read "Shop the Sale" | Webflow Link `…f471`, string `6f80e687…` | "Shop the Formulas" |
+| Static 20% OFF sticker + `#bb-collage-code` chip | hero collage embed `d7a7c63a…` → **v11** | both elements deleted |
+| `<p id="bb-cart-code">Code PARASITE is applied automatically at checkout.</p>` | store embed `7c7f9b41…` → **v17** | deleted |
+
+The cart-code line mattered more than it looks: `renderCodeStatus()` only hides it
+once a cart renders, so on a page with no cart the drawer showed that sentence to
+anyone who opened it.
+
+**The CSS for all of it was deliberately kept** — `.bb-was`, `.bb-now`, `.bb-code`,
+`.bb-cart-code`, `#bb-collage-code`, `.bb-off`. Nothing on the page uses those rules
+today. The next sale then needs only the flag plus, if the collage sticker and chip
+are wanted back, those two elements pasted into the collage embed.
+
+`ensureCartCode()` now creates `#bb-cart-code` on demand on **every** page (no embed
+carries it any more), so the next sale needs no embed change at all for the cart
+drawer.
+
+### Files touched
+| File | Change |
+|---|---|
+| `docs/bb-store-footer-code.html` | v28 → **v29**, `SALE_ENABLED = false`, comments updated |
+| `docs/bb-hero-collage.html` | v10 → **v11**, sticker + chip removed, CSS kept |
+| `docs/bb-store-embed-markup.html` | v16 → **v17**, static `#bb-cart-code` removed |
+
+Published to the Webflow subdomain (`publishToWebflowSubdomain: true`), as every
+publish in this project has been. The custom domains are still on their **Aug 26**
+publish — see the open question about whether `biohackingbombshell.com` is meant to
+serve this site.
+
+### Still open after v29
+- The `parasite-cleanse-starter-kit` FEATURED/SALE mismatch from v27 is **dormant,
+  not fixed**. Nothing displays a sale price, so the gap is harmless today. It
+  returns the moment `SALE_ENABLED` goes true. The `!!` block at the top of the
+  footer script says so.
+- The Shopify `parasite` discount expired by itself. It has **not** been deleted —
+  if it should be removed from the Shopify admin, that is Emma's call.

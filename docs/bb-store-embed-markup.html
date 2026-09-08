@@ -1,7 +1,12 @@
-<!-- bb-store markup v16 - MARKUP + CSS ONLY.
+<!-- bb-store markup v17 - MARKUP + CSS ONLY.
      The JavaScript lives in SITE FOOTER custom code (Project Settings > Custom Code).
      Do NOT add a script here - embed script serialization proved unreliable.
-     #bb-store  = the sale products (Para 1-4 + BioToxin Binder + Para Kit)
+     v17 (2026-09-08): the static #bb-cart-code line in the cart drawer was
+     removed when the September sale ended - it hard-coded the PARASITE code
+     into the markup. The footer script's ensureCartCode() creates that element
+     on demand, exactly as it already does on the four landing pages, so the
+     next sale needs no change here.
+     #bb-store  = the featured products (Para 1-4 + BioToxin Binder + Para Kit)
      #bb-all    = the rest of the catalogue, with search / brand filter / sort
      Toolbar ids the footer script binds to: #bb-q #bb-vendor #bb-sort #bb-count #bb-all-more -->
 <div id="bb-store"></div>
@@ -33,7 +38,6 @@
   <div id="bb-cart-lines"></div>
   <div class="bb-cart-foot">
     <div class="bb-cart-sub"><span>Subtotal</span><span id="bb-cart-subtotal">$0.00</span></div>
-    <p id="bb-cart-code" class="bb-cart-code">Code <b>PARASITE</b> is applied automatically at checkout.</p>
     <button id="bb-checkout-btn" disabled>Checkout</button>
     <p class="bb-cart-note">Secure checkout is completed on Shopify.</p>
   </div>
@@ -108,7 +112,9 @@
 .bb-m-desc i,.bb-m-desc em{font-style:italic;}
 .bb-m-info button{margin-top:22px;flex:none;background:#E5397F;color:#fff;font-family:Montserrat,sans-serif;font-weight:700;font-size:15px;letter-spacing:.04em;text-transform:uppercase;padding:14px 18px;border:none;border-radius:40px;cursor:pointer;transition:background .15s;}
 .bb-m-info button:hover{background:#B0286F;}
-/* Sale pricing: original struck through, discounted price bold red beneath. */
+/* Sale pricing: original struck through, discounted price bold red beneath.
+   Kept for the next sale - the footer script only emits these while a sale is
+   running, so nothing on the page uses them today. */
 .bb-was{color:#8b9aa3;font-weight:400;text-decoration:line-through;}
 .bb-now{display:block;color:#d0021b;font-weight:800;font-size:17px;line-height:1.2;margin-top:2px;}
 .bb-m-price .bb-now{font-size:24px;margin-top:4px;}
