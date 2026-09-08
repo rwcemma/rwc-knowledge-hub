@@ -1256,3 +1256,73 @@ serve this site.
   footer script says so.
 - The Shopify `parasite` discount expired by itself. It has **not** been deleted —
   if it should be removed from the Shopify admin, that is Emma's call.
+
+---
+
+## v30 — the sale is back on (2026-09-08)
+
+Emma: *"We are actually going to run the sale for another day, can you add all
+the parasite discount code verbiage back in?"*
+
+**The Shopify discount had already been extended** before this request reached me.
+Checked immediately before touching anything:
+
+```
+codeDiscountNodeByCode(code: "parasite")
+  status    ACTIVE          (was EXPIRED four hours earlier)
+  startsAt  2026-08-31T20:45:45Z
+  endsAt    2026-09-10T03:59:59Z   (was 2026-09-08T03:59:59Z)
+  value     20%
+```
+
+So no Shopify discount was created or edited here either. **Always run that query
+before flipping the flag on.** The page only displays prices; Shopify is what
+charges the customer. Turning the display on against an expired or missing
+discount means every card advertises a price the checkout refuses — which is a
+worse failure than the sale simply being off.
+
+### What changed
+
+| | |
+|---|---|
+| `docs/bb-store-footer-code.html` | v29 → **v30**: `SALE_ENABLED = true`, `SALE_END` → `2026-09-10T03:59:59Z` |
+| `docs/bb-hero-collage.html` | v11 → **v12**: 20% OFF sticker and `#bb-collage-code` chip restored |
+| Home hero eyebrow (embed `95c7e548…`) | → "Parasite Cleanse Product Sale" |
+| Home hero CTA (`…f471`) | → "Shop the Sale" |
+
+**The store embed needed no change.** v17 removed its hard-coded `#bb-cart-code`
+line, and `ensureCartCode()` creates that element on demand — so the cart drawer's
+code line came back on its own. That was the point of the v17 refactor and it paid
+off on the first cycle: a 12.5KB embed re-upload avoided.
+
+Everything else — promo bar, worm stickers, struck-through pricing, the code chips
+on cards, feature blocks and modals, the callouts — is derived from `SALE_ENABLED`
+and came back with the one flag. v11 having *kept* the sale CSS while removing only
+the two elements is why restoring the collage was a two-line paste.
+
+### The date is not typed twice
+The promo bar's "Ends September 9" is produced by `saleDate(SALE_END)`, not written
+anywhere. `2026-09-10T03:59:59Z` is 11:59pm Eastern on Sep 9, so it renders as
+September 9 in every US timezone. Change `SALE_END` and every date on the site
+follows. There is no second place to update.
+
+### Note on the extension length
+Emma asked for "another day." The Shopify discount was extended by **two** — from
+end-of-Sep-7 to end-of-Sep-9 Eastern. The page mirrors Shopify, because Shopify is
+what honours the code; the page must never claim a shorter or longer window than
+the discount actually has. If one day was intended, shorten it **in Shopify** and
+re-copy `endsAt` into `SALE_END`.
+
+### The Starter Kit mismatch is live again
+`parasite-cleanse-starter-kit` is in `SALE` but is **not** in the Shopify discount —
+re-verified 2026-09-08, still the same eight products. Its card shows $99.12;
+checkout charges $123.90. This is Emma's explicit call from 2026-08-31, made with
+the consequence stated, and it is back in force now that the sale is running. To
+close it, add the Starter Kit to the `parasite` discount in Shopify.
+
+### Ending it again
+Set `SALE_ENABLED = false` and re-publish. Do **not** just let `SALE_END` pass:
+`windowState()` reads the **visitor's device clock**, so a shopper with a wrong
+clock keeps seeing the sale. The flag is clock-independent, and it is also what
+stops the code being attached to new carts and strips it from saved ones.
+
