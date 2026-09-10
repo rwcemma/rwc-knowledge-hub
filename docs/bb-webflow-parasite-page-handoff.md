@@ -1326,3 +1326,71 @@ Set `SALE_ENABLED = false` and re-publish. Do **not** just let `SALE_END` pass:
 clock keeps seeing the sale. The flag is clock-independent, and it is also what
 stops the code being attached to new carts and strips it from saved ones.
 
+---
+
+## v31 — sale off again, and the switch-off is now a checklist (2026-09-10)
+
+Emma: *"please remove all of the discount verbiage from the pages now"*
+
+Verified before touching anything — the discount had already lapsed on its own
+schedule:
+
+```
+codeDiscountNodeByCode(code: "parasite")
+  status   EXPIRED
+  endsAt   2026-09-10T03:59:59Z   (~17h before this edit)
+```
+
+So no offer was withdrawn from under a shopper mid-flight, and again **no Shopify
+discount was created, edited or deleted.**
+
+### The switch-off checklist
+
+Three cycles in (off v29 → on v30 → off v31), this is now a known routine rather
+than a one-off. It is written into the footer script's comment block as well, so
+whoever does it next does not have to find this document.
+
+**One flag** — `SALE_ENABLED = false` — covers everything the script draws:
+
+promo bar · 20% worm stickers · struck-through prices · code chips on cards,
+feature blocks and modals · hero-collage callout · cart-drawer code line ·
+`?discount=` on the checkout URL · the code on NEW carts · the code on a
+returning shopper's SAVED cart (stripped on their next load)
+
+**Three things the flag cannot reach**, because they are authored into Webflow
+rather than drawn by the script. These must be reset by hand every single time:
+
+| Element | Sale on | Sale off |
+|---|---|---|
+| Home hero eyebrow, embed `95c7e548…` | "Parasite Cleanse Product Sale" | "Parasite Cleanse Protocols" |
+| Home hero CTA, `…f471` | "Shop the Sale" | "Shop the Formulas" |
+| Hero collage embed `d7a7c63a…` | `.bb-off` sticker + `#bb-collage-code` chip present | both removed |
+
+The collage embed has now toggled v11 (out) → v12 (in) → v13 (out). **Its sale CSS
+is never removed**, only the two elements, which is why each flip is a two-line
+paste rather than a rewrite. The exact two lines are named in a comment at the top
+of that embed.
+
+**The store embed is never touched.** Since v17 it has no `#bb-cart-code` element
+at all — `ensureCartCode()` builds it on demand and `renderCodeStatus()` hides it
+while the sale is off. That refactor has now saved a 12.5KB embed re-upload on
+three consecutive flips.
+
+### Do not rely on SALE_END lapsing
+`windowState()` compares `SALE_END` against **the visitor's device clock**. A
+shopper with a wrong clock keeps seeing the entire sale after it ends. Only
+`SALE_ENABLED` is clock-independent. Let the date lapse *and* throw the flag.
+
+### Turning it back on
+Re-read the Shopify discount first and copy its `endsAt` into `SALE_END`
+**verbatim** — never pick a date in this file. The page displays prices; Shopify
+charges the customer. A page advertising a discount checkout refuses is a worse
+outcome than no sale at all.
+
+### Still not fixed
+The `parasite-cleanse-starter-kit` display/discount mismatch has now survived two
+full on/off cycles untouched. It is harmless while the sale is off and returns the
+instant it is switched on. Adding the Starter Kit to the `parasite` discount in
+Shopify closes it permanently and takes about thirty seconds — worth doing before
+the next sale rather than after.
+

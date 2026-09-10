@@ -1,5 +1,5 @@
 <script>
-/* bb-store v30 - lives in SITE FOOTER custom code, not an embed.
+/* bb-store v31 - lives in SITE FOOTER custom code, not an embed.
    Embeds hold markup + CSS only. Failures are isolated so one missing
    element cannot take down the rest. ?bbdebug=1 paints its own panel. */
 (function () {
@@ -11,13 +11,15 @@
   // SALE     = what the page DISPLAYS as on sale: 20% sticker, struck-through
   //            price, code chip.
   //
-  // !! KNOWN MISMATCH, DELIBERATE - LIVE AGAIN as of v30 (2026-09-08).
-  // !! Emma's call on 2026-08-31, made with the consequence stated, and it is
-  // !! back in force now that the sale is running again.
+  // !! KNOWN MISMATCH, DELIBERATE - DORMANT again while SALE_ENABLED is false.
+  // !! Nothing displays a sale price today, so the gap is harmless right now. It
+  // !! comes BACK the moment SALE_ENABLED is flipped on. It has now survived two
+  // !! on/off cycles unfixed - read this BEFORE the next sale, not after.
+  // !! Emma's call on 2026-08-31, made with the consequence stated.
   // !! 'parasite-cleanse-starter-kit' is in SALE but the
   // !! Shopify `parasite` discount does NOT cover it, so its card advertises
   // !! $99.12 while checkout charges the full $123.90. Re-verified against
-  // !! codeDiscountNodeByCode on 2026-09-08, which still returns these eight
+  // !! codeDiscountNodeByCode on 2026-09-08, which still returned these eight
   // !! and only these eight:
   // !!   biotoxin-binder-cellcore, para-1-cellcore, para-2-cellcore,
   // !!   para-3-cellcore, para-4, para-kit, drainage-jumpstart-duo,
@@ -55,30 +57,43 @@
   // a discount the checkout will not honour. Set SALE_ENABLED false to switch
   // the whole thing off.
   //
-  // BACK ON as of 2026-09-08 (v30). The sale was switched off in v29 when it
-  // ended; it has since been EXTENDED in Shopify and is running again.
-  //
-  // SALE_END below is copied verbatim from the live Shopify discount, checked
-  // immediately before this edit:
+  // OFF as of 2026-09-10 (v31). The extended sale ran its course. Confirmed
+  // against Shopify before switching off:
   //   codeDiscountNodeByCode(code:"parasite")
-  //     -> status ACTIVE, startsAt 2026-08-31T20:45:45Z,
-  //        endsAt 2026-09-10T03:59:59Z, percentage 0.2
-  // Do not adjust it by hand. Shopify decides when the code stops working; this
-  // file only decides what the page SAYS. If the two drift, the page advertises
-  // a price the checkout refuses. Re-read the discount and re-copy the value.
+  //     -> status EXPIRED, endsAt 2026-09-10T03:59:59Z
+  // so the code stopped working ~17 hours before this edit and the page is not
+  // withdrawing an offer that is still redeemable.
   //
-  // 2026-09-10T03:59:59Z lands at 11:59pm Eastern on September 9, so the promo
-  // bar renders "Ends September 9" in every US timezone. That string is derived
-  // from SALE_END by saleDate() - there is no separate date to keep in sync.
+  // THE ON/OFF DRILL. This flag has now been cycled off (v29), on (v30) and off
+  // again (v31), so it is worth stating plainly what each direction costs.
   //
-  // To end the sale again: set SALE_ENABLED false. That one flag silences the
-  // promo bar, the worm stickers, the struck-through prices, every code chip,
-  // the hero-collage callout and the cart-drawer code line, stops the code being
-  // attached to NEW carts, and strips it from a returning shopper's SAVED cart
-  // on their next load (see cartDiscountCodesUpdate at the bottom of this file).
-  // Letting SALE_END simply pass is NOT equivalent: windowState() reads the
-  // VISITOR'S device clock, so a shopper with a wrong clock still sees the sale.
-  var SALE_ENABLED = true;
+  //   TURNING OFF - this flag alone. It silences the promo bar, the worm
+  //   stickers, the struck-through prices, every code chip on cards / feature
+  //   blocks / modals, the hero-collage callout and the cart-drawer code line;
+  //   stops the code being attached to NEW carts; and strips it from a returning
+  //   shopper's SAVED cart on their next load (cartDiscountCodesUpdate, bottom of
+  //   this file). Two things it CANNOT reach, because they are authored into
+  //   Webflow rather than drawn here - reset them by hand every time:
+  //     - the home hero eyebrow embed 95c7e548... ("Parasite Cleanse Product
+  //       Sale" -> "Parasite Cleanse Protocols")
+  //     - the home hero CTA d110f857-...-f471 ("Shop the Sale" -> "Shop the
+  //       Formulas")
+  //   The hero-collage embed also carries a static 20% sticker and code chip
+  //   when the sale is on; they get removed with it and pasted back when it
+  //   returns. Its CSS stays put through both, so it is only ever two elements.
+  //
+  //   TURNING ON - re-read the Shopify discount FIRST and copy its endsAt into
+  //   SALE_END verbatim. Never pick a date here. The page only displays prices;
+  //   Shopify is what charges the customer, and a page advertising a discount
+  //   the checkout refuses is worse than no sale at all.
+  //
+  // Letting SALE_END simply lapse is NOT a substitute for this flag:
+  // windowState() reads the VISITOR'S device clock, so a shopper whose clock is
+  // wrong keeps seeing the whole sale. Only the flag is clock-independent.
+  //
+  // SALE_START / SALE_END below are the historical record and are inert while
+  // SALE_ENABLED is false.
+  var SALE_ENABLED = false;
   var DISCOUNT     = 'PARASITE';
   var SALE_PCT     = 0.20;
   var SALE_START   = '2026-08-31T20:45:45Z';
@@ -121,7 +136,7 @@
     } catch (e) { return ''; }
   }
   var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
-  var VERSION = 'v30';
+  var VERSION = 'v31';
 
   var byHandle = {};
   var cartId = null;
@@ -731,7 +746,8 @@
   // copy was cut in embed v17 when the September sale ended (it hard-coded the
   // PARASITE code into the markup). This creates it on demand instead, so the
   // next sale can confirm the code in every page's cart drawer with no embed
-  // change - which is exactly what happened when the sale came back in v30.
+  // change - which is exactly what happened when the sale came back in v30 and
+  // went away again in v31. renderCodeStatus() hides it while the sale is off.
   function ensureCartCode() {
     if ($('bb-cart-code')) { return $('bb-cart-code'); }
     var foot = document.querySelector('.bb-cart-foot');

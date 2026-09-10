@@ -1,17 +1,19 @@
-<!-- bb hero collage v12 - FALLBACK MARKUP + CSS ONLY.
+<!-- bb hero collage v13 - FALLBACK MARKUP + CSS ONLY.
      bb-store v20 (SITE FOOTER custom code) replaces the contents of #bbp-strip
      with the live product images once Shopify responds. The static images below
      are what shows if the store is unreachable.
      This section is deliberately NOT shoppable - add-to-cart lives in #bb-shop
      below, so section 1 and section 2 no longer overlap.
-     v12 (2026-09-08): the 20% OFF sticker and the #bb-collage-code chip are BACK
-     - the sale was extended in Shopify to 2026-09-10T03:59:59Z. v11 had removed
-     them when the sale ended and kept their CSS, so restoring them was exactly
-     the two elements below and nothing else.
-     The sticker is static markup so it shows even if the storefront is
-     unreachable. #bb-collage-code is FILLED by the footer script, which also
-     hides it on any page outside SALE_PAGES and whenever SALE_ENABLED is false -
-     so the text below is only ever a fallback, never the source of truth.
+     SALE ELEMENTS: this file has now toggled v11 (out) / v12 (in) / v13 (out) as
+     the September sale ended, was extended, and ended for good. The two elements
+     that come and go are, in order, immediately inside #bb-collage:
+       <div class="bb-off" aria-hidden="true">...20%/OFF worm sticker...</div>
+       <div id="bb-collage-code">Use code <b>PARASITE</b> at checkout for 20% off</div>
+     v13 (2026-09-10) removed them again - the Shopify discount expired at
+     2026-09-10T03:59:59Z. Their CSS is deliberately LEFT IN PLACE below, so the
+     next sale is those two lines pasted back and nothing else. The footer script
+     fills #bb-collage-code and hides it whenever the sale is off, so the text
+     above is only ever a fallback, never the source of truth.
      Do NOT add a script tag or data-bb-* attributes here: Webflow can normalise
      bare data-* attributes on publish. -->
 <style>
@@ -20,6 +22,8 @@
 #bbp-strip .ci{width:120px;text-align:center;}
 #bbp-strip .ci img{width:100%;height:104px;object-fit:contain;display:block;margin:0 auto 6px;}
 #bbp-strip .ci .n{font-family:Montserrat,sans-serif;font-size:11px;font-weight:700;letter-spacing:.04em;line-height:1.3;color:#7c2a68;}
+/* Sale-only styling. No element uses it while the sale is off - kept so the
+   next sale needs only the two elements named in the comment above. */
 #bb-collage-code{margin:14px auto 0;display:block;text-align:center;font-family:Montserrat,sans-serif;font-size:13px;font-weight:600;color:#7c2a68;background:#fff4f9;border:1px dashed #E5397F;border-radius:40px;padding:8px 16px;max-width:max-content;}
 #bb-collage-code b{color:#a01e60;font-weight:800;letter-spacing:.12em;}
 #bb-collage .bb-off{position:absolute;top:-16px;right:-14px;z-index:3;width:80px;height:80px;border-radius:50%;background:#E5397F;border:4px solid #fff;box-shadow:0 8px 22px rgba(160,30,96,.45);transform:rotate(-12deg);display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;}
@@ -40,7 +44,6 @@
 }
 </style>
 <div id="bb-collage">
-  <div class="bb-off" aria-hidden="true"><svg viewBox="0 0 40 22"><path d="M4 15q5-10 10 0t10 0" fill="none" stroke="#ffd7ec" stroke-width="4.5" stroke-linecap="round"/><circle cx="28" cy="13" r="5.4" fill="#ffd7ec"/><circle cx="30.4" cy="11.2" r="1.3" fill="#a01e60"/></svg><b>20%</b><span>OFF</span></div>
   <div id="bbp-strip">
     <div class="ci"><img src="https://cdn.shopify.com/s/files/1/0278/4326/4609/files/Para_1_f1e834e1-a43f-4364-aa3e-da247b3dabc3.png?v=1771981843" alt="Para 1 by CellCore"><div class="n">Para 1</div></div>
     <div class="ci"><img src="https://cdn.shopify.com/s/files/1/0278/4326/4609/files/Para_2_c87ede60-31d2-46af-8765-d1dceea0b36e.png?v=1771981898" alt="Para 2 by CellCore"><div class="n">Para 2</div></div>
@@ -48,5 +51,4 @@
     <div class="ci"><img src="https://cdn.shopify.com/s/files/1/0278/4326/4609/files/Para_4_377b84b2-5b36-40a2-91b2-ed6cb9341509.png?v=1771982001" alt="Para 4 by CellCore"><div class="n">Para 4</div></div>
     <div class="ci"><img src="https://cdn.shopify.com/s/files/1/0278/4326/4609/files/BioToxin_Binder_-_FRONT.png?v=1771950389" alt="BioToxin Binder by CellCore"><div class="n">BioToxin Binder</div></div>
   </div>
-  <div id="bb-collage-code">Use code <b>PARASITE</b> at checkout for 20% off</div>
 </div>
