@@ -1394,3 +1394,72 @@ instant it is switched on. Adding the Starter Kit to the `parasite` discount in
 Shopify closes it permanently and takes about thirty seconds — worth doing before
 the next sale rather than after.
 
+---
+
+## v32 — per-product links (2026-09-29)
+
+Emma: *"Allyssa wants to be able to have specific product links. are you able to
+create a spreadsheet with links to each individual product? Right now it is just
+a home page."*
+
+She is right that it was just a home page. **The storefront is a single page.**
+There is no Webflow page per product and no per-product URL — a product card
+opens a modal, which has no address of its own. So a link sheet could not be
+written until links existed.
+
+### The mechanism
+
+`?product=<shopify-handle>` on any storefront URL opens that product's modal on
+load, with its full description, images and Add to Cart:
+
+```
+https://biohacking-bombshell-estore.webflow.io/?product=para-3-cellcore
+```
+
+**Why not a Shopify product URL.** It would land the shopper on
+`synergizedsupps.com` — Dr. Jaban's Online Store. That loses the Biohacking
+Bombshell sales channel AND the `_bb_source` / `_bb_landing_page` cart
+attributes, so the order stops being attributable to this storefront at all and
+drops out of the Airtable daily metrics. The whole attribution chain built in
+v28 depends on the shopper staying on the Webflow site.
+
+**Why resolution is deferred.** `byHandle` fills in two stages — the nine
+FEATURED products resolve first, then the catalogue pages in ~50 at a time.
+`openDeepLink()` is called at both points and no-ops until its handle exists, so
+a featured product opens immediately and a catalogue product opens a beat later.
+First match wins and clears `wantProduct`, so the modal cannot open twice.
+
+**Unknown handles fail silently and deliberately.** A mistyped or retired handle
+just renders the normal storefront. These links will sit in Instagram bios and
+old emails for months; a shopper landing on a working shop is a better outcome
+than an error page. `?bbdebug=1` reports what actually happened.
+
+### The spreadsheet
+`docs/exports/biohacking-bombshell-product-links.xlsx` — 272 products, one row
+each: name, brand, price, section, stock, product link, and the dedicated
+landing-page URL for the four products that have one.
+
+**272, not 339.** The sheet reproduces the site's own `isHidden()` rule, because
+a link to a product the storefront hides would open nothing. Excluded: 67
+products — every `$0` placeholder, and everything matching `HIDE_WORDS`
+(`jaban`, `resistance band`, `kinesiology`, `welcome gift`, `chasing health`,
+`parasites 101`). If that rule ever changes, the sheet has to be regenerated
+against it or it will list dead links.
+
+Prices are a snapshot; the page always renders live price and stock, so a stale
+price in the sheet never reaches a customer.
+
+### Finding worth acting on
+**"Beginner Gallbladder Flush" ($203.85, Cellcore) is invisible on the
+storefront.** Its handle is
+`chasing-health-monthly-subscription-dr-jabans-gallbladder-flush-copy` — a
+leftover from whatever product it was duplicated from — and `jaban` in that
+handle trips `isHidden()`. The product itself is Cellcore, active, in stock and
+nothing to do with Dr. Jaban.
+
+Note this contradicts the comment above `HIDE_WORDS`, which claims the
+still-for-sale Beginner Gallbladder Flush survives because `'chasing health'`
+has a space and cannot match the hyphenated handle. True as far as it goes — but
+`'jaban'` catches it anyway. Changing the Shopify handle is the clean fix and
+costs nothing; it is a duplicate-derived slug nobody links to.
+

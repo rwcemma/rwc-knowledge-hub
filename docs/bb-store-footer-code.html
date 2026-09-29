@@ -1,5 +1,5 @@
 <script>
-/* bb-store v31 - lives in SITE FOOTER custom code, not an embed.
+/* bb-store v32 - lives in SITE FOOTER custom code, not an embed.
    Embeds hold markup + CSS only. Failures are isolated so one missing
    element cannot take down the rest. ?bbdebug=1 paints its own panel. */
 (function () {
@@ -136,7 +136,43 @@
     } catch (e) { return ''; }
   }
   var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
-  var VERSION = 'v31';
+  var VERSION = 'v32';
+
+  // ---- Per-product deep links (v32) ----
+  // ?product=<shopify-handle> opens that product's detail modal on load.
+  //
+  // This storefront is ONE page. There are no per-product URLs and no Webflow
+  // page per product, so a "product link" has to mean something built here.
+  // A Shopify product URL is NOT a substitute: it lands the shopper on
+  // Dr. Jaban's Online Store, which loses the Biohacking Bombshell sales
+  // channel and the _bb_source / _bb_landing_page cart attributes, so the
+  // order stops being attributable to this storefront at all.
+  //
+  // Resolution is DEFERRED because byHandle fills in two stages: the nine
+  // FEATURED products land first, the rest of the catalogue pages in after.
+  // openDeepLink() is therefore called at both points and no-ops until the
+  // handle it wants exists. First match wins and clears the request, so the
+  // modal cannot be opened twice.
+  //
+  // An unknown or misspelled handle is deliberately silent: the page renders
+  // normally and the shopper sees the storefront, which is a better outcome
+  // than an error for a link that has been sitting in an Instagram bio for
+  // three months. ?bbdebug=1 reports what happened.
+  var wantProduct = (function () {
+    var m = /[?&]product=([^&#]+)/.exec(window.location.search);
+    if (!m) { return null; }
+    try { return decodeURIComponent(m[1]).trim().toLowerCase(); }
+    catch (e) { return null; }
+  })();
+
+  function openDeepLink() {
+    if (!wantProduct) { return; }
+    if (!byHandle[wantProduct]) { return; }
+    var h = wantProduct;
+    wantProduct = null;
+    dbg('deep link opening ' + h);
+    openModalByHandle(h);
+  }
 
   var byHandle = {};
   var cartId = null;
@@ -376,6 +412,8 @@
           dbg('catalog complete: ' + catalog.length + ' products');
           buildVendorList();
           applyFilters();
+          safe('deep link', openDeepLink);
+          if (wantProduct) { dbg('deep link handle not in catalogue: ' + wantProduct); }
         }
       })
       .catch(function (e) {
@@ -636,6 +674,7 @@
     safe('renderGrid', function () { renderGrid(items); });
     safe('renderCollage', function () { renderCollage(); });
     safe('feature', ensureFeature);
+    safe('deep link', openDeepLink);
     safe('catalog', function () { loadAllCatalog(null); });
   }).catch(function (e) {
     report('Store temporarily unavailable.', 'fetch() threw, never reached Shopify (bad hostname, CORS, CSP, extension, offline). Detail: ' + (e && e.message ? e.message : e));
