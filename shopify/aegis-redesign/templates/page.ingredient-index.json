@@ -1,0 +1,670 @@
+{
+  "sections": {
+    "hero": {
+      "type": "af-hero",
+      "settings": {
+        "eyebrow": "The science · Ingredient index",
+        "heading": "Your results can only be as good as what you can absorb.",
+        "text": "<p>Welcome to our Ingredient Index, your ultimate guide to understanding the components that make up our products. At Aegis Formulas, we believe in transparency and empowering our customers to make informed choices about what they put on their bodies.</p><p>Each ingredient included in our formulations undergoes rigorous evaluation to ensure safety, efficacy, and sustainability. In this index, you'll find information about each ingredient we use, including its purpose and benefits.</p><p>We're committed to selecting ingredients that meet the highest standards of quality and integrity. With our Ingredient Index, you can trust that every element in our formulations has been carefully chosen to deliver results you can see and feel.</p>",
+        "image": "",
+        "button_label": "Shop the formulas",
+        "button_link": "shopify://collections/products",
+        "button_label_2": "How we maximize absorption",
+        "button_link_2": "shopify://pages/technology",
+        "scheme": "cream",
+        "padding_top": 96,
+        "padding_bottom": 96
+      }
+    },
+    "active": {
+      "type": "af-ingredient-grid",
+      "blocks": {
+        "i00": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Beetroot",
+            "note": "",
+            "link": "shopify://pages/beetroot-beta-vulgaris-l",
+            "image": "shopify://shop_images/Beetroot.image-2.jpg"
+          }
+        },
+        "i01": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Biotin",
+            "note": "",
+            "link": "shopify://pages/biotin",
+            "image": "shopify://shop_images/Biotin.image.16.9.jpg"
+          }
+        },
+        "i02": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Blue Vervain",
+            "note": "",
+            "link": "shopify://pages/blue-vervain-verbena-hastata",
+            "image": "shopify://shop_images/Blue_Vervain.image-2.jpg"
+          }
+        },
+        "i03": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Boron",
+            "note": "",
+            "link": "shopify://pages/boron-glycinate",
+            "image": "shopify://shop_images/Boron.EE.jpg"
+          }
+        },
+        "i04": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Chaste Tree Berry",
+            "note": "",
+            "link": "shopify://pages/chaste-tree-berry-vitex-agnus-castus-l",
+            "image": "shopify://shop_images/Chaste_Tree_Berry.image-2.jpg"
+          }
+        },
+        "i05": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Chlorella",
+            "note": "Organic",
+            "link": "shopify://pages/organic-chlorella"
+          }
+        },
+        "i06": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Chromium",
+            "note": "",
+            "link": "shopify://pages/chromium-as-chromium-picolinate",
+            "image": "shopify://shop_images/Chromium.EE.jpg"
+          }
+        },
+        "i07": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Cilantro Powder",
+            "note": "Whole plant",
+            "link": "shopify://pages/cilantro-powder"
+          }
+        },
+        "i08": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Copper",
+            "note": "",
+            "link": "shopify://pages/copper-as-copper-gluconate",
+            "image": "shopify://shop_images/Copper.EE.jpg"
+          }
+        },
+        "i09": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Folate",
+            "note": "",
+            "link": "shopify://pages/folate",
+            "image": "shopify://shop_images/Folate.image.16.9.jpg"
+          }
+        },
+        "i10": {
+          "type": "ingredient",
+          "settings": {
+            "name": "GMI Protein",
+            "note": "Functional mushroom",
+            "link": "shopify://pages/gmi-protein"
+          }
+        },
+        "i11": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Glutathione",
+            "note": "",
+            "link": "shopify://pages/l-glutathione-reduced",
+            "image": "shopify://shop_images/Glutathione.image.16.9.jpg"
+          }
+        },
+        "i12": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Humic Acid",
+            "note": "",
+            "link": "shopify://pages/humic-acid-powder"
+          }
+        },
+        "i13": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Iodine",
+            "note": "",
+            "link": "shopify://pages/iodine-as-potassium-iodide",
+            "image": "shopify://shop_images/Iodine.EE.jpg"
+          }
+        },
+        "i14": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Maca Root",
+            "note": "",
+            "link": "shopify://pages/maca-root-lepidium-meyenii-walp",
+            "image": "shopify://shop_images/Maca.image-2.jpg"
+          }
+        },
+        "i15": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Magnesium",
+            "note": "as Glycinate",
+            "link": "shopify://pages/magnesium-as-magnesium-glycinate-buffered",
+            "image": "shopify://shop_images/Magnesium.EE.jpg"
+          }
+        },
+        "i16": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Magnesium",
+            "note": "as Malate",
+            "link": "shopify://pages/magnesium-as-malate",
+            "image": "shopify://shop_images/Magnesium.image-2.jpg"
+          }
+        },
+        "i17": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Manganese",
+            "note": "",
+            "link": "shopify://pages/manganese-as-manganese-glycinate",
+            "image": "shopify://shop_images/Manganese.EE.jpg"
+          }
+        },
+        "i18": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Milk Thistle",
+            "note": "",
+            "link": "shopify://pages/milk-thistle",
+            "image": "shopify://shop_images/Milk_Thistle.TM.jpg"
+          }
+        },
+        "i19": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Molybdenum",
+            "note": "",
+            "link": "shopify://pages/molybdenum-as-molybdenum-aac",
+            "image": "shopify://shop_images/Molybdenum.EE.jpg"
+          }
+        },
+        "i20": {
+          "type": "ingredient",
+          "settings": {
+            "name": "NAC",
+            "note": "N-Acetyl L-Cysteine",
+            "link": "shopify://pages/n-acetyl-l-cysteine-nac",
+            "image": "shopify://shop_images/NAC.TM.jpg"
+          }
+        },
+        "i21": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Niacin (B3)",
+            "note": "",
+            "link": "shopify://pages/niacin",
+            "image": "shopify://shop_images/Niacin.image.16.9.jpg"
+          }
+        },
+        "i22": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Pantothenic Acid (B5)",
+            "note": "",
+            "link": "shopify://pages/pantothenic-acid",
+            "image": "shopify://shop_images/PantothenicAcid.16.9.jpg"
+          }
+        },
+        "i23": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Psyllium Husk",
+            "note": "",
+            "link": "shopify://pages/psyllium-husk"
+          }
+        },
+        "i24": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Rhodiola Rosea",
+            "note": "",
+            "link": "shopify://pages/rhodiola-rhodiola-rosea",
+            "image": "shopify://shop_images/Rhodiola_Rosea.image-2.jpg"
+          }
+        },
+        "i25": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Riboflavin (B2)",
+            "note": "",
+            "link": "shopify://pages/riboflavin",
+            "image": "shopify://shop_images/Riboflavin.image.16.9.jpg"
+          }
+        },
+        "i26": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Selenium",
+            "note": "",
+            "link": "shopify://pages/selenium-as-l-selenomethionine",
+            "image": "shopify://shop_images/Selenium.EE.jpg"
+          }
+        },
+        "i27": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Shilajit",
+            "note": "",
+            "link": "shopify://pages/shilajit-extract",
+            "image": "shopify://shop_images/Shilajit.EE.jpg"
+          }
+        },
+        "i28": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Thiamine (B1)",
+            "note": "",
+            "link": "shopify://pages/thiamine",
+            "image": "shopify://shop_images/Thiamine.image.16.9.jpg"
+          }
+        },
+        "i29": {
+          "type": "ingredient",
+          "settings": {
+            "name": "TUDCA",
+            "note": "",
+            "link": "shopify://pages/tudca-tauroursodeoxycholic-acid-sodium",
+            "image": "shopify://shop_images/TUDCA.TM.jpg"
+          }
+        },
+        "i30": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Turmeric (Curcumin)",
+            "note": "",
+            "link": "shopify://pages/turmeric-curcumin-longa-l",
+            "image": "shopify://shop_images/Turmeric.image-2.jpg"
+          }
+        },
+        "i31": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Vitamin B6",
+            "note": "",
+            "link": "shopify://pages/vitamin-b6",
+            "image": "shopify://shop_images/VitaminB6.image.16.9.jpg"
+          }
+        },
+        "i32": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Vitamin B12",
+            "note": "",
+            "link": "shopify://pages/vitamin-b12",
+            "image": "shopify://shop_images/VitaminB12.image.16.9.jpg"
+          }
+        },
+        "i33": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Vitamin C",
+            "note": "",
+            "link": "shopify://pages/vitamin-c",
+            "image": "shopify://shop_images/VitaminC.image.16.9.jpg"
+          }
+        },
+        "i34": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Vitamin D",
+            "note": "as cholecalciferol",
+            "link": "shopify://pages/vitamin-d"
+          }
+        },
+        "i35": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Vitamin E",
+            "note": "",
+            "link": "shopify://pages/vitamin-e-as-d-alpha-tocopheryl-succinate",
+            "image": "shopify://shop_images/Vitamin_E.EE.jpg"
+          }
+        },
+        "i36": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Vitamin K",
+            "note": "",
+            "link": "shopify://pages/vitamin-k-as-menaquinone-7",
+            "image": "shopify://shop_images/Vitamin_K.EE.jpg"
+          }
+        },
+        "i37": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Wild Yam",
+            "note": "",
+            "link": "shopify://pages/wild-yam-dioscorea-villosa",
+            "image": "shopify://shop_images/Wild_Yam.image-2.jpg"
+          }
+        },
+        "i38": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Zembrin",
+            "note": "Sceletium tortuosum",
+            "link": "shopify://pages/zembrin-sceletium-tortuosum"
+          }
+        },
+        "i39": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Zinc",
+            "note": "",
+            "link": "shopify://pages/zinc-glycinate",
+            "image": "shopify://shop_images/Zinc.image-2.jpg"
+          }
+        },
+        "i40": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Zynamite",
+            "note": "Mangifera indica extract",
+            "link": "shopify://pages/zynamite-mangifera-indica-extract"
+          }
+        }
+      },
+      "block_order": [
+        "i00",
+        "i01",
+        "i02",
+        "i03",
+        "i04",
+        "i05",
+        "i06",
+        "i07",
+        "i08",
+        "i09",
+        "i10",
+        "i11",
+        "i12",
+        "i13",
+        "i14",
+        "i15",
+        "i16",
+        "i17",
+        "i18",
+        "i19",
+        "i20",
+        "i21",
+        "i22",
+        "i23",
+        "i24",
+        "i25",
+        "i26",
+        "i27",
+        "i28",
+        "i29",
+        "i30",
+        "i31",
+        "i32",
+        "i33",
+        "i34",
+        "i35",
+        "i36",
+        "i37",
+        "i38",
+        "i39",
+        "i40"
+      ],
+      "settings": {
+        "eyebrow": "What's inside",
+        "heading": "Active ingredients",
+        "show_search": true,
+        "scheme": "white",
+        "padding_top": 88,
+        "padding_bottom": 48
+      }
+    },
+    "other": {
+      "type": "af-ingredient-grid",
+      "blocks": {
+        "i00": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Arabic Gum",
+            "note": "",
+            "link": "shopify://pages/arabic-gum"
+          }
+        },
+        "i01": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Blackberry Juice",
+            "note": "",
+            "link": "shopify://pages/blackberry-juice"
+          }
+        },
+        "i02": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Dicalcium Phosphate",
+            "note": "",
+            "link": "shopify://pages/dicalcium-phosphate"
+          }
+        },
+        "i03": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Erythritol",
+            "note": "",
+            "link": "shopify://pages/erythritol"
+          }
+        },
+        "i04": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Glycerin",
+            "note": "",
+            "link": "shopify://pages/glycerine"
+          }
+        },
+        "i05": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Hydroxypropyl Beta-Cyclodextrin",
+            "note": "HPβCD",
+            "link": "shopify://pages/hydroxypropyl-beta-cyclodextrin-hpbcd"
+          }
+        },
+        "i06": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Hypromellose",
+            "note": "Hydroxypropyl methylcellulose",
+            "link": "shopify://pages/hypromethylcellulose"
+          }
+        },
+        "i07": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Lemon Juice Concentrate",
+            "note": "",
+            "link": "shopify://pages/lemon-juice-concentrate"
+          }
+        },
+        "i08": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Lemon Juice Powder",
+            "note": "",
+            "link": "shopify://pages/lemon-juice-powder-100-pure"
+          }
+        },
+        "i09": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Magnesium Stearate",
+            "note": "",
+            "link": "shopify://pages/magnesium-stearate"
+          }
+        },
+        "i10": {
+          "type": "ingredient",
+          "settings": {
+            "name": "MCT Oil",
+            "note": "",
+            "link": "shopify://pages/mct-oil"
+          }
+        },
+        "i11": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Microcrystalline Cellulose",
+            "note": "",
+            "link": "shopify://pages/microcrystalline-cellulose"
+          }
+        },
+        "i12": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Natural Citrus Flavor",
+            "note": "from lemons",
+            "link": "shopify://pages/natural-citrus-flavor"
+          }
+        },
+        "i13": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Plant Extract",
+            "note": "Natural preservative",
+            "link": "shopify://pages/plant-extract"
+          }
+        },
+        "i14": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Pullulan",
+            "note": "",
+            "link": "shopify://pages/pullulan"
+          }
+        },
+        "i15": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Rice Flour",
+            "note": "",
+            "link": "shopify://pages/rice-flour"
+          }
+        },
+        "i16": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Silicon Dioxide",
+            "note": "",
+            "link": "shopify://pages/silicon-dioxide"
+          }
+        },
+        "i17": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Steviol Glycosides",
+            "note": "",
+            "link": "shopify://pages/steviol-glycosides"
+          }
+        },
+        "i18": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Stevia Leaf",
+            "note": "",
+            "link": "shopify://pages/stevia-leaf-rebaudioside-a"
+          }
+        },
+        "i19": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Sunflower Lecithin",
+            "note": "",
+            "link": "shopify://pages/sunflower-lecithin"
+          }
+        },
+        "i20": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Vanilla Bean Extract",
+            "note": "",
+            "link": "shopify://pages/vanilla-bean-extract"
+          }
+        },
+        "i21": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Xanthan Gum",
+            "note": "",
+            "link": "shopify://pages/xanthan-gum"
+          }
+        }
+      },
+      "block_order": [
+        "i00",
+        "i01",
+        "i02",
+        "i03",
+        "i04",
+        "i05",
+        "i06",
+        "i07",
+        "i08",
+        "i09",
+        "i10",
+        "i11",
+        "i12",
+        "i13",
+        "i14",
+        "i15",
+        "i16",
+        "i17",
+        "i18",
+        "i19",
+        "i20",
+        "i21"
+      ],
+      "settings": {
+        "eyebrow": "Supporting ingredients",
+        "heading": "Other ingredients",
+        "show_search": false,
+        "scheme": "white",
+        "padding_top": 48,
+        "padding_bottom": 96
+      }
+    },
+    "cta": {
+      "type": "af-cta-band",
+      "settings": {
+        "heading": "Ready to feel the difference?",
+        "text": "<p>See how every ingredient comes together in our doctor-formulated supplements.</p>",
+        "button_label": "Shop all products",
+        "button_link": "shopify://collections/products",
+        "button_label_2": "Nutrient delivery methods",
+        "button_link_2": "shopify://pages/technology",
+        "scheme": "white",
+        "padding_top": 24,
+        "padding_bottom": 96
+      }
+    }
+  },
+  "order": [
+    "hero",
+    "active",
+    "other",
+    "cta"
+  ]
+}

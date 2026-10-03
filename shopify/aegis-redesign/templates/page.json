@@ -1,0 +1,44 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "custom_css": [
+        ".ingredient-strain {font-size: 28px; display:block;}"
+      ],
+      "settings": {
+        "padding_top": 28,
+        "padding_bottom": 80
+      }
+    },
+    "ingredient_cta": {
+      "type": "custom-liquid",
+      "settings": {
+        "custom_liquid": "{%- if page.content contains 'at a Glance' or page.content contains 'Why It' -%}\n<div class=\"af-page-back\"><a href=\"{{ pages['ingredients-index'].url | default: '/pages/ingredients-index' }}\">← All ingredients</a></div>\n<section class=\"af-cta af-scheme--white\" style=\"--af-pt: 56px; --af-pb: 96px;\">\n  <div class=\"af-container\">\n    <div class=\"af-cta__box\">\n      <h2 class=\"af-h2\">Explore every ingredient</h2>\n      <div class=\"af-lead\"><p>See what goes into each Aegis formula and why.</p></div>\n      <div class=\"af-btn-row af-btn-row--center\">\n        <a class=\"af-btn af-btn--gold\" href=\"/pages/ingredients-index\">Ingredient index</a>\n        <a class=\"af-btn af-btn--ghost-light\" href=\"/collections/products\">Shop all products</a>\n      </div>\n    </div>\n  </div>\n</section>\n{%- endif -%}",
+        "color_scheme": "background-1",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "1706893562e09f3a27": {
+      "type": "apps",
+      "settings": {
+        "include_margins": true
+      }
+    },
+    "custom_liquid_ipeLmD": {
+      "type": "custom-liquid",
+      "settings": {
+        "custom_liquid": "<script>\n// Get the <h1> element with the specified class\nvar pageTitle = document.querySelector('.main-page-title');\n\n// Get the text content of the <h1> element\nvar pageTitleText = pageTitle.textContent;\n\n// Find the index of the first opening parenthesis\nvar firstParenIndex = pageTitleText.indexOf('(');\n\n// If a parenthesis is found\nif (firstParenIndex !== -1) {\n  // Insert a line break before the opening parenthesis\n  var newTextContent = pageTitleText.substring(0, firstParenIndex) + ' ';\n\n  // Get the content within the parentheses\n  var parenContent = pageTitleText.substring(firstParenIndex);\n\n  // Wrap the content within the parentheses in a <span> element with class .ingredient-strain\n  newTextContent += '<span class=\"ingredient-strain\">' + parenContent + '</span>';\n\n  // Update the text content of the <h1> element\n  pageTitle.innerHTML = newTextContent;\n}\n\n</script>",
+        "color_scheme": "background-1",
+        "padding_top": 40,
+        "padding_bottom": 52
+      }
+    }
+  },
+  "order": [
+    "main",
+    "ingredient_cta",
+    "1706893562e09f3a27",
+    "custom_liquid_ipeLmD"
+  ]
+}

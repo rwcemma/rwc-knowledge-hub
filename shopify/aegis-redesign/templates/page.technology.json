@@ -1,0 +1,193 @@
+{
+  "sections": {
+    "hero": {
+      "type": "af-hero",
+      "settings": {
+        "eyebrow": "The science · Nutrient delivery methods",
+        "heading": "Your results can only be as good as what you can absorb!",
+        "text": "<p>Our doctor-formulated supplements utilize the power of Nanotechnology, Liposomal delivery, and/or Fulvic Acid to ensure maximum absorption.</p>",
+        "image": "",
+        "button_label": "Shop the formulas",
+        "button_link": "shopify://collections/products",
+        "button_label_2": "Ingredient index",
+        "button_link_2": "shopify://pages/ingredients-index",
+        "scheme": "cream",
+        "padding_top": 96,
+        "padding_bottom": 96
+      }
+    },
+    "methods": {
+      "type": "af-features",
+      "blocks": {
+        "m1": {
+          "type": "feature",
+          "settings": {
+            "title": "Liposomal delivery",
+            "text": "<p>Liposomes provide a protective layer around the nutrient, ensuring enhanced absorption!</p>"
+          }
+        },
+        "m2": {
+          "type": "feature",
+          "settings": {
+            "title": "Nanotechnology",
+            "text": "<p>\"Nano\" refers to extremely small particle size — so small it's measured in billionths of a meter.</p>"
+          }
+        },
+        "m3": {
+          "type": "feature",
+          "settings": {
+            "title": "Fulvic acid",
+            "text": "<p>Fulvic acid helps improve how well cells take in nutrients by affecting the electrical charge on the cell membrane.</p>"
+          }
+        },
+        "m4": {
+          "type": "feature",
+          "settings": {
+            "title": "Oral strips",
+            "text": "<p>Our Oral Strips are designed for convenience, portability, and ease of use—no water, pills, or bulky bottles required.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "m1",
+        "m2",
+        "m3",
+        "m4"
+      ],
+      "settings": {
+        "eyebrow": "Four ways we maximize absorption",
+        "heading": "Built to get where it needs to go",
+        "text": "",
+        "button_label": "",
+        "button_link": "",
+        "scheme": "navy",
+        "padding_top": 96,
+        "padding_bottom": 96
+      }
+    },
+    "lipo": {
+      "type": "af-story",
+      "settings": {
+        "image": "shopify://shop_images/Liposomal-Technology.png",
+        "image_right": true,
+        "image_fit": "contain",
+        "eyebrow": "01 · Liposomal delivery",
+        "heading": "Liposomal delivery",
+        "text": "<p><strong>Liposomes</strong> <strong>encapsulate</strong> nutrients in a protective lipid shell, shielding them from degradation in the GI tract and <strong>enhancing direct absorption</strong> by mimicking cell membranes. This leads to <strong>significantly higher bioavailability</strong>—sometimes up to 10x or more compared to non-liposomal forms.</p><ul><li><strong>Encapsulation Protects Against Harsh GI Conditions</strong></li><li><strong>Enhanced Solubility and Stability</strong></li><li><strong>Improved Cellular Absorption</strong></li><li><strong>Lymphatic System Entry (for fat-soluble compounds)</strong></li></ul>",
+        "quote": "Liposomes provide a protective layer around the nutrient, ensuring enhanced absorption!",
+        "quote_author": "",
+        "button_label": "Shop NanoGlut+B",
+        "button_link": "shopify://products/nano-liposomal-glutathione",
+        "button_label_2": "",
+        "button_link_2": "",
+        "scheme": "white",
+        "padding_top": 88,
+        "padding_bottom": 88
+      }
+    },
+    "nano": {
+      "type": "af-story",
+      "settings": {
+        "image": "shopify://shop_images/Nanotechnology-2.webp",
+        "image_right": false,
+        "image_fit": "contain",
+        "eyebrow": "02 · Nanotechnology",
+        "heading": "While liposomes optimize delivery, the real magic lies in the nano-size nutrients themselves...",
+        "text": "<p><strong>\"Nano\" refers to extremely small particle size — so small it's measured in billionths of a meter.</strong></p><p>Reducing a nutrient to nano size may help it pass more easily through natural barriers in the body. This advanced delivery method is designed to support more efficient nutrient delivery compared to traditional supplement forms.</p>",
+        "quote": "",
+        "quote_author": "",
+        "button_label": "Shop NanoGlut+B",
+        "button_link": "shopify://products/nano-liposomal-glutathione",
+        "button_label_2": "",
+        "button_link_2": "",
+        "scheme": "cream",
+        "padding_top": 88,
+        "padding_bottom": 88
+      }
+    },
+    "fulvic": {
+      "type": "af-story",
+      "settings": {
+        "image": "shopify://shop_images/Fulvic-Acid.webp",
+        "image_right": true,
+        "image_fit": "contain",
+        "eyebrow": "03 · Fulvic acid",
+        "heading": "Fulvic acid helps your body absorb nutrients better.",
+        "text": "<p>It works like a natural helper that <strong>grabs onto vitamins and minerals</strong> and <strong>carries them through your gut and into your cells</strong>, where they’re needed most. It also helps nutrients <strong>dissolve more easily</strong> and makes it easier for them to <strong>pass through cell walls</strong>.</p><p>Thanks to these effects, fulvic acid can <strong>boost how much your body absorbs by 20% to 60%</strong>, depending on the type of nutrient and how the supplement is made.</p><p>Products with Fulvic Acid: <a href=\"/products/nano-liposomal-glutathione\" title=\"NanoGlut+B\"><strong>NanoGlut+B</strong></a>, <a href=\"/products/tudca-max\" title=\"TUDCA Max\"><strong>TUDCA Max</strong></a>, <a href=\"/products/elemental-edge\" title=\"Elemental Edge\"><strong>Elemental Edge</strong></a></p>",
+        "quote": "Fulvic acid helps improve how well cells take in nutrients by affecting the electrical charge on the cell membrane.",
+        "quote_author": "",
+        "button_label": "",
+        "button_link": "",
+        "button_label_2": "",
+        "button_link_2": "",
+        "scheme": "white",
+        "padding_top": 88,
+        "padding_bottom": 88
+      }
+    },
+    "strip": {
+      "type": "af-story",
+      "settings": {
+        "image": "shopify://shop_images/Hannah.png",
+        "image_right": false,
+        "image_fit": "contain",
+        "eyebrow": "04 · Oral strips",
+        "heading": "Oral dissolving strips",
+        "text": "<p><strong>Aegis Formulas combines advanced oral dissolving strip technology with nanotechnology in our delivery to support superior nutrient absorption in a fast and convenient format.</strong> These ultra-thin strips dissolve quickly on the tongue, allowing nutrients to be released and absorbed through the soft tissues of the mouth—bypassing the digestive tract. When enhanced with nano-sized particles and liposomal encapsulation, this delivery system may support absorption rates up to 8–10 times higher than traditional water-soluble capsules.</p><p>This nano technology innovation along with strip delivery offers a modern, user-friendly way to integrate targeted supplementation into your daily wellness routine with up to 10 times greater absorption.</p>",
+        "quote": "Our Oral Strips are designed for convenience, portability, and ease of use—no water, pills, or bulky bottles required. With a pleasant taste and rapid dissolve, they’re ideal for individuals with busy lifestyles or those who prefer not to swallow capsules.",
+        "quote_author": "",
+        "button_label": "Shop Calm AF",
+        "button_link": "shopify://products/calm",
+        "button_label_2": "",
+        "button_link_2": "",
+        "scheme": "cream",
+        "padding_top": 88,
+        "padding_bottom": 88
+      }
+    },
+    "combo": {
+      "type": "af-story",
+      "settings": {
+        "image": "shopify://shop_images/Absorption-2.png",
+        "image_right": true,
+        "image_fit": "contain",
+        "eyebrow": "Better together",
+        "heading": "At Aegis Formulas, we care about making sure your body actually absorbs the nutrients in our products.",
+        "text": "<p>We use special methods like <strong>nanotechnology</strong>, <strong>liposomal delivery</strong>, and <strong>fulvic acid</strong> to help your body take in more of each ingredient. Each of these methods on its own can boost how well your body absorbs nutrients—but when we combine them, the absorption gets even better!</p><p>When we use <strong>nanoliposomal delivery with fulvic acid</strong>, it means the nutrients are protected and guided to the exact places your body needs them. That way, you can actually <em>feel</em> the difference.</p><p>Remember: it’s not just about taking a clean, healthy supplement—it’s about how much your body actually uses that makes the real impact!</p>",
+        "quote": "",
+        "quote_author": "",
+        "button_label": "Shop NanoGlut+B",
+        "button_link": "shopify://products/nano-liposomal-glutathione",
+        "button_label_2": "",
+        "button_link_2": "",
+        "scheme": "white",
+        "padding_top": 88,
+        "padding_bottom": 88
+      }
+    },
+    "cta": {
+      "type": "af-cta-band",
+      "settings": {
+        "heading": "Our doctor-formulated supplements utilize the power of Nanotechnology, Liposomal delivery, and/or Fulvic Acid to ensure maximum absorption.",
+        "text": "<p>The result? Supplements that are proven to be 200% more bioavailable than traditional delivery methods — and up to 1000% more effective.</p>",
+        "button_label": "Shop all products",
+        "button_link": "shopify://collections/products",
+        "button_label_2": "Explore the ingredient index",
+        "button_link_2": "shopify://pages/ingredients-index",
+        "scheme": "white",
+        "padding_top": 24,
+        "padding_bottom": 96
+      }
+    }
+  },
+  "order": [
+    "hero",
+    "methods",
+    "lipo",
+    "nano",
+    "fulvic",
+    "strip",
+    "combo",
+    "cta"
+  ]
+}

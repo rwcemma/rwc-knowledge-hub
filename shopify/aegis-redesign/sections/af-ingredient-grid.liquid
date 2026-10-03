@@ -1,0 +1,105 @@
+{%- comment -%}
+  Aegis refresh: ingredient index grid. One card per block (image or monogram,
+  name, short note, link), with a live search box that filters the cards.
+{%- endcomment -%}
+{{ 'af-refresh.css' | asset_url | stylesheet_tag }}
+
+<section
+  class="af-ingredients af-scheme--{{ section.settings.scheme }}"
+  style="--af-pt: {{ section.settings.padding_top }}px; --af-pb: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="af-container">
+    <div class="af-ingredients__head">
+      <div>
+        {%- if section.settings.eyebrow != blank -%}<p class="af-eyebrow">{{ section.settings.eyebrow }}</p>{%- endif -%}
+        {%- if section.settings.heading != blank -%}<h2 class="af-h2">{{ section.settings.heading }}</h2>{%- endif -%}
+      </div>
+      {%- if section.settings.show_search -%}
+        <label class="af-search">
+          <span class="visually-hidden">Search ingredients</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
+          <input type="search" placeholder="Search ingredients" data-af-filter="{{ section.id }}">
+        </label>
+      {%- endif -%}
+    </div>
+
+    <ul class="af-ingredients__grid" role="list" id="AfIngredients-{{ section.id }}">
+      {%- for block in section.blocks -%}
+        <li class="af-ingredient" data-name="{{ block.settings.name | append: ' ' | append: block.settings.note | downcase | escape }}" {{ block.shopify_attributes }}>
+          <a href="{{ block.settings.link | default: '#' }}" class="af-ingredient__link">
+            <span class="af-ingredient__media">
+              {%- if block.settings.image != blank -%}
+                {{ block.settings.image | image_url: width: 480 | image_tag: loading: 'lazy', sizes: '(min-width: 990px) 20vw, 45vw', widths: '240, 360, 480', alt: block.settings.name }}
+              {%- else -%}
+                <span class="af-ingredient__mono" aria-hidden="true">{{ block.settings.name | slice: 0 }}</span>
+              {%- endif -%}
+            </span>
+            <span class="af-ingredient__body">
+              <span class="af-ingredient__name">{{ block.settings.name }}</span>
+              {%- if block.settings.note != blank -%}<span class="af-ingredient__note">{{ block.settings.note }}</span>{%- endif -%}
+              <span class="af-ingredient__more">Learn more <span aria-hidden="true">→</span></span>
+            </span>
+          </a>
+        </li>
+      {%- endfor -%}
+    </ul>
+    <p class="af-ingredients__empty" hidden>No ingredients match your search.</p>
+  </div>
+</section>
+
+{%- if section.settings.show_search -%}
+  <script>
+    (function () {
+      var input = document.querySelector('[data-af-filter="{{ section.id }}"]');
+      var grid = document.getElementById('AfIngredients-{{ section.id }}');
+      if (!input || !grid) return;
+      var empty = grid.parentNode.querySelector('.af-ingredients__empty');
+      input.addEventListener('input', function () {
+        var q = input.value.trim().toLowerCase();
+        var shown = 0;
+        document.querySelectorAll('.af-ingredient').forEach(function (card) {
+          var match = !q || card.getAttribute('data-name').indexOf(q) !== -1;
+          card.hidden = !match;
+          if (match) shown++;
+        });
+        if (empty) empty.hidden = shown !== 0;
+      });
+    })();
+  </script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "AF · Ingredient grid",
+  "tag": "div",
+  "class": "af-section",
+  "max_blocks": 50,
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Ingredients" },
+    { "type": "checkbox", "id": "show_search", "label": "Show search box", "default": true },
+    {
+      "type": "select", "id": "scheme", "label": "Color style", "default": "white",
+      "options": [
+        { "value": "white", "label": "White" },
+        { "value": "cream", "label": "Cream" }
+      ]
+    },
+    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 80 },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 80 }
+  ],
+  "blocks": [
+    {
+      "type": "ingredient",
+      "name": "Ingredient",
+      "settings": [
+        { "type": "text", "id": "name", "label": "Name", "default": "Ingredient" },
+        { "type": "text", "id": "note", "label": "Note (e.g. form or source)" },
+        { "type": "image_picker", "id": "image", "label": "Image" },
+        { "type": "url", "id": "link", "label": "Link" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "AF · Ingredient grid" }]
+}
+{% endschema %}

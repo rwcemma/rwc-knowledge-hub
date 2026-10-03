@@ -1,0 +1,71 @@
+{%- comment -%}
+  Aegis refresh: team / founders. Intro copy + portrait cards (photo, name, role).
+{%- endcomment -%}
+{{ 'af-refresh.css' | asset_url | stylesheet_tag }}
+
+<section
+  class="af-team af-scheme--{{ section.settings.scheme }}"
+  style="--af-pt: {{ section.settings.padding_top }}px; --af-pb: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="af-container">
+    <div class="af-section-head">
+      {%- if section.settings.eyebrow != blank -%}<p class="af-eyebrow">{{ section.settings.eyebrow }}</p>{%- endif -%}
+      {%- if section.settings.heading != blank -%}<h2 class="af-h2">{{ section.settings.heading }}</h2>{%- endif -%}
+      {%- if section.settings.text != blank -%}<div class="af-lead">{{ section.settings.text }}</div>{%- endif -%}
+    </div>
+    <ul class="af-team__grid af-team__grid--{{ section.blocks.size }}" role="list">
+      {%- for block in section.blocks -%}
+        <li class="af-member" {{ block.shopify_attributes }}>
+          <div class="af-member__photo">
+            {%- if block.settings.image != blank -%}
+              {{ block.settings.image | image_url: width: 900 | image_tag: loading: 'lazy', sizes: '(min-width: 990px) 33vw, 90vw', widths: '400, 600, 900', alt: block.settings.name }}
+            {%- else -%}
+              {{ 'image' | placeholder_svg_tag: 'af-placeholder' }}
+            {%- endif -%}
+          </div>
+          <p class="af-member__name">{{ block.settings.name }}</p>
+          {%- if block.settings.role != blank -%}<p class="af-member__role">{{ block.settings.role }}</p>{%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+    {%- if section.settings.quote != blank -%}
+      <p class="af-team__quote">{{ section.settings.quote }}</p>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "AF · Team",
+  "tag": "div",
+  "class": "af-section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Meet the team" },
+    { "type": "richtext", "id": "text", "label": "Text" },
+    { "type": "text", "id": "quote", "label": "Closing line" },
+    {
+      "type": "select", "id": "scheme", "label": "Color style", "default": "white",
+      "options": [
+        { "value": "white", "label": "White" },
+        { "value": "cream", "label": "Cream" }
+      ]
+    },
+    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 }
+  ],
+  "blocks": [
+    {
+      "type": "member",
+      "name": "Team member",
+      "limit": 8,
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Photo" },
+        { "type": "text", "id": "name", "label": "Name", "default": "Name" },
+        { "type": "text", "id": "role", "label": "Role" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "AF · Team" }]
+}
+{% endschema %}

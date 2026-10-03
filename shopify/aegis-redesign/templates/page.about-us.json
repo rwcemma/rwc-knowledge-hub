@@ -1,0 +1,165 @@
+{
+  "sections": {
+    "hero": {
+      "type": "af-hero",
+      "settings": {
+        "eyebrow": "About Aegis Formulas",
+        "heading": "From Our Struggles to Your Solutions",
+        "text": "<p>Tired of supplements that promise big results and leave you feeling the same? Confused by the contradictory health information splattered all over the internet? Not sure where to turn anymore for <em>truth, quality products, and visible results</em>? Yes. We’ve been there too. That’s why we created Aegis Formulas.</p><p>When it comes to your health, your journey is unique. Life is short and your vitality too important to entertain empty promises. That’s why we’re dedicated to providing you with knowledge and education first – and highly effective, Dr. formulated supplements, second.</p>",
+        "image": "shopify://shop_images/Knowledge_is_Power.jpg",
+        "button_label": "Shop our formulas",
+        "button_link": "shopify://collections/products",
+        "button_label_2": "Our science",
+        "button_link_2": "shopify://pages/technology",
+        "scheme": "cream",
+        "padding_top": 88,
+        "padding_bottom": 96
+      }
+    },
+    "values": {
+      "type": "af-features",
+      "blocks": {
+        "v1": {
+          "type": "feature",
+          "settings": {
+            "title": "Knowledge is Power",
+            "text": "<p>We believe in providing you with health education far beyond supplements. Our mission is to equip you with as much knowledge as possible, so that you can feel empowered with every decision you make for your well-being.</p>"
+          }
+        },
+        "v2": {
+          "type": "feature",
+          "settings": {
+            "title": "Honesty and Transparency",
+            "text": "<p>The supplement world can be confusing and difficult to navigate – and you deserve to know exactly what’s in your supplements. We’ll always tell you the truth about our products, their benefits, be transparent in our labeling, and thoroughly explain why we use each ingredient.</p>"
+          }
+        },
+        "v3": {
+          "type": "feature",
+          "settings": {
+            "title": "Ingredients You Can Trust",
+            "text": "<p>We formulate our supplements with your end result in mind. When it comes to our products, we believe in going against the norm – and to walk before we run. This means we do not cut corners and won’t bring a product to you that we wouldn’t take ourselves or give to the ones we love. If the ingredients don’t meet our standards, we go back to the drawing board. Compromising on quality is never an option.</p>"
+          }
+        },
+        "v4": {
+          "type": "feature",
+          "settings": {
+            "title": "Superior Bioavailability for Maximum Results",
+            "text": "<p>Our products are Dr. formulated using nano-liposomal technology. This method is scientifically supported to protect nutrients and allow them to bypass digestion – which significantly improves their delivery into the cells. This means you’ll feel the difference in your health, sooner.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "v1",
+        "v2",
+        "v3",
+        "v4"
+      ],
+      "settings": {
+        "eyebrow": "What we stand for",
+        "heading": "Our promise to you",
+        "text": "",
+        "button_label": "",
+        "button_link": "",
+        "scheme": "navy",
+        "padding_top": 104,
+        "padding_bottom": 104
+      }
+    },
+    "different": {
+      "type": "af-story",
+      "settings": {
+        "image": "shopify://shop_images/Superior_Bioavailabilty...jpg",
+        "image_right": true,
+        "image_fit": "cover",
+        "eyebrow": "Why Aegis",
+        "heading": "What Makes Our Formulas Different?",
+        "text": "<p>The key to actually feeling the results from your supplements comes down to absorption. In order to create highly bioavailable formulas, we use cutting-edge technologies and proven delivery and absorption methods, such as nanoliposomal technology.</p><p>Our promise to you is to never cut corners. From start to finish, we’re focused on quality and transparency – which means we’ll never bring a product to you that we wouldn’t take ourselves. Our products go through extensive testing to ensure our ingredients are pure, and we’ll share those results with you anytime you ask.</p>",
+        "quote": "Our mission is to bring you highly effective products that offer the building blocks to not just live, but thrive – mentally, emotionally, and physically.",
+        "quote_author": "",
+        "button_label": "How we maximize absorption",
+        "button_link": "shopify://pages/technology",
+        "button_label_2": "Ingredient index",
+        "button_link_2": "shopify://pages/ingredients-index",
+        "scheme": "white",
+        "padding_top": 104,
+        "padding_bottom": 104
+      }
+    },
+    "story2": {
+      "type": "af-story",
+      "settings": {
+        "image": "shopify://shop_images/Ingredients_You_Can_Trust.jpg",
+        "image_right": false,
+        "image_fit": "cover",
+        "eyebrow": "Our story",
+        "heading": "A new standard in supplementation",
+        "text": "<p>Our founders have over 20 years of combined experience in the natural health and supplement industries. Throughout each of our journeys, we saw a widespread problem: High cost, low- quality products that made big promises and delivered insignificant results.</p><p>This is where we set out to create a new standard in supplementation – calling for more individualized support, education around ingredients and dosing, clear and transparent labeling, thoughtfully sourced ingredients, and scientifically proven delivery and absorption methods.</p>",
+        "quote": "",
+        "quote_author": "",
+        "button_label": "",
+        "button_link": "",
+        "button_label_2": "",
+        "button_link_2": "",
+        "scheme": "cream",
+        "padding_top": 104,
+        "padding_bottom": 104
+      }
+    },
+    "team": {
+      "type": "af-team",
+      "blocks": {
+        "t1": {
+          "type": "member",
+          "settings": {
+            "image": "shopify://shop_images/050_1.1_Jessica_Peatross.jpg",
+            "name": "Dr. Jessica Peatross",
+            "role": "Co-Founder · Formulator"
+          }
+        },
+        "t2": {
+          "type": "member",
+          "settings": {
+            "image": "shopify://shop_images/064_1.1_Chandra_Bennett_5.jpg",
+            "name": "Chandra Bennett",
+            "role": "Co-Founder"
+          }
+        }
+      },
+      "block_order": [
+        "t1",
+        "t2"
+      ],
+      "settings": {
+        "eyebrow": "The people behind Aegis",
+        "heading": "Meet The Team",
+        "text": "",
+        "quote": "The way your products should always be.",
+        "scheme": "white",
+        "padding_top": 104,
+        "padding_bottom": 72
+      }
+    },
+    "cta": {
+      "type": "af-cta-band",
+      "settings": {
+        "heading": "Ready to feel the difference?",
+        "text": "<p>Explore our doctor-formulated supplements, or learn more about the science behind them.</p>",
+        "button_label": "Explore Our Products",
+        "button_link": "shopify://collections/products",
+        "button_label_2": "Nutrient delivery methods",
+        "button_link_2": "shopify://pages/technology",
+        "scheme": "white",
+        "padding_top": 24,
+        "padding_bottom": 96
+      }
+    }
+  },
+  "order": [
+    "hero",
+    "different",
+    "values",
+    "story2",
+    "team",
+    "cta"
+  ]
+}
