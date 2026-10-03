@@ -140,10 +140,16 @@ button.shopify-payment-button__button--unbranded {
 .card-wrapper .price { color: var(--af-ink); font-weight: 600; font-size: 1.6rem; letter-spacing: 0; }
 .card__badge .badge { border-radius: 999px; background: var(--af-gold); color: var(--af-white); border: 0; font-weight: 600; }
 
-/* Collection page grid gap */
-.collection .product-grid { row-gap: 2.4rem; column-gap: 2.4rem; }
+/* Product grid spacing: set Dawn's own spacing variables (item widths are computed
+   from them), never raw gap, or the last column wraps and leaves an empty slot. */
+.product-grid,
+.collection .grid {
+  --grid-desktop-horizontal-spacing: 24px;
+  --grid-desktop-vertical-spacing: 24px;
+  --grid-mobile-horizontal-spacing: 12px;
+  --grid-mobile-vertical-spacing: 12px;
+}
 @media (max-width: 749px) {
-  .collection .product-grid { row-gap: 1.2rem; column-gap: 1.2rem; }
   .card-wrapper .card__heading { font-size: 1.6rem; }
 }
 .facets-container { border-bottom: 1px solid var(--af-line); padding-bottom: 1.2rem; }
