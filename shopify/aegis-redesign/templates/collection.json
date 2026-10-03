@@ -1,0 +1,105 @@
+{
+  "sections": {
+    "banner": {
+      "type": "main-collection-banner",
+      "settings": {
+        "show_collection_description": true,
+        "show_collection_image": false,
+        "color_scheme": "background-1"
+      }
+    },
+    "product-grid": {
+      "type": "main-collection-product-grid",
+      "settings": {
+        "products_per_page": 16,
+        "columns_desktop": 4,
+        "color_scheme": "",
+        "image_ratio": "square",
+        "image_shape": "default",
+        "show_secondary_image": true,
+        "show_vendor": false,
+        "show_rating": true,
+        "enable_quick_add": false,
+        "enable_filtering": true,
+        "filter_type": "horizontal",
+        "enable_sorting": true,
+        "columns_mobile": "2",
+        "padding_top": 40,
+        "padding_bottom": 64
+      }
+    },
+    "trust": {
+      "type": "af-trust-bar",
+      "blocks": {
+        "b1": {
+          "type": "badge",
+          "settings": {
+            "icon": "doctor",
+            "title": "Doctor-formulated",
+            "subtitle": "By Dr. Jessica Peatross"
+          }
+        },
+        "b2": {
+          "type": "badge",
+          "settings": {
+            "icon": "absorb",
+            "title": "Superior absorption",
+            "subtitle": "Nanoliposomal technology"
+          }
+        },
+        "b3": {
+          "type": "badge",
+          "settings": {
+            "icon": "leaf",
+            "title": "Clean ingredients",
+            "subtitle": "Only what's necessary"
+          }
+        },
+        "b4": {
+          "type": "badge",
+          "settings": {
+            "icon": "shield",
+            "title": "Quality first",
+            "subtitle": "Transparency, always"
+          }
+        }
+      },
+      "block_order": [
+        "b1",
+        "b2",
+        "b3",
+        "b4"
+      ],
+      "settings": {
+        "scheme": "cream"
+      }
+    },
+    "17683395278c669f4a": {
+      "type": "apps",
+      "settings": {
+        "include_margins": true
+      }
+    },
+    "cta": {
+      "type": "af-cta-band",
+      "settings": {
+        "heading": "Not sure where to start?",
+        "text": "<p>Learn how our nanoliposomal technology helps every formula absorb better.</p>",
+        "button_label": "Explore our technology",
+        "button_link": "shopify://pages/technology",
+        "button_label_2": "",
+        "button_link_2": "",
+        "scheme": "white",
+        "padding_top": 64,
+        "padding_bottom": 96
+      }
+    }
+  },
+  "order": [
+    "banner",
+    "product-grid",
+    "trust",
+    "17683395278c669f4a",
+    "cta"
+  ]
+}

@@ -1,0 +1,250 @@
+{
+  "sections": {
+    "hero": {
+      "type": "af-hero",
+      "blocks": {
+        "p1": {
+          "type": "point",
+          "settings": {
+            "text": "Formulated by Dr. Jessica Peatross"
+          }
+        },
+        "p2": {
+          "type": "point",
+          "settings": {
+            "text": "Superior absorption"
+          }
+        },
+        "p3": {
+          "type": "point",
+          "settings": {
+            "text": "Lasting results"
+          }
+        }
+      },
+      "block_order": [
+        "p1",
+        "p2",
+        "p3"
+      ],
+      "settings": {
+        "eyebrow": "Doctor-formulated supplements",
+        "heading": "Well-being, elevated.",
+        "text": "<p>Supplements made for real absorption, with no compromises on quality, so you can feel the difference.</p>",
+        "image": "shopify://shop_images/AF_Homepage_Thumbnail3.jpg",
+        "button_label": "Shop all products",
+        "button_link": "shopify://collections/products",
+        "button_label_2": "Our technology",
+        "button_link_2": "shopify://pages/technology",
+        "scheme": "cream",
+        "padding_top": 80,
+        "padding_bottom": 96
+      }
+    },
+    "trust": {
+      "type": "af-trust-bar",
+      "blocks": {
+        "b1": {
+          "type": "badge",
+          "settings": {
+            "icon": "doctor",
+            "title": "Doctor-formulated",
+            "subtitle": "By Dr. Jessica Peatross"
+          }
+        },
+        "b2": {
+          "type": "badge",
+          "settings": {
+            "icon": "absorb",
+            "title": "Superior absorption",
+            "subtitle": "Nanoliposomal technology"
+          }
+        },
+        "b3": {
+          "type": "badge",
+          "settings": {
+            "icon": "leaf",
+            "title": "Clean ingredients",
+            "subtitle": "Only what's necessary"
+          }
+        },
+        "b4": {
+          "type": "badge",
+          "settings": {
+            "icon": "shield",
+            "title": "Quality first",
+            "subtitle": "Transparency, always"
+          }
+        }
+      },
+      "block_order": [
+        "b1",
+        "b2",
+        "b3",
+        "b4"
+      ],
+      "settings": {
+        "scheme": "white"
+      }
+    },
+    "bestsellers": {
+      "type": "af-product-grid",
+      "settings": {
+        "eyebrow": "Shop",
+        "heading": "Our most popular formulas",
+        "text": "<p>Targeted support for detox, liver and gallbladder health, hormones, stress, and energy.</p>",
+        "collection": "products",
+        "limit": 8,
+        "columns": 4,
+        "button_label": "View all products",
+        "button_link": "shopify://collections/products",
+        "scheme": "white",
+        "padding_top": 88,
+        "padding_bottom": 88
+      }
+    },
+    "science": {
+      "type": "af-features",
+      "blocks": {
+        "f1": {
+          "type": "feature",
+          "settings": {
+            "image": "shopify://shop_images/LIPOSOMAL_-_BLUE_W_TRANSPARENT_BACKGROUND.png",
+            "title": "Liposomal protection",
+            "text": "<p>A lipid nano-layer works like a protective bubble around each nutrient. It shields nutrients from stomach acid so they stay intact until they reach where they're needed.</p>"
+          }
+        },
+        "f2": {
+          "type": "feature",
+          "settings": {
+            "image": "shopify://shop_images/NANOTECHNOLOGY_-_BLUE_W__TRANSPARENT_BACKGROUND.png",
+            "title": "Nano-sized delivery",
+            "text": "<p>Particles smaller than one micron carry nutrients right where they're needed, including across the blood-brain barrier, so you get the most from every dose.</p>"
+          }
+        },
+        "f3": {
+          "type": "feature",
+          "settings": {
+            "image": "shopify://shop_images/ABSORPTION_-_BLUE_W__TRANSPARENT_BACKGROUND.png",
+            "title": "Maximum absorption",
+            "text": "<p>Higher bioavailability means more of each nutrient gets into your cells, so you can feel a positive difference sooner.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "f1",
+        "f2",
+        "f3"
+      ],
+      "settings": {
+        "eyebrow": "The science",
+        "heading": "Formulated to actually absorb",
+        "text": "<p>Most supplements get broken down before your body can use them. Our nanoliposomal technology is built to get past that.</p>",
+        "button_label": "Learn about our technology",
+        "button_link": "shopify://pages/technology",
+        "scheme": "navy",
+        "padding_top": 104,
+        "padding_bottom": 104
+      }
+    },
+    "story": {
+      "type": "af-story",
+      "settings": {
+        "image": "shopify://shop_images/047_1.1_Jessica_Peatross.jpg",
+        "image_right": false,
+        "eyebrow": "Meet the formulator",
+        "heading": "Wellness without compromise",
+        "text": "<p>Every Aegis formula is created by Dr. Jessica Peatross. Her own health challenges led her to functional medicine, and she knows how frustrating ineffective products can be.</p><p>Now she makes supplements with only what's <em>actually</em> necessary and what works, so you feel the difference.</p>",
+        "button_label": "Shop the collection",
+        "button_link": "shopify://collections/products",
+        "scheme": "white",
+        "padding_top": 104,
+        "padding_bottom": 88
+      }
+    },
+    "testimonial": {
+      "type": "af-testimonials",
+      "blocks": {
+        "t1": {
+          "type": "testimonial",
+          "settings": {
+            "headline": "After three days it kicked in… I am SUPERCHARGED!!",
+            "text": "<p>“This tastes amazing! …with this formulation I could take six other supplements that I’m currently taking [in pill form] …off my shelf. I feel amazing.”</p>",
+            "author": "Robby Besner",
+            "product": "CEO of Therasage · on NanoGlut+B"
+          }
+        }
+      },
+      "block_order": [
+        "t1"
+      ],
+      "settings": {
+        "eyebrow": "Real results",
+        "heading": "What people are saying",
+        "scheme": "cream",
+        "padding_top": 96,
+        "padding_bottom": 96
+      }
+    },
+    "video": {
+      "type": "video",
+      "settings": {
+        "heading": "",
+        "heading_size": "h1",
+        "enable_video_looping": false,
+        "video_url": "https://vimeo.com/1011020434",
+        "cover_image": "shopify://shop_images/AF_Homepage_Thumbnail3.jpg",
+        "description": "",
+        "full_width": false,
+        "color_scheme": "background-1",
+        "padding_top": 80,
+        "padding_bottom": 40
+      }
+    },
+    "apps": {
+      "type": "apps",
+      "settings": {
+        "include_margins": true
+      }
+    },
+    "cta": {
+      "type": "af-cta-band",
+      "settings": {
+        "heading": "Ready to feel the difference?",
+        "text": "<p>Start with the formula that fits your goals, or reach out to our team for help choosing.</p>",
+        "button_label": "Shop all products",
+        "button_link": "shopify://collections/products",
+        "button_label_2": "Explore our technology",
+        "button_link_2": "shopify://pages/technology",
+        "scheme": "white",
+        "padding_top": 48,
+        "padding_bottom": 48
+      }
+    },
+    "newsletter": {
+      "type": "custom-liquid",
+      "custom_css": [
+        ".ctct-inline-form {max-width: 770px; margin: auto; padding: 0 24px;}",
+        ".ctct-form-embed {background-color: #ffffff; text-align: center; padding: 32px; border: 1px solid rgba(28,49,64,.12); border-radius: 20px;}"
+      ],
+      "settings": {
+        "custom_liquid": "<!-- Begin Constant Contact Active Forms -->\n<script> var _ctct_m = \"edf970c3fe7df7dd2c70d387ce880ae7\"; </script>\n<script id=\"signupScript\" src=\"//static.ctctcdn.com/js/signup-form-widget/current/signup-form-widget.min.js\" async defer></script>\n<!-- End Constant Contact Active Forms -->\n<!-- Begin Constant Contact Inline Form Code -->\n<div class=\"ctct-inline-form\" data-form-id=\"72601f44-93fc-466a-a4b6-32b036467baf\"></div>\n<!-- End Constant Contact Inline Form Code -->",
+        "color_scheme": "background-1",
+        "padding_top": 0,
+        "padding_bottom": 96
+      }
+    }
+  },
+  "order": [
+    "hero",
+    "trust",
+    "bestsellers",
+    "science",
+    "story",
+    "testimonial",
+    "video",
+    "apps",
+    "cta",
+    "newsletter"
+  ]
+}
