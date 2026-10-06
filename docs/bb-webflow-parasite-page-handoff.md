@@ -1845,3 +1845,70 @@ follows rather than one list.
 | `docs/bb-store-embed-markup.html` | v20 → **v21** |
 | `docs/bb-hero-collage.html` | v14 → **v15** |
 | `docs/assets/bb-flashsale-hero-oct2026.webp` | new — source of the hero graphic |
+
+---
+
+## v37 — hero banner sizing, and where it lives now (2026-10-06)
+
+Emma: *"can you fix the sizing of the hero banner"*.
+
+### What was actually wrong with the sizing
+The graphic is 2000x1125 (16:9). At v15's `max-width: 860px` it rendered **484px
+tall** — taller than the H1, subhead and both buttons put together, and enough
+to push the CTAs off the first screen on a laptop. Two caps now apply together:
+
+| Cap | Effect |
+|---|---|
+| `max-width: 720px` | 405px tall at most, matching the rest of the hero |
+| `max-height: 44vh` | on a short window it scales down instead of eating the fold |
+
+| Viewport | Banner |
+|---|---|
+| 900px tall | 704 x 396 |
+| 800px tall | 626 x 352 |
+| 700px tall | 548 x 308 |
+
+`width:auto` + `max-width` + `max-height` keeps the aspect ratio, so the graphic
+is never cropped and never letterboxed. The radius and shadow sit on the **img**,
+not a wrapper — on a wrapper they would frame a box wider than the picture once
+the height cap bites.
+
+### The embed was gone
+Before changing anything, a read of the live page found the home page had been
+edited in the Designer (site published 22:54Z, ~2.5h after the v36 publish):
+
+- the hero embed holding the banner had been **deleted**
+- the hero eyebrow, H1, subhead and the wrapper around the CTA buttons were all
+  set to **hidden**
+- no Image element and no banner anywhere else on the page
+
+So there was no banner to resize. Emma confirmed both calls: **rebuild it from
+the script**, and **leave the hides as they are**.
+
+### The banner is now script-owned
+`ensureHero()` + `heroCss()` in the footer script build the banner, its styling
+and its sizing, and append it to the `.bb-hero` section. Consequences worth
+knowing:
+
+- **There is no element in the Designer tree to delete**, so this cannot be lost
+  the same way again.
+- It is **home page only** (`path === '/'`). The four landing pages are sale
+  pages too but have their own feature block and should not grow a second hero.
+- It is still tied to the sale flag — nothing is built once the sale ends, so a
+  dated graphic cannot be stranded on the page.
+- If a page still carries the old `#bb-collage` strip, it is hidden while the
+  banner is up rather than showing both.
+- To change the artwork, upload a new asset and change `HERO_IMG`.
+
+`swapHero()` from v36 is gone, replaced by `ensureHero()`.
+
+### Open, for Emma
+The home page currently has **no visible H1** — it is hidden along with the
+eyebrow and subhead. That costs SEO and screen-reader structure. Say the word
+and I will add one back, visible or visually-hidden.
+
+### Files
+| File | Change |
+|---|---|
+| `docs/bb-store-footer-code.html` | v36 → **v37** |
+| `docs/bb-hero-collage.html` | v15 → **v16**, and marked retired — no longer on the home page |

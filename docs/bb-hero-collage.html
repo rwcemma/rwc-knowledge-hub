@@ -1,4 +1,11 @@
-<!-- bb hero collage v15 - FALLBACK MARKUP + CSS ONLY.
+<!-- bb hero collage v16 - FALLBACK MARKUP + CSS ONLY.
+     !! NO LONGER ON THE HOME PAGE. This embed was deleted from the home page in
+     !! the Webflow Designer on 2026-10-06, which took the sale banner and its
+     !! styling with it. Emma's call: the banner is now built by the FOOTER
+     !! SCRIPT (ensureHero / heroCss in bb-store-footer-code.html), so there is
+     !! no element in the Designer tree to delete and it cannot be lost that way
+     !! again. The sizing lives there too. This file is kept as the record of
+     !! the product-strip hero in case it is ever wanted back.
      The site FOOTER custom code replaces the contents of #bbp-strip with live
      product images once Shopify responds. The static images below are what
      shows if the store is unreachable, so they are kept in step with the
@@ -29,11 +36,23 @@
        To change the artwork, upload a new asset and swap the src here; nothing
        in the footer script needs to know.
 
+     v16 (2026-10-06): fixed the sizing. The graphic is 2000x1125 (16:9), so at
+       the v15 max-width of 860px it rendered ~484px tall - taller than the H1,
+       subhead and buttons put together, and it pushed the CTAs off the first
+       screen on a laptop. Now:
+         - the container caps at 720px, matching #bb-collage below it, and
+         - the IMG carries max-height:44vh, so on a short viewport the graphic
+           scales down instead of eating the fold.
+       width:auto + max-width:100% + max-height means it always keeps its aspect
+       ratio - it is never cropped and never letterboxed. The radius and shadow
+       moved from the wrapper onto the img for the same reason: on the wrapper
+       they would frame a box wider than the picture once the height cap bites.
+
      Do NOT add a script tag or data-bb-* attributes here: Webflow can normalise
      bare data-* attributes on publish. -->
 <style>
-#bb-hero-sale{display:block;max-width:860px;margin:26px auto 0;border-radius:20px;overflow:hidden;line-height:0;box-shadow:0 10px 30px rgba(21,79,97,.22);}
-#bb-hero-sale img{width:100%;height:auto;display:block;}
+#bb-hero-sale{display:block;text-align:center;max-width:720px;margin:24px auto 0;line-height:0;}
+#bb-hero-sale img{display:inline-block;width:auto;height:auto;max-width:100%;max-height:44vh;border-radius:18px;box-shadow:0 10px 30px rgba(21,79,97,.22);}
 #bb-collage{position:relative;max-width:720px;margin:26px auto 0;background:rgba(255,255,255,.95);border-radius:20px;padding:22px 20px 18px;box-shadow:0 10px 30px rgba(21,79,97,.22);}
 #bbp-strip{display:flex;gap:8px;justify-content:center;align-items:flex-end;flex-wrap:wrap;}
 #bbp-strip .ci{width:120px;text-align:center;}
@@ -45,7 +64,8 @@
 #bb-collage .bb-off b{font-family:Montserrat,sans-serif;font-size:21px;font-weight:800;line-height:1;color:#fff;}
 #bb-collage .bb-off span{font-family:Montserrat,sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;line-height:1.2;color:#fff;}
 @media screen and (max-width:767px){
-  #bb-hero-sale{margin-top:20px;border-radius:14px;}
+  #bb-hero-sale{margin-top:18px;max-width:100%;}
+  #bb-hero-sale img{max-height:none;border-radius:12px;}
   #bb-collage{margin-top:20px;padding:18px 12px 14px;border-radius:16px;}
   #bbp-strip{gap:6px;}
   #bbp-strip .ci{width:30%;}
