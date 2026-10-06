@@ -1697,3 +1697,76 @@ structure, the same CSS and the same four-card grid:
 | `docs/bb-store-embed-markup.html` | v18 → **v19** |
 | `docs/bb-hero-collage.html` | v13 → **v14** |
 | `docs/bb-education-embed.html` | parasite lesson → root-cause lesson |
+
+---
+
+## v35 — code moved off products, and the date bug (2026-10-06)
+
+### The code sits at section level now, not product level
+
+Emma, looking at v34: *"rather than the code FLASHSALE being on every single
+product, can it just be at checkout and above each section rather than each
+product?"*
+
+She is right. 36 products meant 36 identical pink chips; the code stopped
+reading as information and started reading as wallpaper. v35 drops the two
+**per-product** surfaces and adds one **per-category** line.
+
+| Surface | v34 | v35 |
+|---|---|---|
+| `#bb-promo` site-wide bar | yes | yes |
+| `#bb-code-banner` above the chips | yes | yes |
+| `#bb-collage-code` hero chip | yes | yes |
+| `.bb-cat-code` under each category heading | — | **new** |
+| Every product card (`.bb-code` in `card()`) | yes | **removed** |
+| Product modal (`.bb-code` in `openModal()`) | yes | **removed** |
+| `#bb-cart-code` cart drawer | yes | yes |
+| `#bb-checkout-code` under Checkout | yes | yes |
+
+Nine category sections, so the code now appears nine times in the shop instead
+of thirty-six — once where a shopper is actually deciding what to browse.
+
+`codeHtml()` still exists but is called from **one place only**: `renderFeature()`,
+the four hidden landing pages. Those pages have no category sections, so without
+it their only mention of the code would be the promo bar. Do not reintroduce
+`codeHtml()` into `card()` or `openModal()` — that is exactly what was asked to
+be taken out. New styling: `.bb-cat-code` in the store embed, **v20**.
+
+### The date bug Emma caught
+
+Emma: *"also the code start october 7th not the 6th."*
+
+This was a real bug, not a typo. `saleDate()` called `toLocaleDateString()` with
+no `timeZone`, so it formatted against the **visitor's device clock**:
+
+```
+SALE_START = 2026-10-07T04:30:00Z
+  → Eastern:  October 7, 12:30am   ✓
+  → Central:  October 6, 11:30pm   ✗  "opens October 6"
+  → Mountain: October 6,  9:30pm   ✗
+  → Pacific:  October 6,  8:30pm   ✗
+```
+
+Every shopper outside Eastern was being told the sale opens **October 6**. The
+fix is a new `SALE_TZ = 'America/New_York'` passed to every `saleDate()` call, so
+all six surfaces read "October 7" and "October 14" for everyone, everywhere.
+There is a device-local fallback inside a nested try/catch for any browser that
+rejects the `timeZone` option, rather than printing an empty date.
+
+**What was deliberately NOT changed:** `windowState()` still compares real
+instants against Shopify's `startsAt`/`endsAt`. Only the words changed, never
+the window — the page can still never advertise a discount checkout will refuse.
+
+**One thing for Emma to decide.** The Shopify discount genuinely begins at
+04:30 UTC, which is 11:30pm **Central** on October 6. So for the last half hour
+of the 6th, a Central-time shopper can use the code while the page says it opens
+the 7th. Erring that way is the safe direction — the page under-promises — but if
+the sale is meant to start at midnight Central, the Shopify discount's `startsAt`
+needs to move to `2026-10-07T05:00:00Z`. That is a live pricing change, so it is
+Emma's to make; re-copy the new value into `SALE_START` afterwards.
+
+### Files
+| File | Change |
+|---|---|
+| `docs/bb-store-footer-code.html` | v34 → **v35** |
+| `docs/bb-store-embed-markup.html` | v19 → **v20** |

@@ -1,5 +1,5 @@
 <script>
-/* bb-store v34 - lives in SITE FOOTER custom code, not an embed.
+/* bb-store v35 - lives in SITE FOOTER custom code, not an embed.
    Embeds hold markup + CSS only. Failures are isolated so one missing
    element cannot take down the rest. ?bbdebug=1 paints its own panel.
 
@@ -144,13 +144,33 @@
   var SALE_ON = SALE_ENABLED && onSalePage();
   var STATE   = SALE_ON ? WINDOW : 'off';
 
+  // Every sale date renders in ONE timezone, never the visitor's.
+  // Emma, 2026-10-06: "the code starts october 7th not the 6th."
+  // She was right, and it was a real bug: toLocaleDateString without a timeZone
+  // formats against the DEVICE clock. SALE_START is 2026-10-07T04:30:00Z, which
+  // is 12:30am Eastern on October 7 but 11:30pm CENTRAL on October 6 - so every
+  // shopper in Central, Mountain or Pacific was being told the sale "opens
+  // October 6". Pinning the formatter to Eastern, the zone the Shopify discount
+  // was plainly set in, makes all of them read the same date: October 7.
+  // The sale WINDOW is untouched - windowState() still compares real instants
+  // against Shopify's startsAt/endsAt, so the page can never advertise a
+  // discount checkout will not honour. Only the words change.
+  var SALE_TZ = 'America/New_York';
+
   function saleDate(iso) {
     try {
-      return new Date(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
-    } catch (e) { return ''; }
+      return new Date(iso).toLocaleDateString('en-US',
+        { month: 'long', day: 'numeric', timeZone: SALE_TZ });
+    } catch (e) {
+      // Ancient browser with no timeZone support: fall back to device-local
+      // rather than printing nothing.
+      try {
+        return new Date(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+      } catch (e2) { return ''; }
+    }
   }
   var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
-  var VERSION = 'v34';
+  var VERSION = 'v35';
 
   // ?product=<shopify-handle> opens that product's modal on load. The storefront
   // is one page, so this is what a shareable product link means here. A Shopify
@@ -229,13 +249,29 @@
            '<span class="bb-now">$' + (full * (1 - SALE_PCT)).toFixed(2) + '</span>';
   }
 
-  // ---- The discount code, said everywhere ----
+  // ---- The discount code, said in the right places ----
   // Emma, 2026-10-06: the code must be "listed in many places that it has to be
-  // plugged in at checkout". So one sentence, one spelling, seven surfaces:
-  // the promo bar, the banner above the categories, every product card, the
-  // product modal, the hero-collage chip, the cart drawer and the line under
-  // the Checkout button. codeLine() is the single source of truth - change the
-  // wording here and it changes in all of them at once.
+  // plugged in at checkout". v34 put it on all seven surfaces including every
+  // product card and the product modal.
+  //
+  // Emma, same day, after seeing it: "rather than the code FLASHSALE being on
+  // every single product, can it just be at checkout and above each section
+  // rather than each product?" So v35 DROPS the two per-product surfaces (the
+  // card chip and the modal chip) and adds one line per CATEGORY HEADING. A
+  // shopper now meets the code at page level, once per section, and again on
+  // the way out - not 36 times.
+  //
+  // Six surfaces, in the order a shopper meets them:
+  //   1. #bb-promo          - the site-wide bar          (mountPromo)
+  //   2. #bb-code-banner    - above the category chips   (mountCodeBanner)
+  //   3. #bb-collage-code   - the hero chip              (fillCallouts)
+  //   4. .bb-cat-code       - under each category heading (renderShop)
+  //   5. #bb-cart-code      - the cart drawer            (renderCodeStatus)
+  //   6. #bb-checkout-code  - under the Checkout button  (ensureCheckoutNote)
+  //
+  // codeLine() is the single source of truth - change the wording here and it
+  // changes in all six at once. Do NOT reintroduce codeHtml() into card() or
+  // openModal(); that is the thing that was asked to be taken out.
   //
   // NOTE: the cart ALSO carries the code automatically (cartCreate attaches it,
   // and checkoutHref appends ?discount=). So for most shoppers it is already
@@ -249,9 +285,19 @@
       : 'Code <b>' + DISCOUNT + '</b> &middot; opens ' + saleDate(SALE_START);
   }
 
+  // The small pill. Only the four hidden landing pages use it now - those pages
+  // have no category sections, so without it their only mention of the code
+  // would be the promo bar. The shop grid deliberately does NOT call this.
   function codeHtml() {
     if (!SALE_ON || STATE === 'ended') { return ''; }
     return '<div class="bb-code">' + codeLine() + '</div>';
+  }
+
+  // One line per category, sitting under the section heading and blurb, so the
+  // code reads once per section instead of once per product.
+  function catCodeHtml() {
+    if (!SALE_ON || STATE === 'ended') { return ''; }
+    return '<div class="bb-cat-code">' + codeLine() + '</div>';
   }
 
   // The loud one: a full-width band directly above the category chips, so the
@@ -288,7 +334,6 @@
            '<img src="' + img + '" alt="' + esc(p.title) + '">' +
            '<div class="t">' + esc(p.title) + '</div>' +
            '<div class="pr">' + priceHtml(p, v) + '</div>' +
-           codeHtml() +
            '<div class="lm">Learn more</div>' +
            '<button data-bb-add="1">' + label + '</button></div>';
   }
@@ -334,6 +379,7 @@
                '<div class="bb-cat-head">' +
                  '<h3>' + esc(g.cat.name) + '</h3>' +
                  '<p>' + esc(g.cat.blurb) + '</p>' +
+                 catCodeHtml() +
                '</div>' +
                '<div class="bb-cat-grid">' +
                  g.items.map(function (p) { return card(p); }).join('') +
@@ -818,7 +864,6 @@
       '</div>' +
       '<div class="bb-m-info"><h3>' + esc(p.title) + '</h3>' +
         '<div class="bb-m-price">' + priceHtml(p, v) + '</div>' +
-        codeHtml() +
         '<div class="bb-m-desc">' + (p.descriptionHtml || '<p>No description available.</p>') + '</div>' +
         '<button data-bb-add="1">' + (v.availableForSale === false ? 'Sold out' : 'Add to Cart') + '</button>' +
       '</div>';

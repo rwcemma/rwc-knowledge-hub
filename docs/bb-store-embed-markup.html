@@ -1,4 +1,4 @@
-<!-- bb-store markup v19 - MARKUP + CSS ONLY.
+<!-- bb-store markup v20 - MARKUP + CSS ONLY.
      The JavaScript lives in SITE FOOTER custom code (Project Settings > Custom Code).
      Do NOT add a script here - embed script serialization proved unreliable.
 
@@ -19,6 +19,12 @@
      Both elements are CREATED BY THE FOOTER SCRIPT, not by this file - they are
      only emitted while a sale is running, so these rules sit idle the rest of
      the year. Leave them in place when a sale ends.
+
+     v20 (2026-10-06) added .bb-cat-code, the per-category code line. Emma asked
+     for the code "above each section rather than each product", so the footer
+     script stopped emitting the .bb-code pill inside product cards and now puts
+     one .bb-cat-code line under each category heading instead. The .bb-code
+     rules below STAY - the four hidden landing pages still use that pill.
 
      Do NOT add a script tag or data-bb-* attributes here: Webflow can normalise
      bare data-* attributes on publish. -->
@@ -61,6 +67,8 @@
 .bb-cat-head{text-align:center;margin-bottom:22px;}
 .bb-cat-head h3{font-size:24px;font-weight:800;color:#7c2a68;margin:0 0 4px;}
 .bb-cat-head p{font-size:13.5px;color:#6d7f88;margin:0;}
+.bb-cat-code{display:inline-block;margin:12px auto 0;font-size:13px;font-weight:600;line-height:1.4;color:#a01e60;background:#fff4f9;border:1px dashed #E5397F;border-radius:40px;padding:8px 18px;}
+.bb-cat-code b{font-weight:800;letter-spacing:.12em;}
 .bb-cat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:22px;}
 .bb-cat-top{display:block;text-align:center;margin-top:20px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9bb2b6;text-decoration:none;}
 .bb-cat-top:hover{color:#E5397F;}
@@ -160,5 +168,6 @@
   #bb-code-banner{gap:8px;padding:13px 14px;margin-bottom:18px;}
   #bb-code-banner .bb-cb-pct{font-size:17px;}
   #bb-code-banner .bb-cb-txt{font-size:13.5px;}
+  .bb-cat-code{font-size:11.5px;padding:7px 13px;margin-top:10px;}
 }
 </style>
