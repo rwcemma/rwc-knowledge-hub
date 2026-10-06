@@ -2020,3 +2020,53 @@ The disabled gradient layer in `background-image` was left intact, including its
 
 ### Files
 No script change — `.bb-hero` style only. The footer script stays at **v38**.
+
+---
+
+## v38b — the gap on the right (2026-10-06)
+
+Emma: *"fix the spacing issue on the right hand side."* The graphic was flush to
+the left edge with a band of empty white down the right.
+
+### Two causes, one visible symptom
+
+**1. `background-position` was silently not applying.** v38a wrote it as
+`/* 0px 0px, */ 50% 50%`, mirroring the disabled-gradient-layer syntax already in
+`background-image`. That round-trips through the API fine — reading the style
+back returned exactly that string — but it does **not** survive into the
+published CSS, so the property fell back to left-aligned. `background-size` and
+`background-repeat` were written the same way and were presumably getting the
+same treatment.
+
+**Lesson for this style:** do not use the `/* layer, */ value` comment syntax
+when writing background properties through the API. Write plain single-layer
+values. `background-image` is now a plain value too, which means **the disabled
+gradient layer is gone from the Designer** — it was only ever a switched-off
+layer, but if that gradient is wanted back it has to be re-added by hand.
+
+**2. `max-height: 78vh` was cutting the box shorter than its own aspect ratio.**
+When the cap bites, the section becomes wider than 16:9 and a `contain`
+background cannot fill it — hence empty space regardless of alignment. Raising
+the cap to `100vh` means that on essentially every real screen the aspect ratio
+governs and the graphic fills the section exactly.
+
+| Viewport | Hero box | Graphic | Gap each side |
+|---|---|---|---|
+| 1875x985 (the screenshot) | 1875x985 | 1751x985 | 62px |
+| 1920x1080 | 1920x1080 | 1920x1080 | **none** |
+| 1440x900 | 1440x810 | 1440x810 | **none** |
+| 1280x800 | 1280x720 | 1280x720 | **none** |
+| 2560x1440 | 2560x1440 | 2560x1440 | **none** |
+| 390x844 (phone) | 390x219 | 390x219 | **none** |
+
+Nothing is cropped at any size. On a short, wide window the cap can still bite
+and leave a small margin — but it is now *centred*, so it is symmetric rather
+than dumped on one side.
+
+### Also cleared
+The `tiny` breakpoint still carried `padding-bottom: 200px` from the old text
+hero, which would have added dead space under the banner on the smallest
+screens. Removed.
+
+### Files
+No script change — `.bb-hero` style only. The footer script stays at **v38**.
