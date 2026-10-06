@@ -1912,3 +1912,50 @@ and I will add one back, visible or visually-hidden.
 |---|---|
 | `docs/bb-store-footer-code.html` | v36 → **v37** |
 | `docs/bb-hero-collage.html` | v15 → **v16**, and marked retired — no longer on the home page |
+
+---
+
+## v38 — one hero graphic, not two (2026-10-06)
+
+Emma: *"there should only be 1 image of her. remove the one on the top."*
+
+### What had happened
+The sale graphic ended up on the page **twice**, from two different places:
+
+| Source | What it looked like |
+|---|---|
+| `.bb-hero` `background-image: @img_6ac55845500f8d19ec9cadba`, `background-size: cover` — set in the **Designer** | full-bleed behind everything |
+| `#bb-hero-sale`, built by **v37's `ensureHero()`** | framed card on top of it |
+
+v37 added the script version precisely *because* the embed had been deleted —
+but the asset had already been re-applied as the section background, which the
+element tree does not show. Checking the element tree alone was not enough; the
+style had to be read too. The `.bb-hero` style was queried this time before
+touching anything, which is what identified the duplicate.
+
+### The fix
+`ensureHero()`, `heroCss()` and `HERO_IMG` are **deleted**. The hero is now
+entirely the Designer's background image, and the script builds nothing there.
+A prominent comment block sits where the code was, explaining the v36 → v37 →
+v38 flip-flop, so a future change does not re-add a third copy. **Check the
+`.bb-hero` style before putting any hero element back.**
+
+### Open, for Emma — two things
+1. **The background image will not clear itself.** Everything else dated on this
+   site is behind `SALE_ENABLED` and disappears the moment the sale ends. A
+   background-image set in the Designer is not. On October 14 someone has to
+   remove it by hand, or the storefront keeps advertising a finished sale. If
+   that is a problem, the script can override it when the sale ends — say the
+   word.
+2. **`background-size: cover` crops it.** The hero is tall (200px top padding,
+   400px bottom), and the graphic is 16:9, so `cover` scales it to fill and
+   chops the rest: the "UP TO 20% OFF" badge is clipped at the top and one of
+   the "SALE" lines runs off the bottom. `contain` would show the whole design
+   but leaves bars; reducing the hero padding is the other way. Her call.
+
+Also still open from v37: the home page has **no visible H1**.
+
+### Files
+| File | Change |
+|---|---|
+| `docs/bb-store-footer-code.html` | v37 → **v38** |

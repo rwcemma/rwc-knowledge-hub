@@ -1,5 +1,5 @@
 <script>
-/* bb-store v37 - lives in SITE FOOTER custom code, not an embed.
+/* bb-store v38 - lives in SITE FOOTER custom code, not an embed.
    Embeds hold markup + CSS only. Failures are isolated so one missing
    element cannot take down the rest. ?bbdebug=1 paints its own panel.
 
@@ -194,7 +194,7 @@
     return am + ' ' + ad + '-' + (am === bm ? '' : bm + ' ') + ord(Number(bd));
   }
   var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
-  var VERSION = 'v37';
+  var VERSION = 'v38';
 
   // ?product=<shopify-handle> opens that product's modal on load. The storefront
   // is one page, so this is what a shareable product link means here. A Shopify
@@ -288,7 +288,9 @@
   // Six surfaces, in the order a shopper meets them:
   //   1. #bb-promo          - the site-wide bar          (mountPromo)
   //   2. #bb-code-banner    - above the category chips   (mountCodeBanner)
-  //   3. the hero           - Emma's sale graphic itself (ensureHero)
+  //   3. the hero           - Emma's sale graphic, set as the .bb-hero
+  //                           background-image in the Designer, not by this
+  //                           script. See the hero note further down.
   //   4. .bb-cat-code       - under each category heading (renderShop)
   //   5. #bb-cart-code      - the cart drawer            (renderCodeStatus)
   //   6. #bb-checkout-code  - under the Checkout button  (ensureCheckoutNote)
@@ -650,79 +652,29 @@
     document.head.appendChild(css);
   });
 
-  // ---- The hero sale banner ----
-  // Emma supplied a designed sale graphic for the hero on 2026-10-06. v36 put it
-  // in the hero EMBED. That embed was then deleted from the home page in the
-  // Designer, which took the banner and its styling with it.
+  // ---- The hero sale banner: NOT built here. Read this before adding it back. ----
+  // History, because this flipped twice in one day and a third flip would put
+  // two copies of the graphic on the page again:
+  //   v36 - the banner lived in the hero EMBED.
+  //   (Emma then deleted that embed in the Designer and set the SAME asset as
+  //    the .bb-hero section's background-image instead - asset
+  //    6ac55845500f8d19ec9cadba, background-size:cover.)
+  //   v37 - not knowing about the background, this script rebuilt the banner as
+  //         #bb-hero-sale and mounted it into .bb-hero. That produced TWO of
+  //         the graphic: hers full-bleed behind, this one framed on top.
+  //   v38 - Emma, 2026-10-06: "there should only be 1 image of her. remove the
+  //         one on the top." The one on top was this script's. So the hero is
+  //         now entirely the Designer's background-image and this script builds
+  //         nothing there. ensureHero(), heroCss() and HERO_IMG are gone.
   //
-  // Emma's call, 2026-10-06: rebuild it HERE instead, so there is no element in
-  // the Designer tree to delete and the banner cannot be lost that way again.
-  // This function owns the markup, the styling and the sizing.
+  // DO NOT re-add a hero element here while .bb-hero still carries that
+  // background-image, or the duplicate comes straight back. Check the style
+  // first.
   //
-  // SIZING - this is the thing that was wrong. The graphic is 2000x1125 (16:9),
-  // so the v15 embed's 860px max-width rendered it ~484px tall: taller than the
-  // H1, subhead and buttons put together, and enough to push the CTAs off the
-  // first screen on a laptop. Two caps now apply together:
-  //   max-width 720px  -> 405px tall at most, matching the rest of the hero
-  //   max-height 44vh  -> on a short window it scales down instead of eating
-  //                       the fold (700px tall window -> a 308px banner)
-  // width:auto + max-width + max-height keeps the aspect ratio, so the graphic
-  // is never cropped and never letterboxed. The radius and shadow sit on the
-  // IMG, not a wrapper, or they would frame a box wider than the picture once
-  // the height cap bites.
-  //
-  // It is still tied to the sale flag: nothing is built once the sale ends, so
-  // a dated graphic cannot be left stranded on the page.
-  var HERO_IMG = 'https://cdn.prod.website-files.com/6a7635942dbaea8e6172ec21/' +
-                 '6ac55845500f8d19ec9cadba_bb-flashsale-hero-oct2026.webp';
-
-  function heroCss() {
-    if ($('bb-hero-css')) { return; }
-    var css = document.createElement('style');
-    css.id = 'bb-hero-css';
-    css.textContent =
-      '#bb-hero-sale{display:block;text-align:center;max-width:720px;' +
-      'margin:0 auto;padding:0 20px;line-height:0;}' +
-      '#bb-hero-sale img{display:inline-block;width:auto;height:auto;' +
-      'max-width:100%;max-height:44vh;border-radius:18px;' +
-      'box-shadow:0 10px 30px rgba(21,79,97,.22);}' +
-      '@media screen and (max-width:767px){#bb-hero-sale{max-width:100%;padding:0 14px;}' +
-      '#bb-hero-sale img{max-height:none;border-radius:12px;}}';
-    document.head.appendChild(css);
-  }
-
-  // Home page only. The four landing pages are sale pages too, but they have
-  // their own feature block and should not grow a second hero.
-  function ensureHero() {
-    var show = SALE_ENABLED && STATE !== 'off' && STATE !== 'ended';
-    var strip = $('bb-collage');
-    // A page that still carries the old collage embed hides it while the
-    // banner is up, rather than showing both.
-    if (strip) { strip.style.display = show ? 'none' : ''; }
-
-    var existing = $('bb-hero-sale');
-    if (!show) { if (existing) { existing.style.display = 'none'; } return; }
-    if (existing) { existing.style.display = ''; return; }
-
-    var path = (window.location.pathname || '/').toLowerCase().replace(/\/+$/, '') || '/';
-    if (path !== '/') { return; }
-    var host = document.querySelector('.bb-hero');
-    if (!host) { dbg('no .bb-hero section to mount the banner in'); return; }
-
-    heroCss();
-    var a = document.createElement('a');
-    a.id = 'bb-hero-sale';
-    a.href = '#bb-shop';
-    var img = document.createElement('img');
-    img.src = HERO_IMG;
-    img.width = 2000;
-    img.height = 1125;
-    img.alt = 'Flash sale ' + saleRange() + ' — 20% off the CellCore collection ' +
-              'with code ' + DISCOUNT;
-    a.appendChild(img);
-    host.appendChild(a);
-    dbg('hero banner mounted');
-  }
+  // ONE CONSEQUENCE, flagged to Emma: a background-image set in the Designer is
+  // NOT tied to SALE_ENABLED. Every other dated thing on this site clears
+  // itself when the sale ends; that one will not, and someone has to remove it
+  // by hand on October 14 or the storefront keeps advertising a finished sale.
 
   function fillCallouts() {
     var off = $('bb-collage-off');
@@ -734,7 +686,6 @@
     a.innerHTML = codeLine();
   }
   safe('callouts', fillCallouts);
-  safe('hero banner', ensureHero);
   safe('code banner', mountCodeBanner);
   safe('checkout note', ensureCheckoutNote);
 
