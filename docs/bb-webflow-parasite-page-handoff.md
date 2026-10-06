@@ -1959,3 +1959,64 @@ Also still open from v37: the home page has **no visible H1**.
 | File | Change |
 |---|---|
 | `docs/bb-store-footer-code.html` | v37 → **v38** |
+
+---
+
+## v38a — the hero crop (2026-10-06)
+
+Emma: *"now the hero banner is so small it is only showing her forehead."*
+
+### Why removing the duplicate made the crop worse
+`.bb-hero` was `background-size: cover` on a full-width section whose height came
+only from its padding (200px top + 400px bottom = 600px). `cover` scales the
+image to fill the box and throws away the overflow, so the taller and narrower
+the box relative to 16:9, the more survives — and the shorter and wider, the
+less:
+
+| Viewport | Section height | Of the graphic's height, visible |
+|---|---|---|
+| 1900px wide | 1000px (v37, with the script element adding ~400px) | 94% |
+| 1900px wide | 600px (v38, element removed) | **56%** |
+| 1440px wide | 600px | 74% |
+| 1280px wide | 600px | 83% |
+
+So v37's banner element had been propping the section open. Removing it dropped
+the section to 600px, `cover` cropped harder, and on a wide screen you were left
+with a band across her forehead.
+
+### The fix — `.bb-hero` style, changed in the Designer
+| Property | Was | Now |
+|---|---|---|
+| `background-size` | `cover` | `contain` |
+| `background-repeat` | `repeat` | `no-repeat` |
+| `background-position` | `0px 0px` | `50% 50%` |
+| `padding-top` | `200px` | `0px` |
+| `padding-bottom` | `400px` | `0px` |
+| `aspect-ratio` | — | `2000 / 1125` |
+| `max-height` | — | `78vh` |
+
+`aspect-ratio` makes the section's own shape match the graphic, so `contain`
+fills it edge to edge with nothing cropped and nothing letterboxed. `max-height`
+stops it running past most of a screen on a wide monitor — when that cap bites,
+the section becomes wider than 16:9 and the graphic centres with symmetric
+margins rather than cropping.
+
+| Viewport | Banner | Visible | Side margin |
+|---|---|---|---|
+| 1900x900 | 1248x702 | 100% | 326px |
+| 1440x900 | 1248x702 | 100% | 96px |
+| 1280x800 | 1109x624 | 100% | 85px |
+| 390x844 (phone) | 390x219 | 100% | 0 |
+
+**This is a trade, and it is the only one available:** a 16:9 designed graphic in
+a wide, short section can be shown *whole* (margins at the sides on wide
+screens) or *edge to edge* (cropped). It cannot be both. Whole was chosen
+because the graphic carries the offer — "OCTOBER 7 - 14", "USE CODE FLASHSALE",
+the 20% badges — and cropping it loses the message. To go back to full-bleed,
+set `background-size` to `cover` and drop `aspect-ratio`/`max-height`.
+
+The disabled gradient layer in `background-image` was left intact, including its
+`/* ... */` comment syntax, so it still shows as a disabled layer in the Designer.
+
+### Files
+No script change — `.bb-hero` style only. The footer script stays at **v38**.
