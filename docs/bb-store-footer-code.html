@@ -1,109 +1,130 @@
 <script>
-/* bb-store v32 - lives in SITE FOOTER custom code, not an embed.
+/* bb-store v33 - lives in SITE FOOTER custom code, not an embed.
    Embeds hold markup + CSS only. Failures are isolated so one missing
-   element cannot take down the rest. ?bbdebug=1 paints its own panel. */
+   element cannot take down the rest. ?bbdebug=1 paints its own panel.
+
+   v33 is a REBUILD, not a patch. The storefront went from "every product in
+   the shared Shopify store, minus a hide-list" to "only CellCore, grouped into
+   named categories". That deleted more than it added: the brand filter, the
+   search toolbar, the sort control, the paged catalogue loader, isHidden(),
+   vendorOf() and the FEATURED/rest-of-store split are all gone, because the
+   shop is now a fixed, curated list of 36 handles that fits in one fetch. */
 (function () {
   var DOMAIN  = 'dr-jaban-moore-store.myshopify.com';
   var TOKEN   = 'TOKENPLACEHOLDER';
   var API     = 'https://' + DOMAIN + '/api/2026-07/graphql.json';
-  // TWO SEPARATE LISTS.
-  // FEATURED = what the #bb-store grid shows, in the order it renders.
-  // SALE     = what the page DISPLAYS as on sale: 20% sticker, struck-through
-  //            price, code chip.
+
+  // ---- The shop: CellCore only, grouped ----
+  // Emma, 2026-10-06: "I want to ONLY have cellcore products available", with
+  // categories from the "Cellcore Shop Categories" sheet.
   //
-  // !! KNOWN MISMATCH, DELIBERATE - DORMANT again while SALE_ENABLED is false.
-  // !! Nothing displays a sale price today, so the gap is harmless right now. It
-  // !! comes BACK the moment SALE_ENABLED is flipped on. It has now survived two
-  // !! on/off cycles unfixed - read this BEFORE the next sale, not after.
-  // !! Emma's call on 2026-08-31, made with the consequence stated.
-  // !! 'parasite-cleanse-starter-kit' is in SALE but the
-  // !! Shopify `parasite` discount does NOT cover it, so its card advertises
-  // !! $99.12 while checkout charges the full $123.90. Re-verified against
-  // !! codeDiscountNodeByCode on 2026-09-08, which still returned these eight
-  // !! and only these eight:
-  // !!   biotoxin-binder-cellcore, para-1-cellcore, para-2-cellcore,
-  // !!   para-3-cellcore, para-4, para-kit, drainage-jumpstart-duo,
-  // !!   parasite-cleanse-power-duo
-  // !! To close the gap, add the Starter Kit to that discount in Shopify. To
-  // !! back the display out instead, drop the handle from SALE below.
-  // !! Do NOT add any OTHER handle to SALE without checking the discount first.
-  var FEATURED = ['para-1-cellcore', 'para-2-cellcore', 'para-3-cellcore', 'para-4',
-                  'biotoxin-binder-cellcore', 'para-kit',
-                  'parasite-cleanse-starter-kit', 'parasite-cleanse-power-duo',
-                  'drainage-jumpstart-duo'];
-  var SALE     = ['para-1-cellcore', 'para-2-cellcore', 'para-3-cellcore', 'para-4',
-                  'biotoxin-binder-cellcore', 'para-kit',
-                  'parasite-cleanse-starter-kit',
-                  'drainage-jumpstart-duo', 'parasite-cleanse-power-duo'];
-  // Section 1 is a NON-shoppable collage: images only, one sticker on the panel
-  // itself (that sticker is static markup in the hero embed, not drawn here).
-  // Add-to-cart lives only in section 2, so the two sections no longer overlap.
-  var COLLAGE = ['para-1-cellcore', 'para-2-cellcore', 'para-3-cellcore', 'para-4',
-                 'biotoxin-binder-cellcore'];
-  // Fallback ids, same order as FEATURED. Verified via Admin API.
-  var IDS     = ['gid://shopify/Product/4573257007201',
-                 'gid://shopify/Product/4573257039969',
-                 'gid://shopify/Product/4573257105505',
-                 'gid://shopify/Product/6750255612001',
-                 'gid://shopify/Product/4573256581217',
-                 'gid://shopify/Product/6782540349537',
-                 'gid://shopify/Product/7540960133217',
-                 'gid://shopify/Product/7540964556897',
-                 'gid://shopify/Product/7540961771617'];
+  // This list IS the storefront. A product not named here does not appear
+  // anywhere, is not fetched, and cannot be linked to. There is no catalogue
+  // fallback any more - adding a product means adding its handle here.
+  //
+  // Every handle below was verified against the live Shopify store on
+  // 2026-10-06: vendor "Cellcore Biosciences", status ACTIVE, published to the
+  // "Biohacking Bombshell" channel. Do not add a handle without checking that,
+  // because a bad handle fails SILENTLY - the product simply never renders.
+  //
+  // A product may appear in more than one category on purpose (Advanced TUDCA
+  // is both Drainage and Gut; BioToxin Binder is both Binders and Gut). The
+  // fetch de-duplicates, so repeats cost nothing.
+  //
+  // NOT INCLUDED, and why - re-read this before "fixing" an omission:
+  //   - 21 other live CellCore products (Full Moon Para Kit, Jumpstart Kit,
+  //     Liver/Stomach/MYC/RAD/C.A. support kits, Optimize A & B, the Phase 1-5
+  //     bundles, Beginner Gallbladder Flush, CT-Minerals, ME Support).
+  //     Emma's call on 2026-10-06: leave them off the site. They are still in
+  //     the FLASHSALE discount, so a direct link would discount correctly - but
+  //     nothing on the site links to them.
+  //   - Biocidin LSF / Liquid / Capsules. In the sheet, but Biocidin brand, not
+  //     CellCore, so they contradict "only CellCore".
+  //   - Core Nutrients 60/120, D3+K2 Pro, TriMag Complex, Methyl-B Complex,
+  //     HydrOxygen, "Foundational Protocol", "Step 4: Systemic Detox". In the
+  //     sheet; do not exist in the Shopify store at all (searched 2026-10-06).
+  //   - Hormone Support Bundle (= "Hormone Jumpstart") and Daily Foundational
+  //     Detox Support. Exist but ARCHIVED, so unsellable until reactivated.
+  // That is why Foundation Support currently holds a single product.
+  var CATEGORIES = [
+    { key: 'detox', name: 'Full Spectrum Detox',
+      blurb: 'The staged protocol, start to finish.',
+      handles: ['phase-1-energy-drainage', 'phase-2-gut-immune-support',
+                'phase-3-whole-body-immune-support', 'phase-4-systemic-detox'] },
+    { key: 'bundles', name: 'Exclusive Bundles',
+      blurb: 'Paired formulas at a bundle price.',
+      handles: ['parasite-cleanse-power-duo', 'parasite-cleanse-starter-kit',
+                'candida-bundle', 'gut-cleanse-bundle', 'gut-reset-duo',
+                'drainage-jumpstart-duo'] },
+    { key: 'binders', name: 'Binders',
+      blurb: 'Bind what the cleanse stirs up.',
+      handles: ['biotoxin-binder-cellcore', 'hm-et-binder-cellcore',
+                'virradchem-binder-cellcore', 'carboxy-80-grams-new-size'] },
+    { key: 'drainage', name: 'Drainage Support',
+      blurb: 'Open the pathways before you detox.',
+      handles: ['drainage-activator', 'lymphatic-detox-cellcore',
+                'kidney-and-liver-detox-cellcore', 'bowel-mover', 'tudca-cellcore'] },
+    { key: 'gut', name: 'Gut Support',
+      blurb: 'Digestion, enzymes and the microbiome.',
+      handles: ['ct-zyme', 'ct-biotic', 'tudca-cellcore', 'biotoxin-binder-cellcore'] },
+    { key: 'anti', name: 'Anti-Microbials',
+      blurb: 'The parasite and pathogen formulas.',
+      handles: ['para-1-cellcore', 'para-2-cellcore', 'para-3-cellcore', 'para-4',
+                'is-bab', 'is-boost', 'is-bart-cellcore', 'is-borr-cellcore'] },
+    { key: 'inflam', name: 'Inflammatory Support',
+      blurb: 'Calm the immune and inflammatory load.',
+      handles: ['cardioimmune', 'cytoimmune', 'inflamma-control', 'gluco-optimizer',
+                'ct-zyme'] },
+    { key: 'hormone', name: 'Hormone Support',
+      blurb: 'Metabolic and hormonal balance.',
+      handles: ['s-tro', 'metabolic-activator'] },
+    { key: 'foundation', name: 'Foundation Support',
+      blurb: 'Daily cellular groundwork.',
+      handles: ['bc-atp'] }
+  ];
+
+  // Flat, de-duplicated handle list, in first-appearance order.
+  var ALL_HANDLES = (function () {
+    var seen = {}, out = [];
+    for (var i = 0; i < CATEGORIES.length; i++) {
+      var hs = CATEGORIES[i].handles;
+      for (var j = 0; j < hs.length; j++) {
+        if (!seen[hs[j]]) { seen[hs[j]] = 1; out.push(hs[j]); }
+      }
+    }
+    return out;
+  })();
+
   // ---- The sale ----
-  // SALE_ENABLED = is a discount actually running in Shopify. These five values
-  // MUST match the Shopify discount EXACTLY: the page only displays prices,
-  // Shopify is what charges the customer, so if they drift the page advertises
-  // a discount the checkout will not honour. Set SALE_ENABLED false to switch
-  // the whole thing off.
+  // SALE_ENABLED = is a discount actually running in Shopify. The page only
+  // DISPLAYS prices; Shopify is what charges the customer. If the two drift the
+  // page advertises a discount the checkout will not honour.
   //
-  // OFF as of 2026-09-10 (v31). The extended sale ran its course. Confirmed
-  // against Shopify before switching off:
-  //   codeDiscountNodeByCode(code:"parasite")
-  //     -> status EXPIRED, endsAt 2026-09-10T03:59:59Z
-  // so the code stopped working ~17 hours before this edit and the page is not
-  // withdrawing an offer that is still redeemable.
+  // FLASHSALE, October 2026. Every value below is copied VERBATIM from the live
+  // Shopify discount, read 2026-10-06 before this edit:
+  //   codeDiscountNodeByCode(code:"FLASHSALE")
+  //     -> status SCHEDULED, percentage 0.2,
+  //        startsAt 2026-10-07T04:30:00Z, endsAt 2026-10-14T16:37:00Z
+  // Do not round, tidy or "correct" these by hand. If the window should change,
+  // change it in SHOPIFY and re-copy.
   //
-  // THE ON/OFF DRILL. This flag has now been cycled off (v29), on (v30) and off
-  // again (v31), so it is worth stating plainly what each direction costs.
+  // !! endsAt is 12:37pm Eastern on October 14, NOT end of day - it looks like
+  // !! an artifact of the time the discount was created. Emma was told on
+  // !! 2026-10-06. If she extends it to end-of-day, re-copy the new endsAt here,
+  // !! or the page will keep selling for hours after the code stops working.
   //
-  //   TURNING OFF - this flag alone. It silences the promo bar, the worm
-  //   stickers, the struck-through prices, every code chip on cards / feature
-  //   blocks / modals, the hero-collage callout and the cart-drawer code line;
-  //   stops the code being attached to NEW carts; and strips it from a returning
-  //   shopper's SAVED cart on their next load (cartDiscountCodesUpdate, bottom of
-  //   this file). Two things it CANNOT reach, because they are authored into
-  //   Webflow rather than drawn here - reset them by hand every time:
-  //     - the home hero eyebrow embed 95c7e548... ("Parasite Cleanse Product
-  //       Sale" -> "Parasite Cleanse Protocols")
-  //     - the home hero CTA d110f857-...-f471 ("Shop the Sale" -> "Shop the
-  //       Formulas")
-  //   The hero-collage embed also carries a static 20% sticker and code chip
-  //   when the sale is on; they get removed with it and pasted back when it
-  //   returns. Its CSS stays put through both, so it is only ever two elements.
-  //
-  //   TURNING ON - re-read the Shopify discount FIRST and copy its endsAt into
-  //   SALE_END verbatim. Never pick a date here. The page only displays prices;
-  //   Shopify is what charges the customer, and a page advertising a discount
-  //   the checkout refuses is worse than no sale at all.
-  //
-  // Letting SALE_END simply lapse is NOT a substitute for this flag:
-  // windowState() reads the VISITOR'S device clock, so a shopper whose clock is
-  // wrong keeps seeing the whole sale. Only the flag is clock-independent.
-  //
-  // SALE_START / SALE_END below are the historical record and are inert while
-  // SALE_ENABLED is false.
-  var SALE_ENABLED = false;
-  var DISCOUNT     = 'PARASITE';
+  // COVERAGE: verified the discount covers all 58 live CellCore products,
+  // which includes all 36 in CATEGORIES. So for this storefront it is genuinely
+  // sitewide, and isSale() below can return true for everything. That is NOT a
+  // standing assumption - re-verify coverage before the next sale, because a
+  // partially-covering discount is what caused the v27 Starter Kit mismatch.
+  var SALE_ENABLED = true;
+  var DISCOUNT     = 'FLASHSALE';
   var SALE_PCT     = 0.20;
-  var SALE_START   = '2026-08-31T20:45:45Z';
-  var SALE_END     = '2026-09-10T03:59:59Z';
+  var SALE_START   = '2026-10-07T04:30:00Z';
+  var SALE_END     = '2026-10-14T16:37:00Z';
   var BADGE        = '20%';
 
-  // SALE_PAGES = which paths ADVERTISE the sale: promo bar, 20% stickers,
-  // struck-through pricing, code chips. Anywhere else stays quiet and shows full
-  // prices. The quiz landing pages are on the list too, so a shopper who arrives
-  // from the quiz sees the same offer as one who came via the home page.
   var SALE_PAGES = ['/', '/parasite-power-duo', '/full-moon-para-kit',
                     '/drainage-duo', '/parasite-starter-duo'];
 
@@ -112,13 +133,6 @@
     return SALE_PAGES.indexOf(path || '/') !== -1;
   }
 
-  // Two separate questions, deliberately:
-  //   WINDOW - is the code redeemable right now? Site-wide. Drives the CART.
-  //   STATE  - should THIS page talk about it? Drives every pixel.
-  // Every current page is in SALE_PAGES, so today the two agree. They stay
-  // separate because the cart must carry the discount to checkout from ANY page,
-  // including one later taken off the list - nobody should be charged more just
-  // because the page they landed on was quiet about the offer.
   function windowState() {
     if (!SALE_ENABLED) { return 'off'; }
     var now = new Date().getTime();
@@ -136,43 +150,20 @@
     } catch (e) { return ''; }
   }
   var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
-  var VERSION = 'v32';
+  var VERSION = 'v33';
 
-  // ---- Per-product deep links (v32) ----
-  // ?product=<shopify-handle> opens that product's detail modal on load.
-  //
-  // This storefront is ONE page. There are no per-product URLs and no Webflow
-  // page per product, so a "product link" has to mean something built here.
-  // A Shopify product URL is NOT a substitute: it lands the shopper on
-  // Dr. Jaban's Online Store, which loses the Biohacking Bombshell sales
-  // channel and the _bb_source / _bb_landing_page cart attributes, so the
-  // order stops being attributable to this storefront at all.
-  //
-  // Resolution is DEFERRED because byHandle fills in two stages: the nine
-  // FEATURED products land first, the rest of the catalogue pages in after.
-  // openDeepLink() is therefore called at both points and no-ops until the
-  // handle it wants exists. First match wins and clears the request, so the
-  // modal cannot be opened twice.
-  //
-  // An unknown or misspelled handle is deliberately silent: the page renders
-  // normally and the shopper sees the storefront, which is a better outcome
-  // than an error for a link that has been sitting in an Instagram bio for
-  // three months. ?bbdebug=1 reports what happened.
+  // ?product=<shopify-handle> opens that product's modal on load. The storefront
+  // is one page, so this is what a shareable product link means here. A Shopify
+  // product URL would send the shopper to Dr. Jaban's Online Store and lose the
+  // Biohacking Bombshell sales channel and the _bb_* cart attributes.
+  // v33 note: only the 36 curated handles resolve now. Links to the 21 products
+  // Emma took off the site fall through silently and show the normal shop.
   var wantProduct = (function () {
     var m = /[?&]product=([^&#]+)/.exec(window.location.search);
     if (!m) { return null; }
     try { return decodeURIComponent(m[1]).trim().toLowerCase(); }
     catch (e) { return null; }
   })();
-
-  function openDeepLink() {
-    if (!wantProduct) { return; }
-    if (!byHandle[wantProduct]) { return; }
-    var h = wantProduct;
-    wantProduct = null;
-    dbg('deep link opening ' + h);
-    openModalByHandle(h);
-  }
 
   var byHandle = {};
   var cartId = null;
@@ -182,7 +173,6 @@
   function esc(s) { return String(s).split('&').join('&amp;').split('<').join('&lt;'); }
   function money(m) { return '$' + Number(m.amount).toFixed(2); }
 
-  // Self-contained diagnostics: does not depend on any page element existing.
   function dbg(msg) {
     if (!DEBUG) { return; }
     if (window.console) { console.log('[bb-store] ' + msg); }
@@ -206,9 +196,9 @@
   dbg('script executing');
 
   function report(headline, detail) {
-    var grid = $('bb-store');
-    if (grid) {
-      grid.innerHTML = '<div class="bb-empty"><strong>' + esc(headline) + '</strong>' +
+    var host = $('bb-cat-sections');
+    if (host) {
+      host.innerHTML = '<div class="bb-empty"><strong>' + esc(headline) + '</strong>' +
         '<br><small>Add ?bbdebug=1 to the URL for technical detail.</small></div>';
     }
     dbg(headline + ' :: ' + (detail || ''));
@@ -228,18 +218,17 @@
     });
   }
 
-  function isSale(p) { return SALE.indexOf(p.handle) !== -1; }
+  // Sitewide: the FLASHSALE discount covers every product this storefront sells
+  // (verified 2026-10-06), so nothing needs a per-product sale list.
+  function isSale() { return true; }
 
-  // Original struck through, discounted price bold red underneath. Only the
-  // sale products get the treatment; the rest of the catalogue prints as-is.
   function priceHtml(p, v) {
     var full = Number(v.price.amount);
-    if (!isSale(p) || !SALE_PCT || STATE !== 'live') { return '$' + full.toFixed(2); }
+    if (!SALE_PCT || STATE !== 'live') { return '$' + full.toFixed(2); }
     return '<span class="bb-was">$' + full.toFixed(2) + '</span>' +
            '<span class="bb-now">$' + (full * (1 - SALE_PCT)).toFixed(2) + '</span>';
   }
 
-  // The code, repeated wherever a shopper is looking at a sale price.
   function codeHtml() {
     if (!SALE_ON || STATE === 'ended') { return ''; }
     var txt = STATE === 'live'
@@ -249,7 +238,7 @@
   }
 
   function badgeHtml() {
-    if (!SALE_ON || !BADGE || STATE === 'ended') { return ''; }
+    if (!SALE_ON || !BADGE || STATE !== 'live') { return ''; }
     return '<div class="bb-off" aria-hidden="true">' +
       '<svg viewBox="0 0 40 22"><path d="M4 15q5-10 10 0t10 0" fill="none" stroke="#ffd7ec" ' +
       'stroke-width="4.5" stroke-linecap="round"/><circle cx="28" cy="13" r="5.4" fill="#ffd7ec"/>' +
@@ -262,7 +251,7 @@
     var img = p.featuredImage ? p.featuredImage.url : '';
     var label = v.availableForSale === false ? 'Sold out' : 'Add to Cart';
     return '<div class="bbp" data-bb-handle="' + p.handle + '">' +
-           (isSale(p) ? badgeHtml() : '') +
+           badgeHtml() +
            '<img src="' + img + '" alt="' + esc(p.title) + '">' +
            '<div class="t">' + esc(p.title) + '</div>' +
            '<div class="pr">' + priceHtml(p, v) + '</div>' +
@@ -270,40 +259,87 @@
            '<button data-bb-add="1">' + label + '</button></div>';
   }
 
-  function renderGrid(items) {
-    var grid = $('bb-store');
-    if (!grid) { dbg('no #bb-store container'); return; }
-    grid.innerHTML = items.map(function (p) { return card(p); }).join('');
-    dbg('grid rendered ' + items.length + ' cards');
+  // ---- Category navigation and sections ----
+  // The chip row is the whole navigation story: click a chip, the page scrolls
+  // to that category. Chips are built from CATEGORIES so they can never list a
+  // section that does not exist. A category whose products all failed to load
+  // is dropped from BOTH the chips and the sections rather than rendering an
+  // empty heading - that is what keeps a missing handle from looking like a
+  // broken page.
+  function renderShop() {
+    var nav = $('bb-cats'), host = $('bb-cat-sections');
+    if (!host) { dbg('no #bb-cat-sections container'); return; }
+
+    var live = [];
+    for (var i = 0; i < CATEGORIES.length; i++) {
+      var c = CATEGORIES[i];
+      var items = [];
+      for (var j = 0; j < c.handles.length; j++) {
+        var p = byHandle[c.handles[j]];
+        if (p) { items.push(p); }
+        else { dbg('category ' + c.key + ': handle not loaded - ' + c.handles[j]); }
+      }
+      if (items.length) { live.push({ cat: c, items: items }); }
+    }
+
+    if (!live.length) {
+      report('Shop temporarily unavailable.', 'No categories resolved any products.');
+      return;
+    }
+
+    if (nav) {
+      nav.innerHTML = '<span class="bb-cats-lab">Shop by need</span>' +
+        live.map(function (g) {
+          return '<a class="bb-cat-chip" href="#bb-cat-' + g.cat.key + '" data-bb-cat="' +
+                 g.cat.key + '">' + esc(g.cat.name) + '</a>';
+        }).join('');
+    }
+
+    host.innerHTML = live.map(function (g) {
+      return '<section class="bb-cat" id="bb-cat-' + g.cat.key + '">' +
+               '<div class="bb-cat-head">' +
+                 '<h3>' + esc(g.cat.name) + '</h3>' +
+                 '<p>' + esc(g.cat.blurb) + '</p>' +
+               '</div>' +
+               '<div class="bb-cat-grid">' +
+                 g.items.map(function (p) { return card(p); }).join('') +
+               '</div>' +
+               '<a class="bb-cat-top" href="#bb-cats">Back to categories</a>' +
+             '</section>';
+    }).join('');
+
+    dbg('rendered ' + live.length + ' categories');
   }
 
-  // Section 1: images + names only. No prices, no buttons, no data-bb-handle,
-  // so nothing here is clickable and it cannot compete with the shop below.
-  function renderCollage() {
-    var strip = $('bbp-strip');
-    if (!strip) { dbg('no #bbp-strip collage container'); return; }
-    var html = '';
-    for (var i = 0; i < COLLAGE.length; i++) {
-      var p = byHandle[COLLAGE[i]];
-      if (!p || !p.featuredImage) { continue; }
-      html += '<div class="ci"><img src="' + p.featuredImage.url + '" alt="' + esc(p.title) + '">' +
-              '<div class="n">' + esc(p.title) + '</div></div>';
-    }
-    if (html) { strip.innerHTML = html; dbg('collage rendered'); }
-    else { dbg('collage: no matching products, static fallback kept'); }
+  // The storefront is open year-round; the sale is the exception, not the point.
+  // This line is deliberately NOT inside any sale conditional - it is the one
+  // piece of copy that must survive the flash sale ending, so a shopper who
+  // bought once knows to come back for refills.
+  function renderEvergreen() {
+    var el = $('bb-restock');
+    if (!el) { return; }
+    el.innerHTML = '<strong>This shop stays open.</strong> Come back any time to ' +
+      'reorder your formulas &mdash; no sale needed, same practitioner-grade ' +
+      'products, same checkout.';
   }
 
   var PF = 'id title handle vendor descriptionHtml featuredImage{url altText} images(first:4){nodes{url altText}} variants(first:1){nodes{id price{amount currencyCode} availableForSale}}';
 
-  // PRIMARY: aliased product(handle:) with GraphQL variables, so no quoting is
-  // needed in the query string. NOTE: products(query:"handle:...") does NOT work
-  // on the Storefront API - handle is not a supported filter field and Shopify
-  // silently ignores it, returning the first N products in the store instead.
-  function queryByHandle() {
-    var decls = FEATURED.map(function (h, i) { return '$h' + i + ':String!'; }).join(',');
-    var fields = FEATURED.map(function (h, i) { return 'p' + i + ':product(handle:$h' + i + '){' + PF + '}'; }).join(' ');
+  // Fetch by aliased product(handle:) with GraphQL variables, so nothing has to
+  // be quoted into the query string.
+  // NOTE: products(query:"handle:...") does NOT work on the Storefront API -
+  // handle is not a supported filter and Shopify silently returns the first N
+  // products in the store instead, which would put Dr. Jaban's catalogue on
+  // this page. Never switch to it.
+  // Chunked because 36 products of full fields in one request risks the
+  // Storefront API query-cost ceiling; the chunks run in parallel.
+  function fetchChunk(handles, offset) {
+    var decls = handles.map(function (h, i) { return '$h' + (offset + i) + ':String!'; }).join(',');
+    var fields = handles.map(function (h, i) {
+      return 'p' + (offset + i) + ':product(handle:$h' + (offset + i) + '){' + PF + '}';
+    }).join(' ');
     var vars = {};
-    FEATURED.forEach(function (h, i) { vars['h' + i] = h; });
+    handles.forEach(function (h, i) { vars['h' + (offset + i)] = h; });
     return gql('query(' + decls + '){' + fields + '}', vars).then(function (res) {
       if (res.json && res.json.errors) {
         dbg('handle query errors: ' + JSON.stringify(res.json.errors));
@@ -311,189 +347,36 @@
       }
       var d = (res.json && res.json.data) || {};
       var out = [];
-      FEATURED.forEach(function (h, i) { if (d['p' + i]) { out.push(d['p' + i]); } });
+      handles.forEach(function (h, i) {
+        var p = d['p' + (offset + i)];
+        if (p && p.variants && p.variants.nodes.length) { out.push(p); }
+        else { dbg('handle did not resolve: ' + h); }
+      });
       return out;
     });
   }
 
-  // FALLBACK: fetch by product id. Version-stable and immune to filter syntax.
-  function queryById() {
-    return gql('query($ids:[ID!]!){nodes(ids:$ids){... on Product{' + PF + '}}}', { ids: IDS })
-      .then(function (res) {
-        if (res.json && res.json.errors) {
-          dbg('id query errors: ' + JSON.stringify(res.json.errors));
-          return [];
-        }
-        var nodes = (res.json && res.json.data && res.json.data.nodes) || [];
-        return nodes.filter(function (n) { return n && n.handle; });
-      });
-  }
-
   function loadProducts() {
-    return queryByHandle().then(function (items) {
-      if (items.length) { dbg('loaded via handle query'); return items; }
-      dbg('handle query empty, trying product ids');
-      return queryById().then(function (byId) {
-        if (byId.length) { dbg('loaded via id query'); }
-        return byId;
-      });
-    });
-  }
-
-  // ---- Brand separation from Dr. Jaban ----
-  // This Shopify store is shared with Dr. Jaban, and Shopify defaults a product's
-  // vendor to the old shop name ("Dr Jaban Moore - Store") whenever no brand is
-  // set. So: hide Jaban-branded products outright, and relabel that default
-  // vendor so it never shows up as a brand option.
-  // Matched against title + handle, lowercased. NOTE: handles are hyphenated,
-  // so any phrase containing a space only ever matches the TITLE. That is load
-  // bearing - 'chasing health' must not match the handle
-  // 'chasing-health-monthly-subscription-...', which belongs to the still-for-sale
-  // Beginner Gallbladder Flush.
-  var HIDE_WORDS = ['jaban', 'resistance band', 'kinesiology', 'welcome gift',
-                    'chasing health', 'parasites 101'];
-  var VENDOR_ALIAS = { 'dr jaban moore - store': 'Other' };
-
-  function isHidden(p) {
-    // $0 products are placeholders, client-only lab kits and welcome-gift line
-    // items. None of them should ever appear in a public catalogue, and a $0
-    // add-to-cart button is worse than useless. Sale products bypass isHidden
-    // entirely, so this cannot swallow one of them.
-    var v = p.variants && p.variants.nodes && p.variants.nodes[0];
-    if (v && v.price && Number(v.price.amount) === 0) { return true; }
-    var hay = ((p.title || '') + ' ' + (p.handle || '')).toLowerCase();
-    for (var i = 0; i < HIDE_WORDS.length; i++) {
-      if (hay.indexOf(HIDE_WORDS[i]) !== -1) { return true; }
+    var CHUNK = 12, jobs = [];
+    for (var i = 0; i < ALL_HANDLES.length; i += CHUNK) {
+      jobs.push(fetchChunk(ALL_HANDLES.slice(i, i + CHUNK), i));
     }
-    return false;
-  }
-
-  function vendorOf(p) {
-    var v = p.vendor || 'Other';
-    return VENDOR_ALIAS[v.toLowerCase()] || v;
-  }
-
-  // ---- Full catalog: search, brand filter, sort ----
-  // The whole catalogue is loaded once with LIGHT fields, then filtered and
-  // sorted in memory so typing is instant. Descriptions are still fetched
-  // per-product when a modal opens.
-  var ALL_PF = 'id title handle vendor featuredImage{url altText} variants(first:1){nodes{id price{amount currencyCode} availableForSale}}';
-  var catalog = [], filtered = [], shown = 0, catalogReady = false;
-  var CHUNK = 48;
-
-  function priceOf(p) { return Number(p.variants.nodes[0].price.amount); }
-  function setCount(t) { var el = $('bb-count'); if (el) { el.textContent = t; } }
-
-  function loadAllCatalog(after) {
-    gql('query($after:String){products(first:50,after:$after){pageInfo{hasNextPage endCursor} nodes{' + ALL_PF + '}}}',
-        { after: after || null })
-      .then(function (res) {
-        if (res.json && res.json.errors) {
-          dbg('catalog errors: ' + JSON.stringify(res.json.errors));
-          catalogReady = true; buildVendorList(); applyFilters(); return;
-        }
-        var conn = res.json && res.json.data && res.json.data.products;
-        if (!conn) {
-          dbg('catalog: no products connection');
-          catalogReady = true; buildVendorList(); applyFilters(); return;
-        }
-        (conn.nodes || []).forEach(function (p) {
-          if (!p || !p.variants || !p.variants.nodes.length) { return; }
-          if (FEATURED.indexOf(p.handle) !== -1) { return; }
-          if (isHidden(p)) { return; }
-          if (byHandle[p.handle]) { return; }
-          byHandle[p.handle] = p;
-          catalog.push(p);
-        });
-        setCount('Loading products... ' + catalog.length + ' so far');
-        if (conn.pageInfo.hasNextPage) { loadAllCatalog(conn.pageInfo.endCursor); }
-        else {
-          catalogReady = true;
-          dbg('catalog complete: ' + catalog.length + ' products');
-          buildVendorList();
-          applyFilters();
-          safe('deep link', openDeepLink);
-          if (wantProduct) { dbg('deep link handle not in catalogue: ' + wantProduct); }
-        }
-      })
-      .catch(function (e) {
-        dbg('catalog fetch failed: ' + (e && e.message ? e.message : e));
-        catalogReady = true; buildVendorList(); applyFilters();
-      });
-  }
-
-  function buildVendorList() {
-    var sel = $('bb-vendor');
-    if (!sel) { return; }
-    var counts = {};
-    catalog.forEach(function (p) {
-      var v = vendorOf(p);
-      counts[v] = (counts[v] || 0) + 1;
+    return Promise.all(jobs).then(function (lists) {
+      var all = [];
+      lists.forEach(function (l) { all = all.concat(l); });
+      return all;
     });
-    var names = Object.keys(counts).sort(function (a, b) {
-      return a.toLowerCase() < b.toLowerCase() ? -1 : (a.toLowerCase() > b.toLowerCase() ? 1 : 0);
-    });
-    var html = '<option value="">All brands (' + catalog.length + ')</option>';
-    names.forEach(function (n) {
-      html += '<option value="' + esc(n) + '">' + esc(n) + ' (' + counts[n] + ')</option>';
-    });
-    sel.innerHTML = html;
-    dbg('vendors: ' + names.length);
   }
 
-  function applyFilters() {
-    var qEl = $('bb-q'), vEl = $('bb-vendor'), sEl = $('bb-sort');
-    var q = ((qEl && qEl.value) || '').trim().toLowerCase();
-    var vendor = (vEl && vEl.value) || '';
-    var sort = (sEl && sEl.value) || 'featured';
-
-    filtered = catalog.filter(function (p) {
-      if (vendor && vendorOf(p) !== vendor) { return false; }
-      if (!q) { return true; }
-      return (p.title || '').toLowerCase().indexOf(q) !== -1 ||
-             vendorOf(p).toLowerCase().indexOf(q) !== -1;
-    });
-
-    if (sort === 'az') { filtered.sort(function (a, b) { return a.title.localeCompare(b.title); }); }
-    else if (sort === 'za') { filtered.sort(function (a, b) { return b.title.localeCompare(a.title); }); }
-    else if (sort === 'plow') { filtered.sort(function (a, b) { return priceOf(a) - priceOf(b); }); }
-    else if (sort === 'phigh') { filtered.sort(function (a, b) { return priceOf(b) - priceOf(a); }); }
-    else if (sort === 'vendor') {
-      filtered.sort(function (a, b) {
-        var c = vendorOf(a).localeCompare(vendorOf(b));
-        return c !== 0 ? c : a.title.localeCompare(b.title);
-      });
-    }
-
-    shown = 0;
-    var wrap = $('bb-all');
-    if (wrap) { wrap.innerHTML = ''; }
-    renderChunk();
+  function openDeepLink() {
+    if (!wantProduct) { return; }
+    if (!byHandle[wantProduct]) { dbg('deep link not on this site: ' + wantProduct); return; }
+    var h = wantProduct;
+    wantProduct = null;
+    dbg('deep link opening ' + h);
+    openModalByHandle(h);
   }
 
-  function renderChunk() {
-    var wrap = $('bb-all');
-    if (!wrap) { return; }
-    if (!filtered.length) {
-      wrap.innerHTML = catalogReady
-        ? '<div class="bb-none">No products match that search.</div>'
-        : '<div class="bb-none">Loading products...</div>';
-      var b0 = $('bb-all-more');
-      if (b0) { b0.style.display = 'none'; }
-      setCount(catalogReady ? 'Showing 0 products' : ('Loading products... ' + catalog.length + ' so far'));
-      return;
-    }
-    var slice = filtered.slice(shown, shown + CHUNK);
-    wrap.insertAdjacentHTML('beforeend', slice.map(function (p) { return card(p); }).join(''));
-    shown += slice.length;
-    var btn = $('bb-all-more');
-    if (btn) { btn.style.display = shown < filtered.length ? '' : 'none'; }
-    setCount(catalogReady
-      ? ('Showing ' + shown + ' of ' + filtered.length + ' products')
-      : ('Loading products... ' + catalog.length + ' so far'));
-  }
-
-  // Catalog cards ship without descriptions; fill one in before opening its modal.
   function openModalByHandle(h) {
     var p = byHandle[h];
     if (!p) { return; }
@@ -508,17 +391,36 @@
       .catch(function () { p.descriptionHtml = ''; openModal(p); });
   }
 
+  // Section 1 of the home page: images and names only, nothing clickable, so it
+  // cannot compete with the shop below.
+  var COLLAGE = ['para-1-cellcore', 'para-2-cellcore', 'para-3-cellcore', 'para-4',
+                 'biotoxin-binder-cellcore'];
+  function renderCollage() {
+    var strip = $('bbp-strip');
+    if (!strip) { return; }
+    var html = '';
+    for (var i = 0; i < COLLAGE.length; i++) {
+      var p = byHandle[COLLAGE[i]];
+      if (!p || !p.featuredImage) { continue; }
+      html += '<div class="ci"><img src="' + p.featuredImage.url + '" alt="' + esc(p.title) + '">' +
+              '<div class="n">' + esc(p.title) + '</div></div>';
+    }
+    if (html) { strip.innerHTML = html; dbg('collage rendered'); }
+  }
+
   // ---- Featured-product landing pages ----
-  // Unlinked pages the quiz routes people to. The feature embed on each page
-  // names its own product with <span id="bb-handle-THE-SHOPIFY-HANDLE" hidden>.
-  // An element id survives publish where a bare data-* attribute may not, so a
-  // NEW landing page needs no change to this script at all - just the marker.
-  // The map below is the fallback for the pages built before the marker existed.
+  // The four hidden quiz pages. Each feature embed names its own product with
+  // <span id="bb-handle-THE-SHOPIFY-HANDLE" hidden>; an element id survives
+  // publish where a bare data-* attribute may not.
+  // These pages can feature a product that is NOT in CATEGORIES - the Full Moon
+  // Para Kit is one - so the on-demand fetch below is load bearing, not a
+  // fallback. Do not "optimise" it away.
   var HANDLE_PREFIX = 'bb-handle-';
   var FEATURE = {
     '/parasite-power-duo': 'parasite-cleanse-power-duo',
     '/full-moon-para-kit': 'para-kit',
-    '/drainage-duo': 'drainage-jumpstart-duo'
+    '/drainage-duo': 'drainage-jumpstart-duo',
+    '/parasite-starter-duo': 'parasite-cleanse-starter-kit'
   };
 
   function featuredHandle() {
@@ -535,16 +437,14 @@
     if (!box) { return; }
     var v = p.variants.nodes[0];
     var img = p.featuredImage ? p.featuredImage.url : '';
-    // data-bb-handle on the card means the existing delegate already handles
-    // both add-to-cart and open-the-modal. No new click wiring needed.
     box.innerHTML = '<div class="bb-f-card" data-bb-handle="' + p.handle + '">' +
-      '<div class="bb-f-media">' + (isSale(p) ? badgeHtml() : '') +
+      '<div class="bb-f-media">' + badgeHtml() +
         '<img src="' + img + '" alt="' + esc(p.title) + '"></div>' +
       '<div class="bb-f-info">' +
         (p.vendor ? '<div class="bb-f-kicker">' + esc(p.vendor) + '</div>' : '') +
         '<h2 class="bb-f-title">' + esc(p.title) + '</h2>' +
         '<div class="bb-f-price">' + priceHtml(p, v) + '</div>' +
-        (isSale(p) ? codeHtml() : '') +
+        codeHtml() +
         '<button data-bb-add="1">' +
           (v.availableForSale === false ? 'Sold out' : 'Add to Cart') + '</button>' +
         '<button class="bb-f-more" type="button">See full product details</button>' +
@@ -552,8 +452,6 @@
     dbg('feature rendered: ' + p.handle);
   }
 
-  // Featured products are usually in FEATURED and already loaded; fetch on demand
-  // when a feature page points at something outside the sale set.
   function ensureFeature() {
     if (!$('bb-feature-buy')) { return; }
     var h = featuredHandle();
@@ -572,8 +470,7 @@
   // ---- Site-wide promo bar ----
   // Injected rather than placed in an embed so it appears on every page. The
   // Webflow header is position:sticky;top:0, so the bar is fixed above it and
-  // both the body padding and the header's top offset are re-measured on resize
-  // (the bar wraps to two lines on narrow phones).
+  // both the body padding and the header's top offset are re-measured on resize.
   function mountPromo() {
     if (!SALE_ON || STATE === 'ended' || !document.body) { return; }
     var css = document.createElement('style');
@@ -592,10 +489,10 @@
     bar.id = 'bb-promo';
     bar.href = '#bb-shop';
     bar.innerHTML = STATE === 'live'
-      ? '20% OFF the Parasite Cleanse Product Sale<span class="sep">&middot;</span>' +
+      ? '20% OFF the entire shop<span class="sep">&middot;</span>' +
         'Use code <b>' + DISCOUNT + '</b> at checkout<span class="sep">&middot;</span>' +
         'Ends ' + saleDate(SALE_END)
-      : '20% OFF the Parasite Cleanse Product Sale<span class="sep">&middot;</span>' +
+      : 'Flash sale: 20% OFF the entire shop<span class="sep">&middot;</span>' +
         'Opens ' + saleDate(SALE_START) + '<span class="sep">&middot;</span>' +
         'Code <b>' + DISCOUNT + '</b>';
     document.body.insertBefore(bar, document.body.firstChild);
@@ -612,9 +509,8 @@
   }
   safe('promo bar', mountPromo);
 
-  // Cart quantity stepper styling. Injected rather than added to the store
-  // embeds so the home page and every product landing page stay in sync from
-  // one place - there are two copies of that embed and they would drift.
+  // Cart quantity stepper styling, injected so the home page and every landing
+  // page stay in sync from one place.
   safe('cart qty css', function () {
     var css = document.createElement('style');
     css.textContent =
@@ -630,54 +526,37 @@
     document.head.appendChild(css);
   });
 
-  // Static sale callouts, filled from the same state so nothing contradicts.
-  // On a page outside SALE_PAGES they are hidden outright.
   function fillCallouts() {
-    var a0 = $('bb-collage-code'), b0 = $('bb-sale-note');
-    if (!SALE_ON) {
-      if (a0) { a0.style.display = 'none'; }
-      if (b0) { b0.style.display = 'none'; }
-      return;
-    }
-    var live = STATE === 'live';
-    var short = live
+    var a = $('bb-collage-code');
+    if (!a) { return; }
+    if (!SALE_ON || STATE === 'ended') { a.style.display = 'none'; return; }
+    a.innerHTML = STATE === 'live'
       ? 'Use code <b>' + DISCOUNT + '</b> at checkout for 20% off'
       : 'Code <b>' + DISCOUNT + '</b> &middot; opens ' + saleDate(SALE_START);
-    var long = live
-      ? 'All ' + SALE.length + ' sale items below are 20% off with code <b>' + DISCOUNT +
-        '</b> &mdash; it is applied for you at checkout. Sale ends ' + saleDate(SALE_END) + '.'
-      : 'The 20% off sale opens ' + saleDate(SALE_START) + '. Use code <b>' + DISCOUNT +
-        '</b> at checkout on any of the items below.';
-    var a = $('bb-collage-code');
-    if (a) { if (STATE === 'ended') { a.style.display = 'none'; } else { a.innerHTML = short; } }
-    var b = $('bb-sale-note');
-    if (b) { if (STATE === 'ended') { b.style.display = 'none'; } else { b.innerHTML = long; } }
   }
   safe('callouts', fillCallouts);
+  safe('evergreen', renderEvergreen);
 
   safe('boot placeholder', function () {
-    var grid = $('bb-store');
-    if (grid) { grid.innerHTML = '<div class="bb-empty">Loading products&hellip;</div>'; }
-    else { dbg('no #bb-store at boot'); }
+    var host = $('bb-cat-sections');
+    if (host) { host.innerHTML = '<div class="bb-empty">Loading the shop&hellip;</div>'; }
   });
 
   loadProducts().then(function (found) {
-    // Keep ONLY the products we asked for, in FEATURED order.
-    var items = found.filter(function (p) { return FEATURED.indexOf(p.handle) !== -1; })
-      .sort(function (a, b) { return FEATURED.indexOf(a.handle) - FEATURED.indexOf(b.handle); });
-    if (!items.length) {
-      report('No products found.', 'Neither the handle query nor the id query returned any of: ' + FEATURED.join(', '));
+    if (!found.length) {
+      report('Shop temporarily unavailable.',
+             'None of the ' + ALL_HANDLES.length + ' handles resolved: ' + ALL_HANDLES.join(', '));
       return;
     }
-    items.forEach(function (p) { byHandle[p.handle] = p; });
-    dbg('resolved ' + items.length + ' of ' + FEATURED.length + ' wanted: ' + items.map(function (p) { return p.handle; }).join(', '));
-    safe('renderGrid', function () { renderGrid(items); });
-    safe('renderCollage', function () { renderCollage(); });
+    found.forEach(function (p) { byHandle[p.handle] = p; });
+    dbg('resolved ' + found.length + ' of ' + ALL_HANDLES.length + ' handles');
+    safe('renderShop', renderShop);
+    safe('renderCollage', renderCollage);
     safe('feature', ensureFeature);
     safe('deep link', openDeepLink);
-    safe('catalog', function () { loadAllCatalog(null); });
   }).catch(function (e) {
-    report('Store temporarily unavailable.', 'fetch() threw, never reached Shopify (bad hostname, CORS, CSP, extension, offline). Detail: ' + (e && e.message ? e.message : e));
+    report('Shop temporarily unavailable.',
+           'fetch() threw, never reached Shopify (bad hostname, CORS, CSP, extension, offline). Detail: ' + (e && e.message ? e.message : e));
   });
 
   var CART_FIELDS = 'id checkoutUrl totalQuantity discountCodes{code applicable} cost{subtotalAmount{amount currencyCode}} lines(first:50){nodes{id quantity merchandise{... on ProductVariant{id price{amount currencyCode} product{title featuredImage{url}}}}}}';
@@ -688,16 +567,14 @@
   }
 
   // Stamp every cart with where it came from. These attributes ride through to
-  // the Shopify ORDER and to the abandoned-checkout record, which makes them the
-  // only DURABLE way to tell this storefront's traffic from Dr. Jaban's Online
-  // Store - and the only way to attribute a sale to the landing page that
-  // produced it. The PARASITE discount code used to do the first job, but it
-  // stopped the moment the sale ended (it did), and a Jaban shopper who typed
-  // the code by hand looked identical anyway. This does not have either problem.
-  // Keys are underscore-prefixed so Shopify keeps them out of the customer's
-  // order confirmation; they stay fully queryable through the Admin API.
-  // Set once at cart CREATION, so the page recorded is where the shopper first
-  // added something - first touch, not last.
+  // the Shopify ORDER and the abandoned-checkout record, which is the only
+  // DURABLE way to tell this storefront's traffic from Dr. Jaban's Online Store,
+  // and the only way to attribute a sale to the landing page that produced it.
+  // A discount code cannot do that job: it stops the moment a sale ends, and a
+  // Jaban shopper who types the code by hand looks identical.
+  // Keys are underscore-prefixed so Shopify keeps them off the customer's order
+  // confirmation; they stay queryable through the Admin API. Set once at cart
+  // CREATION - first touch, not last.
   function cartAttrs() {
     var path = (window.location.pathname || '/').toLowerCase().replace(/\/+$/, '') || '/';
     return [{ key: '_bb_source', value: 'biohacking-bombshell-webflow' },
@@ -734,7 +611,7 @@
 
   // One cart mutation at a time. Without this, tapping + three times fires three
   // concurrent updates that each computed their target from the same starting
-  // quantity, and the last one to land wins - so the count ends up wrong.
+  // quantity, and the last to land wins - so the count ends up wrong.
   var cartBusy = false;
   function cartLock(on) {
     cartBusy = on;
@@ -754,9 +631,8 @@
       }).catch(function (e) { cartLock(false); cartFail(e); });
   }
 
-  // Shopify caps the quantity at what is actually in stock and returns the
-  // corrected cart, so the drawer re-renders to the real number rather than the
-  // one that was asked for.
+  // Shopify caps quantity at what is actually in stock and returns the corrected
+  // cart, so the drawer re-renders to the real number, not the requested one.
   function setLineQty(lineId, qty) {
     if (cartBusy) { return; }
     if (qty < 1) { return removeLine(lineId); }
@@ -772,7 +648,7 @@
   }
 
   // The code follows the SITE-WIDE window, not the page, so the discount reaches
-  // checkout from anywhere - including a page that is not advertising it.
+  // checkout from anywhere - including a page not advertising it.
   function checkoutHref(cart) {
     if (!cart || !cart.checkoutUrl) { return ''; }
     if (!SALE_ENABLED || WINDOW === 'ended') { return cart.checkoutUrl; }
@@ -780,13 +656,9 @@
            'discount=' + encodeURIComponent(DISCOUNT);
   }
 
-  // NO store embed carries the .bb-cart-code element any more - only its
-  // styling. The four landing pages never had it, and the home page's static
-  // copy was cut in embed v17 when the September sale ended (it hard-coded the
-  // PARASITE code into the markup). This creates it on demand instead, so the
-  // next sale can confirm the code in every page's cart drawer with no embed
-  // change - which is exactly what happened when the sale came back in v30 and
-  // went away again in v31. renderCodeStatus() hides it while the sale is off.
+  // No store embed carries .bb-cart-code any more, only its styling, so this
+  // creates it on demand. That has survived three sale on/off cycles without an
+  // embed re-upload.
   function ensureCartCode() {
     if ($('bb-cart-code')) { return $('bb-cart-code'); }
     var foot = document.querySelector('.bb-cart-foot');
@@ -810,7 +682,7 @@
     el.style.display = '';
     el.className = live ? 'bb-cart-code on' : 'bb-cart-code';
     el.innerHTML = live
-      ? '&#10003; Code <b>' + DISCOUNT + '</b> applied &mdash; 20% off the sale items in your cart.'
+      ? '&#10003; Code <b>' + DISCOUNT + '</b> applied &mdash; 20% off your cart.'
       : (STATE === 'before'
           ? 'Code <b>' + DISCOUNT + '</b> unlocks 20% off from ' + saleDate(SALE_START) + '.'
           : 'Code <b>' + DISCOUNT + '</b> is applied automatically at checkout.');
@@ -826,8 +698,7 @@
       box.innerHTML = lines.length ? lines.map(function (l) {
         var m = l.merchandise, img = m.product.featuredImage ? m.product.featuredImage.url : '';
         // data-qty carries the TARGET quantity for each button, so the handler
-        // never has to read a number back out of the DOM and cannot act on a
-        // stale one.
+        // never reads a number back out of the DOM and cannot act on a stale one.
         return '<div class="bb-line"><img src="' + img + '"><div class="ln">' + esc(m.product.title) +
                '<br><span class="lp">' + money(m.price) + '</span>' +
                '<div class="bb-qty">' +
@@ -851,9 +722,9 @@
 
   if (cartId) {
     // Rewrite the cart's discount codes on every load. With a sale running this
-    // re-attaches the code to a cart begun before it opened; with the sale off
-    // it STRIPS a code left on a returning shopper's cart from a previous sale,
-    // so an old cart cannot quietly discount an order we are not discounting.
+    // attaches the current code to a cart begun before it opened; with the sale
+    // off it STRIPS a code left from a previous sale, so an old cart cannot
+    // quietly discount an order we are not discounting.
     gql('mutation($id:ID!,$codes:[String!]){cartDiscountCodesUpdate(cartId:$id,discountCodes:$codes){cart{' + CART_FIELDS + '}}}',
         { id: cartId, codes: SALE_ENABLED ? [DISCOUNT] : [] })
       .then(function (r) {
@@ -889,7 +760,7 @@
       '</div>' +
       '<div class="bb-m-info"><h3>' + esc(p.title) + '</h3>' +
         '<div class="bb-m-price">' + priceHtml(p, v) + '</div>' +
-        (isSale(p) ? codeHtml() : '') +
+        codeHtml() +
         '<div class="bb-m-desc">' + (p.descriptionHtml || '<p>No description available.</p>') + '</div>' +
         '<button data-bb-add="1">' + (v.availableForSale === false ? 'Sold out' : 'Add to Cart') + '</button>' +
       '</div>';
@@ -915,7 +786,23 @@
         return;
       }
     }
-    if (t.closest('#bb-all-more')) { ev.preventDefault(); renderChunk(); return; }
+
+    // Category chips scroll rather than jump, and the fixed promo bar means a
+    // raw anchor would park the heading underneath it.
+    var chip = t.closest('[data-bb-cat]');
+    if (chip) {
+      var sec = $('bb-cat-' + chip.getAttribute('data-bb-cat'));
+      if (sec) {
+        ev.preventDefault();
+        var bar = $('bb-promo');
+        var pad = (bar ? bar.offsetHeight : 0) + 70;
+        var y = sec.getBoundingClientRect().top + window.pageYOffset - pad;
+        try { window.scrollTo({ top: y, behavior: 'smooth' }); }
+        catch (e) { window.scrollTo(0, y); }
+      }
+      return;
+    }
+
     if (t.closest('#bb-cart-toggle')) { openCart(); return; }
     if (t.closest('#bb-cart-close') || t.id === 'bb-cart-backdrop') { closeCart(); return; }
     if (t.closest('#bb-modal-close') || t.id === 'bb-modal-backdrop') { closeModal(); return; }
@@ -950,13 +837,6 @@
     if (!c) { return; }
     var h = c.getAttribute('data-bb-handle');
     if (byHandle[h]) { ev.preventDefault(); openModalByHandle(h); }
-  });
-
-  document.addEventListener('input', function (ev) {
-    if (ev.target && ev.target.id === 'bb-q') { applyFilters(); }
-  });
-  document.addEventListener('change', function (ev) {
-    if (ev.target && (ev.target.id === 'bb-vendor' || ev.target.id === 'bb-sort')) { applyFilters(); }
   });
 
   document.addEventListener('keydown', function (ev) {

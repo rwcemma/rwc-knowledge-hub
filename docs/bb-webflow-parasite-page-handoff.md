@@ -1463,3 +1463,106 @@ has a space and cannot match the hyphenated handle. True as far as it goes — b
 `'jaban'` catches it anyway. Changing the Shopify handle is the clean fix and
 costs nothing; it is a duplicate-derived slug nobody links to.
 
+---
+
+## v33 — CellCore only, category browsing, October flash sale (2026-10-06)
+
+Emma: *"I want to ONLY have cellcore products available and we are running a
+flashsale from October 7th - October 14th it is 20% off sitewide. I want to
+create categories so people know what to shop for... I also want people to know
+that they can come back and purchase from this store after the sale is over."*
+
+This is a **rebuild**, not a patch. It deletes more than it adds.
+
+### What the shop is now
+`CATEGORIES` in the footer script is the entire storefront: 9 categories, 36
+unique CellCore handles. A product not named there does not appear, is not
+fetched, and cannot be deep-linked. There is no catalogue fallback.
+
+Gone with it: the search box, the brand filter, the sort control, the paged
+catalogue loader, `isHidden()`, `vendorOf()`, `HIDE_WORDS`, `VENDOR_ALIAS`, and
+the FEATURED / rest-of-store split. A fixed 36-product list needs none of them,
+and every one of those was a place for Dr. Jaban's catalogue to leak in.
+
+Navigation is a chip row (`#bb-cats`) built from the same `CATEGORIES` array, so
+it can never advertise a section that does not exist. Chips scroll rather than
+jump, because the fixed promo bar would otherwise park the heading under it.
+A category whose handles all fail to load is dropped from the chips **and** the
+sections, so a bad handle reads as "not offered" rather than a broken page.
+
+### Verified against Shopify before building
+All 58 live CellCore products pulled 2026-10-06 (vendor `Cellcore Biosciences`,
+status ACTIVE, published to the Biohacking Bombshell channel). The sheet's 58
+rows mapped to **47** real products; **11 could not be used**:
+
+| Sheet entry | Reality |
+|---|---|
+| Core Nutrients 60 ct / 120 ct, D3+K2 Pro, TriMag Complex, Methyl-B Complex, HydrOxygen | Do not exist in the store at all |
+| "Foundational Protocol", "Step 4: Systemic Detox" | Do not exist |
+| Daily Foundational Detox Support | Exists, **ARCHIVED** |
+| Hormone Support Bundle (= "Hormone Jumpstart") | Exists, **ARCHIVED** |
+| Biocidin LSF / Liquid / Capsules | Biocidin brand, not CellCore — contradicts "only CellCore" |
+
+That is why **Foundation Support ships with one product (BC-ATP)**. Reactivating
+the two archived items and creating the five missing ones in Shopify is the fix;
+then add their handles to `CATEGORIES`.
+
+Emma's call on the 21 live CellCore products her sheet does not categorise (Full
+Moon Para Kit, Jumpstart Kit, the Liver/Stomach/MYC/RAD/C.A. kits, Optimize A
+and B, Phase 1–5, Beginner Gallbladder Flush, CT-Minerals, ME Support): **leave
+them off the site.** They remain inside the FLASHSALE discount, so a direct link
+still discounts correctly — nothing on the site links to one.
+
+### The sale
+Copied verbatim from the live Shopify discount, read before the edit:
+
+```
+codeDiscountNodeByCode(code: "FLASHSALE")
+  status     SCHEDULED
+  percentage 0.2
+  startsAt   2026-10-07T04:30:00Z    (12:30am ET, Oct 7)
+  endsAt     2026-10-14T16:37:00Z    (12:37pm ET, Oct 14)
+```
+
+**Coverage was checked this time, not assumed.** The discount lists 58 products
+— every live CellCore item, including all 36 the site sells. So for this
+storefront it is genuinely sitewide and `isSale()` returns true for everything.
+That is not a standing licence: the v27 Starter Kit mismatch came from assuming
+coverage. Re-verify before the next sale.
+
+**`endsAt` is 12:37pm Eastern on Oct 14, not end of day** — almost certainly an
+artifact of when the discount was created. Emma was told. If she extends it,
+re-copy the new `endsAt` into `SALE_END`, or the page keeps selling at 20% for
+eleven hours after the code stops working.
+
+### The year-round line
+`#bb-restock` renders *"This shop stays open. Come back any time to reorder your
+formulas — no sale needed..."* and is filled by `renderEvergreen()`, which sits
+**outside every sale conditional**. That is deliberate: it is the one piece of
+copy that must survive the sale ending. Three sale cycles have taught that
+anything inside a sale conditional disappears the moment the flag flips.
+
+### Static copy went evergreen
+After v29/v30/v31 spent three cycles toggling hand-written sale text, none of the
+Webflow-authored copy mentions the sale any more:
+
+| Element | Now reads |
+|---|---|
+| Hero eyebrow `95c7e548…` | "Practitioner-Grade CellCore" |
+| Hero CTA `…f471` | "Shop by Category" |
+| Shop eyebrow `…f483` | "Shop by Need" |
+| Shop heading `…f488` | "The CellCore Collection" |
+
+Only the injected promo bar and the script-rendered chips, badges and struck
+prices talk about the sale, and all of those are driven by `SALE_ENABLED` plus
+the Shopify dates. **Ending this sale is now one flag and a republish**, with no
+Webflow text to undo.
+
+### Files
+| File | Change |
+|---|---|
+| `docs/bb-store-footer-code.html` | v32 → **v33**, full rebuild |
+| `docs/bb-store-embed-markup.html` | v17 → **v18**, category containers replace the toolbar/grid |
+
+A copy of v32 is in the session scratchpad if a rollback is ever needed.
+
