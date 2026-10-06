@@ -1770,3 +1770,78 @@ Emma's to make; re-copy the new value into `SALE_START` afterwards.
 |---|---|
 | `docs/bb-store-footer-code.html` | v34 → **v35** |
 | `docs/bb-store-embed-markup.html` | v19 → **v20** |
+
+---
+
+## v36 — hero graphic, shop headings, flow (2026-10-06)
+
+Seven changes from Emma, all cosmetic/flow except the first, which is wired to
+the real Shopify dates.
+
+### 1. The top banner reads the range
+Was *"Opens October 7"*. Now **"Oct 7-14th"**, in both the pre-sale and live
+states. `saleRange()` builds it from `SALE_START`/`SALE_END` rather than a typed
+string, so it cannot drift from the Shopify window. It uses the same
+Eastern-pinned formatter as everything else, carries an `ord()` helper so the
+suffix is right on any date (1st, 2nd, 3rd, 11th, 21st), and handles a sale that
+straddles two months ("Oct 28-Nov 3rd").
+
+`salePart(iso, opts)` is now the single date formatter. Every call site goes
+through it, so the timezone pin from v35 cannot be forgotten on a new one.
+
+### 2. The hero is Emma's sale graphic
+Uploaded to Webflow assets as `bb-flashsale-hero-oct2026.webp`
+(asset id `6ac55845500f8d19ec9cadba`, 2000x1125). A copy lives in this repo at
+`docs/assets/` so the source is not only in Webflow.
+
+**It is script-managed, not pasted in.** `swapHero()` shows `#bb-hero-sale`
+while the sale is on and `#bb-collage` (the product strip) the rest of the year.
+That matters: a dated graphic hard-coded into the hero would still be sitting
+there on October 15. This way the hero reverts on its own with the same flag as
+everything else.
+
+The graphic already says "20% OFF", "OCTOBER 7 - 14" and "USE CODE FLASHSALE",
+so the `#bb-collage-off` sticker and `#bb-collage-code` chip hide along with the
+strip rather than repeating it. The code's six surfaces are unchanged in number
+— the hero chip's slot is now the graphic itself.
+
+**Flagged to Emma:** the graphic reads "UP TO 20% OFF". The FLASHSALE discount
+is a flat 20% on every product the site sells, so "up to" undersells it. Her
+asset, her call.
+
+### 3-5. Shop headings
+| Element | Was | Now |
+|---|---|---|
+| Shop eyebrow `…f483` | "Shop by Need" | **"SAVE BIG ON"** |
+| Shop subhead `f9797ddc…` | "Every CellCore formula I use with my clients..." | **"The top formulations I use with clients that uplevel their results. Pick a category below or scroll to shop."** |
+| Chip-row label `.bb-cats-lab` | "Shop by need", 11px grey caps | **"Shop by Category"**, 21px / 800 weight / brand plum |
+
+### 6. The reorder line MOVED, it was not deleted
+Emma: *"take away the little section... While we definitely want to encourage
+that, I think the overall flow would be better if we went straight into all the
+different categories."*
+
+So `#bb-restock` no longer sits between the chips and the first category. It now
+**closes the shop**, after the last category — which is where a reorder prompt
+belongs anyway, once someone has seen what is for sale. The encouragement she
+said she wants is kept; only its position changed. Say the word if it should go
+entirely.
+
+Mechanically: the `<div id="bb-restock">` is gone from the store embed, and
+`renderEvergreen()` builds the element and appends it to `#bb-cat-sections`.
+Because `renderShop()` replaces that container's innerHTML, **renderEvergreen
+must run after renderShop** — it is called inside the `loadProducts().then`,
+not at boot. Do not move it back to the boot block; it would be wiped.
+
+### 7. A "CATEGORIES" divider
+`.bb-cats-divider` — a centred, letterspaced label between two hairline rules —
+now sits above the first category section, so it is obvious the whole catalogue
+follows rather than one list.
+
+### Files
+| File | Change |
+|---|---|
+| `docs/bb-store-footer-code.html` | v35 → **v36** |
+| `docs/bb-store-embed-markup.html` | v20 → **v21** |
+| `docs/bb-hero-collage.html` | v14 → **v15** |
+| `docs/assets/bb-flashsale-hero-oct2026.webp` | new — source of the hero graphic |

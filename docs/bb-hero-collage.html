@@ -1,4 +1,4 @@
-<!-- bb hero collage v14 - FALLBACK MARKUP + CSS ONLY.
+<!-- bb hero collage v15 - FALLBACK MARKUP + CSS ONLY.
      The site FOOTER custom code replaces the contents of #bbp-strip with live
      product images once Shopify responds. The static images below are what
      shows if the store is unreachable, so they are kept in step with the
@@ -18,23 +18,34 @@
          That means ending a sale is still a one-flag change in the footer and
          these two lines can stay here year-round. Do not hand-delete them.
          The sticker no longer carries the worm glyph it had in September.
+     v15 (2026-10-06): Emma supplied a designed sale graphic for the hero.
+       #bb-hero-sale is that image. swapHero() in the footer script shows it
+       INSTEAD of #bb-collage while the sale is running, and swaps the product
+       strip back the moment the sale ends - so a dated graphic can never be
+       left stranded on the page, and the hero stays a one-flag switch.
+       The graphic already reads "20% OFF", "OCTOBER 7 - 14" and
+       "USE CODE FLASHSALE", so the #bb-collage-off sticker and the
+       #bb-collage-code chip hide along with the strip rather than repeating it.
+       To change the artwork, upload a new asset and swap the src here; nothing
+       in the footer script needs to know.
+
      Do NOT add a script tag or data-bb-* attributes here: Webflow can normalise
      bare data-* attributes on publish. -->
 <style>
+#bb-hero-sale{display:block;max-width:860px;margin:26px auto 0;border-radius:20px;overflow:hidden;line-height:0;box-shadow:0 10px 30px rgba(21,79,97,.22);}
+#bb-hero-sale img{width:100%;height:auto;display:block;}
 #bb-collage{position:relative;max-width:720px;margin:26px auto 0;background:rgba(255,255,255,.95);border-radius:20px;padding:22px 20px 18px;box-shadow:0 10px 30px rgba(21,79,97,.22);}
 #bbp-strip{display:flex;gap:8px;justify-content:center;align-items:flex-end;flex-wrap:wrap;}
 #bbp-strip .ci{width:120px;text-align:center;}
 #bbp-strip .ci img{width:100%;height:104px;object-fit:contain;display:block;margin:0 auto 6px;}
 #bbp-strip .ci .n{font-family:Montserrat,sans-serif;font-size:11px;font-weight:700;letter-spacing:.04em;line-height:1.3;color:#7c2a68;}
-/* Sale-only styling. No element uses it while the sale is off - kept so the
-   next sale needs only the two elements named in the comment above. */
 #bb-collage-code{margin:14px auto 0;display:block;text-align:center;font-family:Montserrat,sans-serif;font-size:13px;font-weight:600;color:#7c2a68;background:#fff4f9;border:1px dashed #E5397F;border-radius:40px;padding:8px 16px;max-width:max-content;}
 #bb-collage-code b{color:#a01e60;font-weight:800;letter-spacing:.12em;}
 #bb-collage .bb-off{position:absolute;top:-16px;right:-14px;z-index:3;width:80px;height:80px;border-radius:50%;background:#E5397F;border:4px solid #fff;box-shadow:0 8px 22px rgba(160,30,96,.45);transform:rotate(-12deg);display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;}
-#bb-collage .bb-off svg{width:34px;height:19px;display:block;margin-bottom:2px;}
 #bb-collage .bb-off b{font-family:Montserrat,sans-serif;font-size:21px;font-weight:800;line-height:1;color:#fff;}
 #bb-collage .bb-off span{font-family:Montserrat,sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;line-height:1.2;color:#fff;}
 @media screen and (max-width:767px){
+  #bb-hero-sale{margin-top:20px;border-radius:14px;}
   #bb-collage{margin-top:20px;padding:18px 12px 14px;border-radius:16px;}
   #bbp-strip{gap:6px;}
   #bbp-strip .ci{width:30%;}
@@ -42,11 +53,11 @@
   #bbp-strip .ci .n{font-size:10px;}
   #bb-collage-code{font-size:11.5px;padding:7px 12px;margin-top:12px;}
   #bb-collage .bb-off{width:62px;height:62px;top:-12px;right:-8px;}
-  #bb-collage .bb-off svg{width:27px;height:15px;}
   #bb-collage .bb-off b{font-size:17px;}
   #bb-collage .bb-off span{font-size:8px;}
 }
 </style>
+<a id="bb-hero-sale" href="#bb-shop"><img src="https://cdn.prod.website-files.com/6a7635942dbaea8e6172ec21/6ac55845500f8d19ec9cadba_bb-flashsale-hero-oct2026.webp" width="2000" height="1125" alt="Flash sale October 7 to 14 — 20% off the CellCore collection with code FLASHSALE"></a>
 <div id="bb-collage">
   <div class="bb-off" id="bb-collage-off" aria-hidden="true"><b>20%</b><span>OFF</span></div>
   <div id="bbp-strip">

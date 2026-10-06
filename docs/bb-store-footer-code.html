@@ -1,5 +1,5 @@
 <script>
-/* bb-store v35 - lives in SITE FOOTER custom code, not an embed.
+/* bb-store v36 - lives in SITE FOOTER custom code, not an embed.
    Embeds hold markup + CSS only. Failures are isolated so one missing
    element cannot take down the rest. ?bbdebug=1 paints its own panel.
 
@@ -157,20 +157,44 @@
   // discount checkout will not honour. Only the words change.
   var SALE_TZ = 'America/New_York';
 
-  function saleDate(iso) {
+  // One formatter for every sale date, so the timezone pin can never be
+  // forgotten on a new call site.
+  function salePart(iso, opts) {
+    var o = { timeZone: SALE_TZ }, k;
+    for (k in opts) { if (opts.hasOwnProperty(k)) { o[k] = opts[k]; } }
     try {
-      return new Date(iso).toLocaleDateString('en-US',
-        { month: 'long', day: 'numeric', timeZone: SALE_TZ });
+      return new Date(iso).toLocaleDateString('en-US', o);
     } catch (e) {
       // Ancient browser with no timeZone support: fall back to device-local
       // rather than printing nothing.
-      try {
-        return new Date(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
-      } catch (e2) { return ''; }
+      try { return new Date(iso).toLocaleDateString('en-US', opts); }
+      catch (e2) { return ''; }
     }
   }
+
+  function saleDate(iso) {
+    return salePart(iso, { month: 'long', day: 'numeric' });
+  }
+
+  function ord(n) {
+    var suf = ['th', 'st', 'nd', 'rd'], v = n % 100;
+    return n + (suf[(v - 20) % 10] || suf[v] || suf[0]);
+  }
+
+  // Emma, 2026-10-06: the top banner should read the RANGE, not just the open
+  // date - "Oct 7-14th". Built from SALE_START/SALE_END rather than typed, so it
+  // cannot drift from the Shopify window, and it survives a sale that straddles
+  // two months ("Oct 28-Nov 3rd").
+  function saleRange() {
+    var am = salePart(SALE_START, { month: 'short' });
+    var bm = salePart(SALE_END,   { month: 'short' });
+    var ad = salePart(SALE_START, { day: 'numeric' });
+    var bd = salePart(SALE_END,   { day: 'numeric' });
+    if (!am || !ad || !bd) { return ''; }
+    return am + ' ' + ad + '-' + (am === bm ? '' : bm + ' ') + ord(Number(bd));
+  }
   var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
-  var VERSION = 'v35';
+  var VERSION = 'v36';
 
   // ?product=<shopify-handle> opens that product's modal on load. The storefront
   // is one page, so this is what a shareable product link means here. A Shopify
@@ -264,14 +288,14 @@
   // Six surfaces, in the order a shopper meets them:
   //   1. #bb-promo          - the site-wide bar          (mountPromo)
   //   2. #bb-code-banner    - above the category chips   (mountCodeBanner)
-  //   3. #bb-collage-code   - the hero chip              (fillCallouts)
+  //   3. the hero           - Emma's sale graphic itself (swapHero)
   //   4. .bb-cat-code       - under each category heading (renderShop)
   //   5. #bb-cart-code      - the cart drawer            (renderCodeStatus)
   //   6. #bb-checkout-code  - under the Checkout button  (ensureCheckoutNote)
   //
   // codeLine() is the single source of truth - change the wording here and it
-  // changes in all six at once. Do NOT reintroduce codeHtml() into card() or
-  // openModal(); that is the thing that was asked to be taken out.
+  // changes in all of them at once. Do NOT reintroduce codeHtml() into card()
+  // or openModal(); that is the thing that was asked to be taken out.
   //
   // NOTE: the cart ALSO carries the code automatically (cartCreate attaches it,
   // and checkoutHref appends ?discount=). So for most shoppers it is already
@@ -367,14 +391,17 @@
     }
 
     if (nav) {
-      nav.innerHTML = '<span class="bb-cats-lab">Shop by need</span>' +
+      nav.innerHTML = '<span class="bb-cats-lab">Shop by Category</span>' +
         live.map(function (g) {
           return '<a class="bb-cat-chip" href="#bb-cat-' + g.cat.key + '" data-bb-cat="' +
                  g.cat.key + '">' + esc(g.cat.name) + '</a>';
         }).join('');
     }
 
-    host.innerHTML = live.map(function (g) {
+    // Emma, 2026-10-06: a divider before the first category, so it is obvious a
+    // shopper is about to scroll through all of them rather than one list.
+    host.innerHTML = '<div class="bb-cats-divider"><span>Categories</span></div>' +
+      live.map(function (g) {
       return '<section class="bb-cat" id="bb-cat-' + g.cat.key + '">' +
                '<div class="bb-cat-head">' +
                  '<h3>' + esc(g.cat.name) + '</h3>' +
@@ -395,12 +422,27 @@
   // This line is deliberately NOT inside any sale conditional - it is the one
   // piece of copy that must survive the flash sale ending, so a shopper who
   // bought once knows to come back for refills.
+  //
+  // Emma, 2026-10-06: "take away the little section... While we definitely want
+  // to encourage that, I think the overall flow would be better if we went
+  // straight into all the different categories." So it is MOVED, not deleted:
+  // it used to sit between the chips and the first category, interrupting the
+  // run-up to the shop. It now closes the shop instead, which is where a
+  // reorder prompt belongs anyway - after someone has seen what is for sale.
+  // It builds its own element and must therefore run AFTER renderShop(), which
+  // replaces the innerHTML of #bb-cat-sections.
   function renderEvergreen() {
+    var host = $('bb-cat-sections');
+    if (!host) { return; }
     var el = $('bb-restock');
-    if (!el) { return; }
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'bb-restock';
+    }
     el.innerHTML = '<strong>This shop stays open.</strong> Come back any time to ' +
       'reorder your formulas &mdash; no sale needed, same practitioner-grade ' +
       'products, same checkout.';
+    host.appendChild(el);
   }
 
   var PF = 'id title handle vendor descriptionHtml featuredImage{url altText} images(first:4){nodes{url altText}} variants(first:1){nodes{id price{amount currencyCode} availableForSale}}';
@@ -574,9 +616,9 @@
     bar.innerHTML = STATE === 'live'
       ? '20% OFF the entire shop<span class="sep">&middot;</span>' +
         'Enter code <b>' + DISCOUNT + '</b> at checkout<span class="sep">&middot;</span>' +
-        'Ends ' + saleDate(SALE_END)
+        saleRange()
       : 'Flash sale: 20% OFF the entire shop<span class="sep">&middot;</span>' +
-        'Opens ' + saleDate(SALE_START) + '<span class="sep">&middot;</span>' +
+        saleRange() + '<span class="sep">&middot;</span>' +
         'Code <b>' + DISCOUNT + '</b>';
     document.body.insertBefore(bar, document.body.firstChild);
 
@@ -609,6 +651,20 @@
     document.head.appendChild(css);
   });
 
+  // Emma supplied a designed sale graphic for the hero on 2026-10-06. It shows
+  // INSTEAD of the product strip while the sale is on, and the strip comes back
+  // on its own the moment the sale ends - so the hero is still a one-flag
+  // switch and nobody has to remember to pull a dated image down.
+  // The graphic already carries "20% OFF" and "USE CODE FLASHSALE", so the
+  // sticker and chip inside #bb-collage are hidden with it rather than doubled.
+  function swapHero() {
+    var img = $('bb-hero-sale'), strip = $('bb-collage');
+    if (!img) { return; }
+    var showImg = SALE_ENABLED && STATE !== 'off' && STATE !== 'ended';
+    img.style.display = showImg ? '' : 'none';
+    if (strip) { strip.style.display = showImg ? 'none' : ''; }
+  }
+
   function fillCallouts() {
     var off = $('bb-collage-off');
     if (off) { off.style.display = (SALE_ON && BADGE && STATE === 'live') ? '' : 'none'; }
@@ -619,7 +675,7 @@
     a.innerHTML = codeLine();
   }
   safe('callouts', fillCallouts);
-  safe('evergreen', renderEvergreen);
+  safe('hero swap', swapHero);
   safe('code banner', mountCodeBanner);
   safe('checkout note', ensureCheckoutNote);
 
@@ -637,6 +693,7 @@
     found.forEach(function (p) { byHandle[p.handle] = p; });
     dbg('resolved ' + found.length + ' of ' + ALL_HANDLES.length + ' handles');
     safe('renderShop', renderShop);
+    safe('evergreen', renderEvergreen);
     safe('renderCollage', renderCollage);
     safe('feature', ensureFeature);
     safe('deep link', openDeepLink);

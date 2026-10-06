@@ -1,4 +1,4 @@
-<!-- bb-store markup v20 - MARKUP + CSS ONLY.
+<!-- bb-store markup v21 - MARKUP + CSS ONLY.
      The JavaScript lives in SITE FOOTER custom code (Project Settings > Custom Code).
      Do NOT add a script here - embed script serialization proved unreliable.
 
@@ -11,8 +11,6 @@
      per category). Both are filled entirely by the footer script from its
      CATEGORIES list - this file only supplies the empty containers and styling,
      so adding or renaming a category never means touching this embed.
-     #bb-restock is the year-round "we are still here" line; the footer script
-     fills it OUTSIDE any sale conditional so it survives the sale ending.
      v19 (2026-10-06) added the styling for the two new discount-code surfaces
      the footer script builds: #bb-code-banner (the standalone band above the
      category chips) and .bb-checkout-code (the line under the Checkout button).
@@ -26,11 +24,22 @@
      one .bb-cat-code line under each category heading instead. The .bb-code
      rules below STAY - the four hidden landing pages still use that pill.
 
+     v21 (2026-10-06), all Emma's calls:
+       - <div id="bb-restock"> is GONE from the top of this file. The reorder
+         line used to sit between the category chips and the first category and
+         interrupted the run-up to the shop. renderEvergreen() in the footer now
+         BUILDS that element and appends it after the last category instead, so
+         there is nothing to place here. Do not add the div back - you would get
+         two of them. Its styling stays below.
+       - .bb-cats-lab ("Shop by Category") went from small grey caps to a real
+         heading, because it is the label for the whole shop.
+       - .bb-cats-divider is the new "CATEGORIES" rule that sits above the first
+         category section, so it is obvious the whole catalogue follows.
+
      Do NOT add a script tag or data-bb-* attributes here: Webflow can normalise
      bare data-* attributes on publish. -->
 
 <div id="bb-cats"></div>
-<div id="bb-restock"></div>
 <div id="bb-cat-sections"></div>
 
 <div id="bb-cart-toggle" aria-label="Open cart">&#128722; <span id="bb-cart-count">0</span></div>
@@ -53,16 +62,21 @@
 <style>
 /* ---- Category navigation ---- */
 #bb-cats{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;max-width:1100px;margin:0 auto 10px;font-family:Montserrat,sans-serif;scroll-margin-top:120px;}
-#bb-cats .bb-cats-lab{width:100%;text-align:center;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#9bb2b6;margin-bottom:4px;}
+#bb-cats .bb-cats-lab{width:100%;text-align:center;font-size:21px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#7c2a68;margin-bottom:14px;line-height:1.2;}
 .bb-cat-chip{display:inline-block;font-size:13px;font-weight:600;color:#7c2a68;background:#fff;border:1px solid #e2d3dc;border-radius:40px;padding:9px 16px;text-decoration:none;cursor:pointer;transition:background .15s,border-color .15s,color .15s;}
 .bb-cat-chip:hover{background:#E5397F;border-color:#E5397F;color:#fff;}
 
-/* ---- The year-round reassurance line ---- */
-#bb-restock{max-width:1100px;margin:18px auto 34px;font-family:Montserrat,sans-serif;font-size:13.5px;line-height:1.6;color:#3d4d56;background:#f3f9fa;border:1px solid #d9eaee;border-left:4px solid #154F61;border-radius:12px;padding:14px 18px;text-align:center;}
+/* ---- The year-round reassurance line. The footer script builds this element
+       and appends it AFTER the last category, so nothing here places it. ---- */
+#bb-restock{max-width:1100px;margin:10px auto 0;font-family:Montserrat,sans-serif;font-size:13.5px;line-height:1.6;color:#3d4d56;background:#f3f9fa;border:1px solid #d9eaee;border-left:4px solid #154F61;border-radius:12px;padding:14px 18px;text-align:center;}
 #bb-restock strong{color:#154F61;font-weight:800;}
 #bb-restock:empty{display:none;}
 
 /* ---- Category sections ---- */
+.bb-cats-divider{max-width:1100px;margin:4px auto 34px;font-family:Montserrat,sans-serif;display:flex;align-items:center;gap:18px;}
+.bb-cats-divider:before,.bb-cats-divider:after{content:'';flex:1;height:2px;background:linear-gradient(90deg,rgba(21,79,97,0),#154F61);}
+.bb-cats-divider:after{background:linear-gradient(90deg,#154F61,rgba(21,79,97,0));}
+.bb-cats-divider span{flex:none;font-size:14px;font-weight:800;letter-spacing:.3em;text-transform:uppercase;color:#154F61;}
 .bb-cat{max-width:1100px;margin:0 auto 56px;font-family:Montserrat,sans-serif;scroll-margin-top:120px;}
 .bb-cat-head{text-align:center;margin-bottom:22px;}
 .bb-cat-head h3{font-size:24px;font-weight:800;color:#7c2a68;margin:0 0 4px;}
@@ -147,7 +161,6 @@
 .bb-checkout-code{margin:12px 0 0;font-family:Montserrat,sans-serif;font-size:12.5px;line-height:1.5;font-weight:600;color:#a01e60;text-align:center;}
 .bb-checkout-code b{font-weight:800;letter-spacing:.1em;}
 .bb-cat-grid .bbp .bb-off{position:absolute;top:-12px;right:-12px;z-index:3;width:62px;height:62px;border-radius:50%;background:#E5397F;border:3px solid #fff;box-shadow:0 6px 16px rgba(160,30,96,.45);transform:rotate(-12deg);display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;}
-.bb-cat-grid .bbp .bb-off svg{width:27px;height:15px;display:block;margin-bottom:1px;}
 .bb-cat-grid .bbp .bb-off b{font-family:Montserrat,sans-serif;font-size:16px;font-weight:800;line-height:1;color:#fff;}
 .bb-cat-grid .bbp .bb-off span{font-family:Montserrat,sans-serif;font-size:8px;font-weight:700;letter-spacing:.12em;line-height:1.1;color:#fff;}
 
@@ -161,10 +174,12 @@
   .bb-cat-grid .bbp{padding:14px 12px 12px;}
   .bb-cat-grid .bbp img{height:120px;}
   .bb-cat-grid .bbp .bb-off{width:50px;height:50px;top:-9px;right:-9px;}
-  .bb-cat-grid .bbp .bb-off svg{width:21px;height:12px;}
   .bb-cat-grid .bbp .bb-off b{font-size:13px;}
   .bb-cat-grid .bbp .bb-off span{font-size:7px;}
-  #bb-restock{font-size:12.5px;padding:12px 14px;margin-bottom:26px;}
+  #bb-restock{font-size:12.5px;padding:12px 14px;}
+  #bb-cats .bb-cats-lab{font-size:17px;margin-bottom:11px;}
+  .bb-cats-divider{gap:12px;margin-bottom:26px;}
+  .bb-cats-divider span{font-size:11.5px;letter-spacing:.24em;}
   #bb-code-banner{gap:8px;padding:13px 14px;margin-bottom:18px;}
   #bb-code-banner .bb-cb-pct{font-size:17px;}
   #bb-code-banner .bb-cb-txt{font-size:13.5px;}
