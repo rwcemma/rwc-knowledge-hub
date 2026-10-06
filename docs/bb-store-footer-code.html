@@ -1,5 +1,5 @@
 <script>
-/* bb-store v33 - lives in SITE FOOTER custom code, not an embed.
+/* bb-store v34 - lives in SITE FOOTER custom code, not an embed.
    Embeds hold markup + CSS only. Failures are isolated so one missing
    element cannot take down the rest. ?bbdebug=1 paints its own panel.
 
@@ -68,7 +68,7 @@
       blurb: 'Digestion, enzymes and the microbiome.',
       handles: ['ct-zyme', 'ct-biotic', 'tudca-cellcore', 'biotoxin-binder-cellcore'] },
     { key: 'anti', name: 'Anti-Microbials',
-      blurb: 'The parasite and pathogen formulas.',
+      blurb: 'Targeted formulas for microbial support.',
       handles: ['para-1-cellcore', 'para-2-cellcore', 'para-3-cellcore', 'para-4',
                 'is-bab', 'is-boost', 'is-bart-cellcore', 'is-borr-cellcore'] },
     { key: 'inflam', name: 'Inflammatory Support',
@@ -150,7 +150,7 @@
     } catch (e) { return ''; }
   }
   var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
-  var VERSION = 'v33';
+  var VERSION = 'v34';
 
   // ?product=<shopify-handle> opens that product's modal on load. The storefront
   // is one page, so this is what a shareable product link means here. A Shopify
@@ -229,20 +229,53 @@
            '<span class="bb-now">$' + (full * (1 - SALE_PCT)).toFixed(2) + '</span>';
   }
 
+  // ---- The discount code, said everywhere ----
+  // Emma, 2026-10-06: the code must be "listed in many places that it has to be
+  // plugged in at checkout". So one sentence, one spelling, seven surfaces:
+  // the promo bar, the banner above the categories, every product card, the
+  // product modal, the hero-collage chip, the cart drawer and the line under
+  // the Checkout button. codeLine() is the single source of truth - change the
+  // wording here and it changes in all of them at once.
+  //
+  // NOTE: the cart ALSO carries the code automatically (cartCreate attaches it,
+  // and checkoutHref appends ?discount=). So for most shoppers it is already
+  // filled in when they land on checkout. The copy still says "enter it"
+  // because that is the instruction Emma wants and it stays true either way -
+  // a shopper who sees it pre-filled has lost nothing, and one whose browser
+  // dropped the cart still knows what to type.
+  function codeLine() {
+    return STATE === 'live'
+      ? 'Enter code <b>' + DISCOUNT + '</b> at checkout for 20% off'
+      : 'Code <b>' + DISCOUNT + '</b> &middot; opens ' + saleDate(SALE_START);
+  }
+
   function codeHtml() {
     if (!SALE_ON || STATE === 'ended') { return ''; }
-    var txt = STATE === 'live'
-      ? 'Use code <b>' + DISCOUNT + '</b> at checkout for 20% off'
-      : '<b>' + DISCOUNT + '</b> &middot; from ' + saleDate(SALE_START);
-    return '<div class="bb-code">' + txt + '</div>';
+    return '<div class="bb-code">' + codeLine() + '</div>';
+  }
+
+  // The loud one: a full-width band directly above the category chips, so the
+  // code is on screen before a shopper has scrolled past a single product.
+  function mountCodeBanner() {
+    if (!SALE_ON || STATE === 'ended') { return; }
+    var host = $('bb-cats');
+    if (!host || !host.parentNode) { return; }
+    if ($('bb-code-banner')) { return; }
+    var b = document.createElement('div');
+    b.id = 'bb-code-banner';
+    b.innerHTML = '<span class="bb-cb-pct">20% OFF</span>' +
+      '<span class="bb-cb-txt">' + codeLine() + '</span>' +
+      '<span class="bb-cb-sub">Ends ' + saleDate(SALE_END) + '</span>';
+    host.parentNode.insertBefore(b, host);
   }
 
   function badgeHtml() {
     if (!SALE_ON || !BADGE || STATE !== 'live') { return ''; }
+    // The sticker used to carry a little worm glyph for the parasite sale.
+    // Emma, 2026-10-06: all parasite imagery and wording comes off the site, so
+    // the badge is now plain type. The .bb-off svg rules in the embeds are left
+    // in place and simply match nothing.
     return '<div class="bb-off" aria-hidden="true">' +
-      '<svg viewBox="0 0 40 22"><path d="M4 15q5-10 10 0t10 0" fill="none" stroke="#ffd7ec" ' +
-      'stroke-width="4.5" stroke-linecap="round"/><circle cx="28" cy="13" r="5.4" fill="#ffd7ec"/>' +
-      '<circle cx="30.4" cy="11.2" r="1.3" fill="#a01e60"/></svg>' +
       '<b>' + BADGE + '</b><span>OFF</span></div>';
   }
 
@@ -255,6 +288,7 @@
            '<img src="' + img + '" alt="' + esc(p.title) + '">' +
            '<div class="t">' + esc(p.title) + '</div>' +
            '<div class="pr">' + priceHtml(p, v) + '</div>' +
+           codeHtml() +
            '<div class="lm">Learn more</div>' +
            '<button data-bb-add="1">' + label + '</button></div>';
   }
@@ -393,8 +427,11 @@
 
   // Section 1 of the home page: images and names only, nothing clickable, so it
   // cannot compete with the shop below.
-  var COLLAGE = ['para-1-cellcore', 'para-2-cellcore', 'para-3-cellcore', 'para-4',
-                 'biotoxin-binder-cellcore'];
+  // One product from five different categories, so the hero reads as "the
+  // CellCore collection" rather than as one protocol. Every handle here must
+  // also appear in CATEGORIES, or it is never fetched and the tile is skipped.
+  var COLLAGE = ['drainage-activator', 'biotoxin-binder-cellcore', 'ct-biotic',
+                 'para-1-cellcore', 'bc-atp'];
   function renderCollage() {
     var strip = $('bbp-strip');
     if (!strip) { return; }
@@ -490,7 +527,7 @@
     bar.href = '#bb-shop';
     bar.innerHTML = STATE === 'live'
       ? '20% OFF the entire shop<span class="sep">&middot;</span>' +
-        'Use code <b>' + DISCOUNT + '</b> at checkout<span class="sep">&middot;</span>' +
+        'Enter code <b>' + DISCOUNT + '</b> at checkout<span class="sep">&middot;</span>' +
         'Ends ' + saleDate(SALE_END)
       : 'Flash sale: 20% OFF the entire shop<span class="sep">&middot;</span>' +
         'Opens ' + saleDate(SALE_START) + '<span class="sep">&middot;</span>' +
@@ -527,15 +564,18 @@
   });
 
   function fillCallouts() {
+    var off = $('bb-collage-off');
+    if (off) { off.style.display = (SALE_ON && BADGE && STATE === 'live') ? '' : 'none'; }
     var a = $('bb-collage-code');
     if (!a) { return; }
     if (!SALE_ON || STATE === 'ended') { a.style.display = 'none'; return; }
-    a.innerHTML = STATE === 'live'
-      ? 'Use code <b>' + DISCOUNT + '</b> at checkout for 20% off'
-      : 'Code <b>' + DISCOUNT + '</b> &middot; opens ' + saleDate(SALE_START);
+    a.style.display = '';
+    a.innerHTML = codeLine();
   }
   safe('callouts', fillCallouts);
   safe('evergreen', renderEvergreen);
+  safe('code banner', mountCodeBanner);
+  safe('checkout note', ensureCheckoutNote);
 
   safe('boot placeholder', function () {
     var host = $('bb-cat-sections');
@@ -682,14 +722,32 @@
     el.style.display = '';
     el.className = live ? 'bb-cart-code on' : 'bb-cart-code';
     el.innerHTML = live
-      ? '&#10003; Code <b>' + DISCOUNT + '</b> applied &mdash; 20% off your cart.'
+      ? '&#10003; Code <b>' + DISCOUNT + '</b> is on your cart &mdash; check it is still ' +
+        'applied on the checkout page.'
       : (STATE === 'before'
           ? 'Code <b>' + DISCOUNT + '</b> unlocks 20% off from ' + saleDate(SALE_START) + '.'
-          : 'Code <b>' + DISCOUNT + '</b> is applied automatically at checkout.');
+          : 'Enter code <b>' + DISCOUNT + '</b> at checkout for 20% off.');
+  }
+
+  // The last thing a shopper reads before leaving for Shopify's checkout.
+  function ensureCheckoutNote() {
+    var btn = $('bb-checkout-btn');
+    if (!btn || !btn.parentNode) { return; }
+    var n = $('bb-checkout-code');
+    if (!SALE_ON || STATE === 'ended') { if (n) { n.style.display = 'none'; } return; }
+    if (!n) {
+      n = document.createElement('p');
+      n.id = 'bb-checkout-code';
+      n.className = 'bb-checkout-code';
+      btn.parentNode.insertBefore(n, btn.nextSibling);
+    }
+    n.style.display = '';
+    n.innerHTML = codeLine() + '.';
   }
 
   function renderCart(cart) {
     renderCodeStatus(cart);
+    safe('checkout note', ensureCheckoutNote);
     var count = cart ? cart.totalQuantity : 0;
     var cnt = $('bb-cart-count'); if (cnt) { cnt.textContent = count; }
     var box = $('bb-cart-lines');

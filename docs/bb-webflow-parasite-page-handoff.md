@@ -1566,3 +1566,134 @@ Webflow text to undo.
 
 A copy of v32 is in the session scratchpad if a rollback is ever needed.
 
+
+---
+
+## v34 — parasite verbiage out, discount code everywhere (2026-10-06)
+
+Emma: *"Can you take out all the parasite verbiage and make sure that the
+discount code is listed in many places that it has to be plugged in at
+checkout?"*
+
+Two jobs in one pass. Neither is reversible by a flag, so both are written down
+here in full.
+
+### 1. The discount code, on seven surfaces
+
+`codeLine()` in the footer script is now the **single source of truth** for the
+code sentence. Change the wording there and it changes everywhere at once.
+
+| # | Surface | Element |
+|---|---|---|
+| 1 | Site-wide promo bar | `#bb-promo`, injected by `mountPromo()` |
+| 2 | Banner above the category chips | `#bb-code-banner`, built by `mountCodeBanner()` |
+| 3 | Every product card | `.bb-code` via `codeHtml()` inside `card()` |
+| 4 | Product modal | `.bb-code` via `codeHtml()` inside `openModal()` |
+| 5 | Hero collage chip | `#bb-collage-code`, filled by `fillCallouts()` |
+| 6 | Cart drawer | `#bb-cart-code`, filled by `renderCodeStatus()` |
+| 7 | Under the Checkout button | `#bb-checkout-code`, built by `ensureCheckoutNote()` |
+
+Live wording: **"Enter code FLASHSALE at checkout for 20% off"**. Before the
+window opens it reads "Code FLASHSALE · opens October 7". When the sale is off
+or ended, every one of the seven is empty or hidden — the sale is still a
+one-flag switch.
+
+**Worth knowing before anyone "fixes" the copy:** the cart *already* carries the
+code. `cartCreate` attaches it and `checkoutHref()` appends `?discount=`, so for
+most shoppers it arrives pre-filled at checkout. The copy still says *enter it*
+because that is the instruction, and it stays true either way — a shopper who
+sees it pre-filled has lost nothing, and one whose browser dropped the cart
+still knows what to type. The cart drawer says so precisely: once the code is
+applied it reads "✓ Code FLASHSALE is on your cart — check it is still applied
+on the checkout page."
+
+New CSS for surfaces 2 and 7 lives in the **store embed, v19**
+(`#bb-code-banner`, `.bb-cb-pct`, `.bb-cb-txt`, `.bb-cb-sub`,
+`.bb-checkout-code`). Like the rest of the sale styling it is left in place when
+a sale ends.
+
+### 2. Parasite verbiage removed
+
+The September parasite campaign was the site's entire voice. It is gone from
+every visitor-facing surface.
+
+**Home page text nodes (Webflow-authored):**
+
+| Element | Was | Now |
+|---|---|---|
+| H1 `3ce7aa49…` | "If you have a pulse, you have a parasite." | "Stop chasing symptoms. Start clearing the load." |
+| Hero subhead `1aebf178…` | "…stubborn symptoms? Parasites. Run your targeted parasite cleanse…" | "…stubborn symptoms? The total load your body is carrying. Shop the full CellCore collection…" |
+| Ghost CTA `f6879d16…` | "Learn Why Parasites Matter" | "Learn Why Root Cause Matters" |
+| Footer link `…f564` | "Parasite " (+ "&" + " Gut") | "Detox " (+ "&" + " Gut") |
+
+**Testimonials — read this before editing further.** Three of the parasite
+mentions sat inside quotes attributed to named clients (Jenna M., Sarah R.,
+Kayla T.). Those were edited, which means a named person's quoted words were
+changed. The edits were kept to the smallest possible substitution and nothing
+about the claimed outcome was altered:
+
+- Jenna M.: "…the drainage work and **parasite cleansing**…" → "…the drainage
+  work and **the staged protocol**…"
+- Sarah R.: "Allyssa's guide and **parasite cleanse masterclass**…" →
+  "Allyssa's guide and **masterclass**…"
+- Kayla T.: "Ran the **Para Kit** for 30 days… I recommend **this cleanse**…" →
+  "Ran the **protocol** for 30 days… I recommend **it**…"
+
+Emma was told explicitly. If any of these is a verbatim quote she holds on
+record, the wording should be checked against the original.
+
+**Education embed `2148c621…` — rewritten.** It was a full parasite lesson:
+pill "Let's Talk Parasites", an attributed quote ("If you have a pulse, you have
+a parasite." — Dr. Todd Watts), four parasite cards (where they come from, why
+they keep you stuck, full-moon timing, drainage first) and a 14-item parasite
+symptom checklist. It is now a root-cause / total-burden lesson with the same
+structure, the same CSS and the same four-card grid:
+
+- Pill "Let's Talk Root Cause"; lead about total burden rather than parasites.
+- The Dr. Todd Watts quote is **removed, not reworded** — putting different
+  words in a named person's mouth is not an option. The blockquote now carries
+  the site's own line, cited to "the Biohacking Bombshell approach".
+- Cards: where the burden comes from / why you stay stuck / why the order
+  matters (the CellCore phases) / open drainage pathways first.
+- `#bb-drainage-link` is **preserved** — it is what opens the Drainage Jumpstart
+  Duo modal via `COPY_LINKS` in the footer script. Do not drop it in a rewrite.
+- The symptom list drops the parasite-specific items (full-moon flares, Lyme/EBV/HSV
+  naming) for general signs of a body that cannot keep up.
+
+**Elsewhere:**
+- `CATEGORIES.anti.blurb` was "The parasite and pathogen formulas." → "Targeted
+  formulas for microbial support." The category *name* stays "Anti-Microbials",
+  which is Emma's own from the sheet.
+- The 20% OFF sticker carried a little **worm glyph**. `badgeHtml()` now emits
+  plain type. The `.bb-off svg` rules are still in both embeds and simply match
+  nothing.
+- Hero collage, v14: the five tiles were Para 1–4 + BioToxin Binder — the
+  parasite protocol as the face of the home page. `COLLAGE` and the static
+  fallback are now one product from five different categories (Drainage
+  Activator, BioToxin Binder, CT-Biotic, Para 1, BC-ATP), so the hero reads as
+  the collection. The fallback markup and `COLLAGE` must be changed together.
+
+**Deliberately NOT changed, and why:**
+- Product names. "Para 1", "Parasite Cleanse Power Duo" and the
+  `parasite-cleanse-*` handles are CellCore's and Shopify's, not site copy.
+  Renaming them would break the handle lookups and sell something that is not
+  what it says.
+- The `SALE_PAGES` and `FEATURE` paths (`/parasite-power-duo`,
+  `/full-moon-para-kit`, `/parasite-starter-duo`). Those are the real URLs of
+  the four hidden landing pages.
+
+### Still open
+- **The four hidden landing pages** (`/parasite-power-duo`,
+  `/full-moon-para-kit`, `/drainage-duo`, `/parasite-starter-duo`) are *entirely*
+  parasite-themed quiz funnels and were **not** touched. They are unlinked from
+  the site, so nobody reaches one without a direct link — but anyone who has a
+  link still lands on the old voice. Emma's call: rewrite them, or retire them.
+- `SALE_END` still reads 12:37pm ET Oct 14, per the live Shopify discount.
+
+### Files
+| File | Change |
+|---|---|
+| `docs/bb-store-footer-code.html` | v33 → **v34** |
+| `docs/bb-store-embed-markup.html` | v18 → **v19** |
+| `docs/bb-hero-collage.html` | v13 → **v14** |
+| `docs/bb-education-embed.html` | parasite lesson → root-cause lesson |

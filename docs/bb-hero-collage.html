@@ -1,19 +1,23 @@
-<!-- bb hero collage v13 - FALLBACK MARKUP + CSS ONLY.
-     bb-store v20 (SITE FOOTER custom code) replaces the contents of #bbp-strip
-     with the live product images once Shopify responds. The static images below
-     are what shows if the store is unreachable.
+<!-- bb hero collage v14 - FALLBACK MARKUP + CSS ONLY.
+     The site FOOTER custom code replaces the contents of #bbp-strip with live
+     product images once Shopify responds. The static images below are what
+     shows if the store is unreachable, so they are kept in step with the
+     footer's COLLAGE list by hand - change one, change the other.
      This section is deliberately NOT shoppable - add-to-cart lives in #bb-shop
      below, so section 1 and section 2 no longer overlap.
-     SALE ELEMENTS: this file has now toggled v11 (out) / v12 (in) / v13 (out) as
-     the September sale ended, was extended, and ended for good. The two elements
-     that come and go are, in order, immediately inside #bb-collage:
-       <div class="bb-off" aria-hidden="true">...20%/OFF worm sticker...</div>
-       <div id="bb-collage-code">Use code <b>PARASITE</b> at checkout for 20% off</div>
-     v13 (2026-09-10) removed them again - the Shopify discount expired at
-     2026-09-10T03:59:59Z. Their CSS is deliberately LEFT IN PLACE below, so the
-     next sale is those two lines pasted back and nothing else. The footer script
-     fills #bb-collage-code and hides it whenever the sale is off, so the text
-     above is only ever a fallback, never the source of truth.
+
+     v14 (2026-10-06):
+       - The five fallback tiles were Para 1-4 + BioToxin Binder, i.e. the
+         parasite protocol. The store is now the whole CellCore collection and
+         all parasite wording has come off the site, so the tiles are one
+         product from five different categories, matching COLLAGE in the footer.
+       - The two sale elements are BACK IN for the 20% FLASHSALE and are now
+         SCRIPT-MANAGED, not hand-toggled. #bb-collage-off (the 20% OFF sticker)
+         and #bb-collage-code (the "enter code at checkout" chip) are both shown
+         or hidden by fillCallouts() in the footer, which reads SALE_ENABLED.
+         That means ending a sale is still a one-flag change in the footer and
+         these two lines can stay here year-round. Do not hand-delete them.
+         The sticker no longer carries the worm glyph it had in September.
      Do NOT add a script tag or data-bb-* attributes here: Webflow can normalise
      bare data-* attributes on publish. -->
 <style>
@@ -44,11 +48,13 @@
 }
 </style>
 <div id="bb-collage">
+  <div class="bb-off" id="bb-collage-off" aria-hidden="true"><b>20%</b><span>OFF</span></div>
   <div id="bbp-strip">
-    <div class="ci"><img src="https://cdn.shopify.com/s/files/1/0278/4326/4609/files/Para_1_f1e834e1-a43f-4364-aa3e-da247b3dabc3.png?v=1771981843" alt="Para 1 by CellCore"><div class="n">Para 1</div></div>
-    <div class="ci"><img src="https://cdn.shopify.com/s/files/1/0278/4326/4609/files/Para_2_c87ede60-31d2-46af-8765-d1dceea0b36e.png?v=1771981898" alt="Para 2 by CellCore"><div class="n">Para 2</div></div>
-    <div class="ci"><img src="https://cdn.shopify.com/s/files/1/0278/4326/4609/files/Para_3_6ad89661-95e8-47df-a51c-106065cb18be.png?v=1771981958" alt="Para 3 by CellCore"><div class="n">Para 3</div></div>
-    <div class="ci"><img src="https://cdn.shopify.com/s/files/1/0278/4326/4609/files/Para_4_377b84b2-5b36-40a2-91b2-ed6cb9341509.png?v=1771982001" alt="Para 4 by CellCore"><div class="n">Para 4</div></div>
+    <div class="ci"><img src="https://cdn.shopify.com/s/files/1/0278/4326/4609/files/Drainage_Activator_81a2d862-1548-40c7-977d-e28c1958a177.png?v=1771961883" alt="Drainage Activator by CellCore"><div class="n">Drainage Activator</div></div>
     <div class="ci"><img src="https://cdn.shopify.com/s/files/1/0278/4326/4609/files/BioToxin_Binder_-_FRONT.png?v=1771950389" alt="BioToxin Binder by CellCore"><div class="n">BioToxin Binder</div></div>
+    <div class="ci"><img src="https://cdn.shopify.com/s/files/1/0278/4326/4609/files/CT-Biotic_790f1292-429e-4d24-9847-a7a07cd97185.png?v=1771957074" alt="CT-Biotic by CellCore"><div class="n">CT-Biotic</div></div>
+    <div class="ci"><img src="https://cdn.shopify.com/s/files/1/0278/4326/4609/files/Para_1_f1e834e1-a43f-4364-aa3e-da247b3dabc3.png?v=1771981843" alt="Para 1 by CellCore"><div class="n">Para 1</div></div>
+    <div class="ci"><img src="https://cdn.shopify.com/s/files/1/0278/4326/4609/files/BC-ATP_-_FRONT.png?v=1771950199" alt="BC-ATP by CellCore"><div class="n">BC-ATP</div></div>
   </div>
+  <div id="bb-collage-code">Enter code <b>FLASHSALE</b> at checkout for 20% off</div>
 </div>
