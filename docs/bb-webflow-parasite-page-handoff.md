@@ -2070,3 +2070,108 @@ screens. Removed.
 
 ### Files
 No script change — `.bb-hero` style only. The footer script stays at **v38**.
+
+## v39/v40 — product search, and the 50,000-character ceiling (2026-10-08)
+
+Emma: *"can we add a search bar to the site so clients can search specific
+products?"* and, in the same breath, *"add the para kit and full moon kit under
+antimicrobials category."* Both shipped in one upload, **footer v40** +
+**embed markup v22**.
+
+### The search box
+
+A client-side filter over the 37 curated products — no Shopify search call, no
+network round trip, because every product is already in memory by the time the
+box can be typed into.
+
+**Where it lives.** `mountSearch()` inserts `#bb-search` **before `#bb-cats`**,
+deliberately *outside* `#bb-cat-sections`. That container is rewritten wholesale
+on every keystroke; an input inside it would be destroyed and recreated mid-type
+and lose focus after the first character. This is the one structural constraint
+in the whole feature — do not move the input inside the results container.
+
+**One writer.** `paintShop()` is now the only function that writes
+`#bb-cat-sections`:
+
+```js
+function paintShop() {
+  var host = $('bb-cat-sections');
+  if (!host) { return; }
+  var hits = searchHits();
+  host.innerHTML = hits ? resultsHtml(hits) : categoriesHtml();
+  var nav = $('bb-cats');
+  if (nav) { nav.classList[hits ? 'add' : 'remove']('bb-searching'); }
+  safe('evergreen', renderEvergreen);
+}
+```
+
+`searchHits()` returns `null` — not `[]` — when there is no query at all. That
+distinction is what separates "show the categories" from "show zero results",
+and it is why the empty state never flashes on load.
+
+**The index.** `buildSearchIndex()` concatenates, per handle: product title,
+vendor, the handle with hyphens as spaces, every category name the product
+appears under, and a `SYNONYMS` entry if one exists. All terms must match
+(AND, substring). 110ms debounce. Escape clears, with `stopPropagation()` so it
+does not also close the modal or the cart.
+
+**Why the handle and category names are in the index.** Several CellCore
+products have opaque names — `KL Support`, `LymphActiv`, `IFC`, `GCO`,
+`Carboxy`. Indexing the handle and the category makes "kidney" find KL Support,
+"lymph" find LymphActiv, "hormone" find S-TRO. Tested against the real Shopify
+titles: `binder`→4, `para 1`→1, `probiotic`→CT-Biotic, `enzyme`→CT-Zyme,
+`inflammation`→IFC, `xyzzy`→0.
+
+**`SYNONYMS` is deliberately three entries**, and there is a DO-NOT-ADD rule in
+the script above it: **no disease or condition keywords.** Making a supplement
+findable by typing a disease is, in practice, a claim that it treats that
+disease. That is CellCore's call and Emma's call, not a search index's.
+
+### The para kit
+
+Emma asked for "the para kit and full moon kit." **They are one product, not
+two.** Shopify has a single *Cellcore Full Moon Para Kit* (handle `para-kit`)
+and no separate Full Moon Kit. Verified 2026-10-08: ACTIVE, Cellcore
+Biosciences, 118 in stock, $234.95, published to the Biohacking Bombshell
+channel, and present in the FLASHSALE product list. Added to Anti-Microbials;
+the curated list goes 36 → 37, so the fetch runs 4 chunks of 12 instead of 3.
+
+### The ceiling
+
+**Webflow caps freeform custom code at 50,000 characters.** v39 came in at
+56,332 and was rejected outright:
+
+```
+Validation Error: ["Value (content) should NOT be longer than 50000 characters"]
+```
+
+Three passes of comment trimming brought it to **49,867 — 133 characters of
+headroom.** The code was not touched: verified by diffing pre- and post-trim
+with comments and blank lines stripped, and the only code change was the single
+line `'para-kit',`.
+
+**This is now the binding constraint on the footer script.** The next feature of
+any size cannot simply be appended. The options, roughly in order of preference:
+
+1. Move the rationale comments out of the script and into this document (the
+   v40 header already points here), freeing a few thousand characters.
+2. Register the script as a *hosted* script instead of freeform code — no
+   character cap, but it needs somewhere to host it.
+3. Split: keep boot + config in the footer, move the rendering into the store
+   embed's `<script>` block (embeds have their own budget).
+
+### A note on the mirror
+
+`docs/bb-store-footer-code.html` is byte-for-byte what is live, with the
+Storefront token swapped for `TOKENPLACEHOLDER`. One character is non-ASCII —
+the ellipsis in the search placeholder. Earlier mirrors wrote it as `…`;
+the live copy has the literal character, and the mirror now matches the live
+copy so future diffs stay clean. Both evaluate identically.
+
+### Files
+- `docs/bb-store-footer-code.html` — **v40**, 49,853 chars masked / 49,867 live.
+- `docs/bb-store-embed-markup.html` — **v22**, adds `#bb-search`, `.bb-sr-lab`,
+  `.bb-sr-box`, `.bb-sr-ico`, `#bb-q` (16px on mobile, to stop iOS zooming the
+  page on focus), `#bb-q-clear`, `#bb-cats.bb-searching .bb-cat-chip`,
+  `.bb-sr-clear`, `.bb-sr-empty`.
+- Published to `biohacking-bombshell-estore.webflow.io` on 2026-10-08.

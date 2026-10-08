@@ -1,51 +1,33 @@
 <script>
-/* bb-store v38 - lives in SITE FOOTER custom code, not an embed.
-   Embeds hold markup + CSS only. Failures are isolated so one missing
-   element cannot take down the rest. ?bbdebug=1 paints its own panel.
-
-   v33 is a REBUILD, not a patch. The storefront went from "every product in
-   the shared Shopify store, minus a hide-list" to "only CellCore, grouped into
-   named categories". That deleted more than it added: the brand filter, the
-   search toolbar, the sort control, the paged catalogue loader, isHidden(),
-   vendorOf() and the FEATURED/rest-of-store split are all gone, because the
-   shop is now a fixed, curated list of 36 handles that fits in one fetch. */
+/* bb-store v40 - SITE FOOTER custom code. Embeds hold markup + CSS only.
+   Failures are isolated. ?bbdebug=1 paints a debug panel.
+   !! Webflow caps this box at 50,000 chars and v39 hit it. Check the length
+   !! before adding. Full history/rationale lives in the repo instead:
+   !! rwcemma/rwc-knowledge-hub -> docs/bb-webflow-parasite-page-handoff.md */
 (function () {
   var DOMAIN  = 'dr-jaban-moore-store.myshopify.com';
   var TOKEN   = 'TOKENPLACEHOLDER';
   var API     = 'https://' + DOMAIN + '/api/2026-07/graphql.json';
 
   // ---- The shop: CellCore only, grouped ----
-  // Emma, 2026-10-06: "I want to ONLY have cellcore products available", with
-  // categories from the "Cellcore Shop Categories" sheet.
+  // This list IS the storefront. A product not named here is never fetched,
+  // never rendered and cannot be linked to.
   //
-  // This list IS the storefront. A product not named here does not appear
-  // anywhere, is not fetched, and cannot be linked to. There is no catalogue
-  // fallback any more - adding a product means adding its handle here.
+  // BEFORE ADDING A HANDLE, check in Shopify that it is ACTIVE, vendor
+  // "Cellcore Biosciences", and published to the "Biohacking Bombshell"
+  // channel. A bad or unpublished handle fails SILENTLY - the product just
+  // never appears. Also check it is in the live discount, or the page will
+  // show a struck sale price checkout will not honour.
   //
-  // Every handle below was verified against the live Shopify store on
-  // 2026-10-06: vendor "Cellcore Biosciences", status ACTIVE, published to the
-  // "Biohacking Bombshell" channel. Do not add a handle without checking that,
-  // because a bad handle fails SILENTLY - the product simply never renders.
+  // A product may sit in more than one category on purpose (Advanced TUDCA is
+  // Drainage and Gut). The fetch de-duplicates, so repeats cost nothing.
   //
-  // A product may appear in more than one category on purpose (Advanced TUDCA
-  // is both Drainage and Gut; BioToxin Binder is both Binders and Gut). The
-  // fetch de-duplicates, so repeats cost nothing.
-  //
-  // NOT INCLUDED, and why - re-read this before "fixing" an omission:
-  //   - 21 other live CellCore products (Full Moon Para Kit, Jumpstart Kit,
-  //     Liver/Stomach/MYC/RAD/C.A. support kits, Optimize A & B, the Phase 1-5
-  //     bundles, Beginner Gallbladder Flush, CT-Minerals, ME Support).
-  //     Emma's call on 2026-10-06: leave them off the site. They are still in
-  //     the FLASHSALE discount, so a direct link would discount correctly - but
-  //     nothing on the site links to them.
-  //   - Biocidin LSF / Liquid / Capsules. In the sheet, but Biocidin brand, not
-  //     CellCore, so they contradict "only CellCore".
-  //   - Core Nutrients 60/120, D3+K2 Pro, TriMag Complex, Methyl-B Complex,
-  //     HydrOxygen, "Foundational Protocol", "Step 4: Systemic Detox". In the
-  //     sheet; do not exist in the Shopify store at all (searched 2026-10-06).
-  //   - Hormone Support Bundle (= "Hormone Jumpstart") and Daily Foundational
-  //     Detox Support. Exist but ARCHIVED, so unsellable until reactivated.
-  // That is why Foundation Support currently holds a single product.
+  // Still deliberately OFF the site (Emma's call, 2026-10-06): the other live
+  // CellCore kits and Phase bundles, Beginner Gallbladder Flush, CT-Minerals,
+  // ME Support, Optimize A/B. Also Biocidin (wrong brand), the archived Hormone
+  // Support Bundle and Daily Foundational Detox Support, and several sheet rows
+  // that do not exist in Shopify at all (Core Nutrients, D3+K2 Pro, TriMag,
+  // Methyl-B, HydrOxygen). That is why Foundation Support holds one product.
   var CATEGORIES = [
     { key: 'detox', name: 'Full Spectrum Detox',
       blurb: 'The staged protocol, start to finish.',
@@ -69,7 +51,13 @@
       handles: ['ct-zyme', 'ct-biotic', 'tudca-cellcore', 'biotoxin-binder-cellcore'] },
     { key: 'anti', name: 'Anti-Microbials',
       blurb: 'Targeted formulas for microbial support.',
+      // Emma, 2026-10-08: "add the para kit and full moon kit under
+      // antimicrobials". Those are ONE product, not two - Shopify has a single
+      // "Cellcore Full Moon Para Kit" (handle para-kit) and no separate Full
+      // Moon Kit. Verified 2026-10-08: ACTIVE, CellCore, 118 in stock, on the
+      // Biohacking Bombshell channel, and in the FLASHSALE discount.
       handles: ['para-1-cellcore', 'para-2-cellcore', 'para-3-cellcore', 'para-4',
+                'para-kit',
                 'is-bab', 'is-boost', 'is-bart-cellcore', 'is-borr-cellcore'] },
     { key: 'inflam', name: 'Inflammatory Support',
       blurb: 'Calm the immune and inflammatory load.',
@@ -96,28 +84,17 @@
   })();
 
   // ---- The sale ----
-  // SALE_ENABLED = is a discount actually running in Shopify. The page only
-  // DISPLAYS prices; Shopify is what charges the customer. If the two drift the
-  // page advertises a discount the checkout will not honour.
+  // The page only DISPLAYS prices; Shopify charges the customer. If these drift
+  // from the real discount, the page advertises something checkout will refuse.
+  // Every value below is copied VERBATIM from codeDiscountNodeByCode("FLASHSALE")
+  // - do not round or "correct" them. To change the window, change it in SHOPIFY
+  // and re-copy. Re-verify PRODUCT COVERAGE too: a partially-covering discount
+  // is what caused the v27 Starter Kit mismatch. Confirmed 2026-10-08 that the
+  // discount covers all 58 live CellCore products, so isSale() can return true.
   //
-  // FLASHSALE, October 2026. Every value below is copied VERBATIM from the live
-  // Shopify discount, read 2026-10-06 before this edit:
-  //   codeDiscountNodeByCode(code:"FLASHSALE")
-  //     -> status SCHEDULED, percentage 0.2,
-  //        startsAt 2026-10-07T04:30:00Z, endsAt 2026-10-14T16:37:00Z
-  // Do not round, tidy or "correct" these by hand. If the window should change,
-  // change it in SHOPIFY and re-copy.
-  //
-  // !! endsAt is 12:37pm Eastern on October 14, NOT end of day - it looks like
-  // !! an artifact of the time the discount was created. Emma was told on
-  // !! 2026-10-06. If she extends it to end-of-day, re-copy the new endsAt here,
-  // !! or the page will keep selling for hours after the code stops working.
-  //
-  // COVERAGE: verified the discount covers all 58 live CellCore products,
-  // which includes all 36 in CATEGORIES. So for this storefront it is genuinely
-  // sitewide, and isSale() below can return true for everything. That is NOT a
-  // standing assumption - re-verify coverage before the next sale, because a
-  // partially-covering discount is what caused the v27 Starter Kit mismatch.
+  // !! endsAt is 12:37pm Eastern on Oct 14, NOT end of day - an artifact of when
+  // !! the discount was made. Emma knows. If she extends it, re-copy endsAt here
+  // !! or the page keeps selling for hours after the code stops working.
   var SALE_ENABLED = true;
   var DISCOUNT     = 'FLASHSALE';
   var SALE_PCT     = 0.20;
@@ -144,17 +121,11 @@
   var SALE_ON = SALE_ENABLED && onSalePage();
   var STATE   = SALE_ON ? WINDOW : 'off';
 
-  // Every sale date renders in ONE timezone, never the visitor's.
-  // Emma, 2026-10-06: "the code starts october 7th not the 6th."
-  // She was right, and it was a real bug: toLocaleDateString without a timeZone
-  // formats against the DEVICE clock. SALE_START is 2026-10-07T04:30:00Z, which
-  // is 12:30am Eastern on October 7 but 11:30pm CENTRAL on October 6 - so every
-  // shopper in Central, Mountain or Pacific was being told the sale "opens
-  // October 6". Pinning the formatter to Eastern, the zone the Shopify discount
-  // was plainly set in, makes all of them read the same date: October 7.
-  // The sale WINDOW is untouched - windowState() still compares real instants
-  // against Shopify's startsAt/endsAt, so the page can never advertise a
-  // discount checkout will not honour. Only the words change.
+  // Sale dates render in ONE timezone, never the visitor's. toLocaleDateString
+  // without a timeZone formats against the DEVICE clock: SALE_START is 04:30Z,
+  // which is Oct 7 in Eastern but Oct 6 in Central/Mountain/Pacific, so most
+  // shoppers were told the sale opened a day early. This pins display only -
+  // windowState() still compares real instants against Shopify.
   var SALE_TZ = 'America/New_York';
 
   // One formatter for every sale date, so the timezone pin can never be
@@ -194,14 +165,13 @@
     return am + ' ' + ad + '-' + (am === bm ? '' : bm + ' ') + ord(Number(bd));
   }
   var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
-  var VERSION = 'v38';
+  var VERSION = 'v40';
 
-  // ?product=<shopify-handle> opens that product's modal on load. The storefront
-  // is one page, so this is what a shareable product link means here. A Shopify
-  // product URL would send the shopper to Dr. Jaban's Online Store and lose the
-  // Biohacking Bombshell sales channel and the _bb_* cart attributes.
-  // v33 note: only the 36 curated handles resolve now. Links to the 21 products
-  // Emma took off the site fall through silently and show the normal shop.
+  // ?product=<shopify-handle> opens that product's modal on load - the shop is
+  // one page, so this is what a shareable product link means here. A Shopify
+  // product URL would instead send the shopper to Dr. Jaban's Online Store and
+  // lose the BB sales channel and the _bb_* cart attributes. Only curated
+  // handles resolve; anything else falls through to the normal shop.
   var wantProduct = (function () {
     var m = /[?&]product=([^&#]+)/.exec(window.location.search);
     if (!m) { return null; }
@@ -273,38 +243,23 @@
            '<span class="bb-now">$' + (full * (1 - SALE_PCT)).toFixed(2) + '</span>';
   }
 
-  // ---- The discount code, said in the right places ----
-  // Emma, 2026-10-06: the code must be "listed in many places that it has to be
-  // plugged in at checkout". v34 put it on all seven surfaces including every
-  // product card and the product modal.
+  // ---- The discount code, on six surfaces ----
+  //   1. #bb-promo         site-wide bar            (mountPromo)
+  //   2. #bb-code-banner   above the category chips (mountCodeBanner)
+  //   3. the hero          Emma's graphic, set as the .bb-hero background-image
+  //                        in the Designer - NOT by this script
+  //   4. .bb-cat-code      under each category heading, and under the search
+  //                        results heading (categoriesHtml / resultsHtml)
+  //   5. #bb-cart-code     cart drawer              (renderCodeStatus)
+  //   6. #bb-checkout-code under the Checkout button (ensureCheckoutNote)
   //
-  // Emma, same day, after seeing it: "rather than the code FLASHSALE being on
-  // every single product, can it just be at checkout and above each section
-  // rather than each product?" So v35 DROPS the two per-product surfaces (the
-  // card chip and the modal chip) and adds one line per CATEGORY HEADING. A
-  // shopper now meets the code at page level, once per section, and again on
-  // the way out - not 36 times.
+  // codeLine() is the single source of truth for the wording. Emma asked for
+  // the code at section level, NOT per product - do not reintroduce codeHtml()
+  // into card() or openModal().
   //
-  // Six surfaces, in the order a shopper meets them:
-  //   1. #bb-promo          - the site-wide bar          (mountPromo)
-  //   2. #bb-code-banner    - above the category chips   (mountCodeBanner)
-  //   3. the hero           - Emma's sale graphic, set as the .bb-hero
-  //                           background-image in the Designer, not by this
-  //                           script. See the hero note further down.
-  //   4. .bb-cat-code       - under each category heading (renderShop)
-  //   5. #bb-cart-code      - the cart drawer            (renderCodeStatus)
-  //   6. #bb-checkout-code  - under the Checkout button  (ensureCheckoutNote)
-  //
-  // codeLine() is the single source of truth - change the wording here and it
-  // changes in all of them at once. Do NOT reintroduce codeHtml() into card()
-  // or openModal(); that is the thing that was asked to be taken out.
-  //
-  // NOTE: the cart ALSO carries the code automatically (cartCreate attaches it,
-  // and checkoutHref appends ?discount=). So for most shoppers it is already
-  // filled in when they land on checkout. The copy still says "enter it"
-  // because that is the instruction Emma wants and it stays true either way -
-  // a shopper who sees it pre-filled has lost nothing, and one whose browser
-  // dropped the cart still knows what to type.
+  // The cart also attaches the code itself (cartCreate + ?discount= on the
+  // checkout URL), so it is usually pre-filled. The copy still says "enter it"
+  // because that stays true either way and is what Emma asked for.
   function codeLine() {
     return STATE === 'live'
       ? 'Enter code <b>' + DISCOUNT + '</b> at checkout for 20% off'
@@ -364,46 +319,156 @@
            '<button data-bb-add="1">' + label + '</button></div>';
   }
 
-  // ---- Category navigation and sections ----
-  // The chip row is the whole navigation story: click a chip, the page scrolls
-  // to that category. Chips are built from CATEGORIES so they can never list a
-  // section that does not exist. A category whose products all failed to load
-  // is dropped from BOTH the chips and the sections rather than rendering an
-  // empty heading - that is what keeps a missing handle from looking like a
-  // broken page.
-  function renderShop() {
-    var nav = $('bb-cats'), host = $('bb-cat-sections');
-    if (!host) { dbg('no #bb-cat-sections container'); return; }
+  // ---- Search (Emma, 2026-10-08) ----
+  // Pure local filtering of the products already in memory after
+  // loadProducts() - no network call, no Shopify query. (v33 removed a search
+  // box, but that one paged the whole shared catalogue; this one does not.)
+  //
+  // Matched per product: title, vendor, handle with hyphens as spaces (so
+  // "hm et binder" works), the names of every category it sits in (so
+  // "drainage" finds products whose titles never say it), plus SYNONYMS.
+  // NOT matched: descriptionHtml - it carries Prop 65 and FDA language, so
+  // "warning" or "california" would return half the shop.
+  // Multi-word queries are AND, not OR.
+  //
+  // SYNONYMS only covers products whose name says nothing about what they are.
+  // DO NOT ADD condition or disease names: making a supplement findable by
+  // typing a disease is in effect a claim that it treats that disease, which
+  // is CellCore's and Emma's call, not a search index's. Product TITLES keep
+  // whatever CellCore named them, which is why "Candida Bundle" still matches
+  // - that is its name, not a keyword invented here.
+  var SYNONYMS = {
+    'ct-biotic': 'probiotic probiotics',
+    'ct-zyme':   'enzyme enzymes digestive digestion',
+    'inflamma-control': 'inflammation'
+  };
 
-    var live = [];
-    for (var i = 0; i < CATEGORIES.length; i++) {
+  var searchQuery = '';
+  var searchIndex = {};
+  var LIVE = [];
+
+  function norm(x) { return String(x || '').toLowerCase(); }
+
+  function buildSearchIndex() {
+    var catOf = {}, i, j;
+    for (i = 0; i < CATEGORIES.length; i++) {
       var c = CATEGORIES[i];
-      var items = [];
-      for (var j = 0; j < c.handles.length; j++) {
-        var p = byHandle[c.handles[j]];
-        if (p) { items.push(p); }
-        else { dbg('category ' + c.key + ': handle not loaded - ' + c.handles[j]); }
+      for (j = 0; j < c.handles.length; j++) {
+        if (!catOf[c.handles[j]]) { catOf[c.handles[j]] = []; }
+        catOf[c.handles[j]].push(c.name);
       }
-      if (items.length) { live.push({ cat: c, items: items }); }
     }
-
-    if (!live.length) {
-      report('Shop temporarily unavailable.', 'No categories resolved any products.');
-      return;
+    for (i = 0; i < ALL_HANDLES.length; i++) {
+      var h = ALL_HANDLES[i], p = byHandle[h];
+      if (!p) { continue; }
+      searchIndex[h] = norm([p.title, p.vendor, h.split('-').join(' '),
+                             (catOf[h] || []).join(' '), SYNONYMS[h] || ''].join(' '));
     }
+  }
 
-    if (nav) {
-      nav.innerHTML = '<span class="bb-cats-lab">Shop by Category</span>' +
-        live.map(function (g) {
-          return '<a class="bb-cat-chip" href="#bb-cat-' + g.cat.key + '" data-bb-cat="' +
-                 g.cat.key + '">' + esc(g.cat.name) + '</a>';
-        }).join('');
+  // Returns null when there is no query at all - the caller uses that to tell
+  // "show the normal category view" apart from "searched, found nothing".
+  function searchHits() {
+    var terms = norm(searchQuery).split(/\s+/), kept = [], i, t;
+    for (i = terms.length - 1; i >= 0; i--) { if (!terms[i]) { terms.splice(i, 1); } }
+    if (!terms.length) { return null; }
+    for (i = 0; i < ALL_HANDLES.length; i++) {
+      var h = ALL_HANDLES[i], p = byHandle[h];
+      if (!p) { continue; }
+      var hay = searchIndex[h] || '', ok = true;
+      for (t = 0; t < terms.length; t++) {
+        if (hay.indexOf(terms[t]) === -1) { ok = false; break; }
+      }
+      if (ok) { kept.push(p); }
     }
+    return kept;
+  }
 
+  // The input lives OUTSIDE #bb-cat-sections on purpose: that container is
+  // rewritten on every keystroke and would destroy an input mid-type.
+  function mountSearch() {
+    if ($('bb-search')) { return; }
+    var anchor = $('bb-cats');
+    if (!anchor || !anchor.parentNode) { return; }
+    var wrap = document.createElement('div');
+    wrap.id = 'bb-search';
+    wrap.innerHTML =
+      '<label class="bb-sr-lab" for="bb-q">Search the shop</label>' +
+      '<div class="bb-sr-box">' +
+        '<svg class="bb-sr-ico" viewBox="0 0 24 24" aria-hidden="true">' +
+          '<circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/>' +
+          '<path d="M16.5 16.5 21 21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
+        '</svg>' +
+        '<input id="bb-q" type="search" autocomplete="off" ' +
+          'placeholder="Search by product or category…" ' +
+          'aria-label="Search the shop by product or category">' +
+        '<button type="button" id="bb-q-clear" aria-label="Clear search">&times;</button>' +
+      '</div>';
+    anchor.parentNode.insertBefore(wrap, anchor);
+
+    var input = $('bb-q');
+    var timer = null;
+    input.addEventListener('input', function () {
+      if (timer) { clearTimeout(timer); }
+      // Short debounce: 36 products filter instantly, but this stops a repaint
+      // firing between every pair of keystrokes on a slow phone.
+      timer = setTimeout(function () { setQuery(input.value); }, 110);
+    });
+    input.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Escape') { ev.stopPropagation(); clearSearch(); }
+    });
+    $('bb-q-clear').addEventListener('click', clearSearch);
+    syncClearBtn();
+  }
+
+  function syncClearBtn() {
+    var b = $('bb-q-clear');
+    if (b) { b.style.display = searchQuery ? '' : 'none'; }
+  }
+
+  function setQuery(v) {
+    var next = String(v || '');
+    if (next === searchQuery) { return; }
+    searchQuery = next;
+    syncClearBtn();
+    paintShop();
+  }
+
+  function clearSearch() {
+    var input = $('bb-q');
+    if (input) { input.value = ''; }
+    setQuery('');
+    if (input) { input.focus(); }
+  }
+
+  function resultsHtml(hits) {
+    var q = esc(searchQuery.trim());
+    if (!hits.length) {
+      return '<div class="bb-sr-empty">' +
+               '<h3>Nothing matches &ldquo;' + q + '&rdquo;</h3>' +
+               '<p>Try a product name like <b>Para 1</b>, or a category like ' +
+               '<b>Binders</b> or <b>Drainage</b>.</p>' +
+               '<button type="button" class="bb-sr-clear">Show everything</button>' +
+             '</div>';
+    }
+    return '<section class="bb-cat" id="bb-cat-results">' +
+             '<div class="bb-cat-head">' +
+               '<h3>' + hits.length + (hits.length === 1 ? ' match' : ' matches') +
+                 ' for &ldquo;' + q + '&rdquo;</h3>' +
+               '<p><button type="button" class="bb-sr-clear">Clear search</button></p>' +
+               catCodeHtml() +
+             '</div>' +
+             '<div class="bb-cat-grid">' +
+               hits.map(function (p) { return card(p); }).join('') +
+             '</div>' +
+           '</section>';
+  }
+
+  function categoriesHtml() {
     // Emma, 2026-10-06: a divider before the first category, so it is obvious a
     // shopper is about to scroll through all of them rather than one list.
-    host.innerHTML = '<div class="bb-cats-divider"><span>Categories</span></div>' +
-      live.map(function (g) {
+    return '<div class="bb-cats-divider"><span>Categories</span></div>' +
+      LIVE.map(function (g) {
       return '<section class="bb-cat" id="bb-cat-' + g.cat.key + '">' +
                '<div class="bb-cat-head">' +
                  '<h3>' + esc(g.cat.name) + '</h3>' +
@@ -416,23 +481,68 @@
                '<a class="bb-cat-top" href="#bb-cats">Back to categories</a>' +
              '</section>';
     }).join('');
-
-    dbg('rendered ' + live.length + ' categories');
   }
 
-  // The storefront is open year-round; the sale is the exception, not the point.
-  // This line is deliberately NOT inside any sale conditional - it is the one
-  // piece of copy that must survive the flash sale ending, so a shopper who
-  // bought once knows to come back for refills.
-  //
-  // Emma, 2026-10-06: "take away the little section... While we definitely want
-  // to encourage that, I think the overall flow would be better if we went
-  // straight into all the different categories." So it is MOVED, not deleted:
-  // it used to sit between the chips and the first category, interrupting the
-  // run-up to the shop. It now closes the shop instead, which is where a
-  // reorder prompt belongs anyway - after someone has seen what is for sale.
-  // It builds its own element and must therefore run AFTER renderShop(), which
-  // replaces the innerHTML of #bb-cat-sections.
+  // The one place #bb-cat-sections is written - first render and every
+  // keystroke. renderEvergreen() must follow it; it appends to this container.
+  function paintShop() {
+    var host = $('bb-cat-sections');
+    if (!host) { return; }
+    var hits = searchHits();
+    host.innerHTML = hits ? resultsHtml(hits) : categoriesHtml();
+    var nav = $('bb-cats');
+    if (nav) { nav.classList[hits ? 'add' : 'remove']('bb-searching'); }
+    safe('evergreen', renderEvergreen);
+  }
+
+  // ---- Category navigation and sections ----
+  // The chip row is the whole navigation story: click a chip, the page scrolls
+  // to that category. Chips are built from CATEGORIES so they can never list a
+  // section that does not exist. A category whose products all failed to load
+  // is dropped from BOTH the chips and the sections rather than rendering an
+  // empty heading - that is what keeps a missing handle from looking like a
+  // broken page.
+  function renderShop() {
+    var nav = $('bb-cats'), host = $('bb-cat-sections');
+    if (!host) { dbg('no #bb-cat-sections container'); return; }
+
+    LIVE = [];
+    for (var i = 0; i < CATEGORIES.length; i++) {
+      var c = CATEGORIES[i];
+      var items = [];
+      for (var j = 0; j < c.handles.length; j++) {
+        var p = byHandle[c.handles[j]];
+        if (p) { items.push(p); }
+        else { dbg('category ' + c.key + ': handle not loaded - ' + c.handles[j]); }
+      }
+      if (items.length) { LIVE.push({ cat: c, items: items }); }
+    }
+
+    if (!LIVE.length) {
+      report('Shop temporarily unavailable.', 'No categories resolved any products.');
+      return;
+    }
+
+    if (nav) {
+      nav.innerHTML = '<span class="bb-cats-lab">Shop by Category</span>' +
+        LIVE.map(function (g) {
+          return '<a class="bb-cat-chip" href="#bb-cat-' + g.cat.key + '" data-bb-cat="' +
+                 g.cat.key + '">' + esc(g.cat.name) + '</a>';
+        }).join('');
+    }
+
+    buildSearchIndex();
+    safe('search box', mountSearch);
+    paintShop();
+
+    dbg('rendered ' + LIVE.length + ' categories');
+  }
+
+  // The year-round reorder line. Deliberately NOT inside any sale conditional -
+  // it is the one piece of copy that must survive the sale ending. Emma moved
+  // it from above the first category to the END of the shop, so it builds its
+  // own element and must run AFTER paintShop(), which rewrites the innerHTML
+  // of #bb-cat-sections.
   function renderEvergreen() {
     var host = $('bb-cat-sections');
     if (!host) { return; }
@@ -449,14 +559,11 @@
 
   var PF = 'id title handle vendor descriptionHtml featuredImage{url altText} images(first:4){nodes{url altText}} variants(first:1){nodes{id price{amount currencyCode} availableForSale}}';
 
-  // Fetch by aliased product(handle:) with GraphQL variables, so nothing has to
-  // be quoted into the query string.
-  // NOTE: products(query:"handle:...") does NOT work on the Storefront API -
-  // handle is not a supported filter and Shopify silently returns the first N
-  // products in the store instead, which would put Dr. Jaban's catalogue on
-  // this page. Never switch to it.
-  // Chunked because 36 products of full fields in one request risks the
-  // Storefront API query-cost ceiling; the chunks run in parallel.
+  // Aliased product(handle:) with GraphQL variables, so nothing is quoted into
+  // the query string. NEVER switch to products(query:"handle:...") - handle is
+  // not a supported Storefront filter and Shopify silently returns the first N
+  // products instead, which would put Dr. Jaban's catalogue on this page.
+  // Chunked to stay under the query-cost ceiling; the chunks run in parallel.
   function fetchChunk(handles, offset) {
     var decls = handles.map(function (h, i) { return '$h' + (offset + i) + ':String!'; }).join(',');
     var fields = handles.map(function (h, i) {
@@ -652,29 +759,12 @@
     document.head.appendChild(css);
   });
 
-  // ---- The hero sale banner: NOT built here. Read this before adding it back. ----
-  // History, because this flipped twice in one day and a third flip would put
-  // two copies of the graphic on the page again:
-  //   v36 - the banner lived in the hero EMBED.
-  //   (Emma then deleted that embed in the Designer and set the SAME asset as
-  //    the .bb-hero section's background-image instead - asset
-  //    6ac55845500f8d19ec9cadba, background-size:cover.)
-  //   v37 - not knowing about the background, this script rebuilt the banner as
-  //         #bb-hero-sale and mounted it into .bb-hero. That produced TWO of
-  //         the graphic: hers full-bleed behind, this one framed on top.
-  //   v38 - Emma, 2026-10-06: "there should only be 1 image of her. remove the
-  //         one on the top." The one on top was this script's. So the hero is
-  //         now entirely the Designer's background-image and this script builds
-  //         nothing there. ensureHero(), heroCss() and HERO_IMG are gone.
-  //
-  // DO NOT re-add a hero element here while .bb-hero still carries that
-  // background-image, or the duplicate comes straight back. Check the style
-  // first.
-  //
-  // ONE CONSEQUENCE, flagged to Emma: a background-image set in the Designer is
-  // NOT tied to SALE_ENABLED. Every other dated thing on this site clears
-  // itself when the sale ends; that one will not, and someone has to remove it
-  // by hand on October 14 or the storefront keeps advertising a finished sale.
+  // ---- The hero banner is NOT built here ----
+  // It is the .bb-hero section's background-image, set in the Designer. v37
+  // built one here too and the page showed the graphic TWICE. DO NOT re-add a
+  // hero element while that style still carries a background-image.
+  // Flagged to Emma: a Designer background-image is not tied to SALE_ENABLED,
+  // so unlike everything else here it will NOT clear itself when the sale ends.
 
   function fillCallouts() {
     var off = $('bb-collage-off');
@@ -702,8 +792,7 @@
     }
     found.forEach(function (p) { byHandle[p.handle] = p; });
     dbg('resolved ' + found.length + ' of ' + ALL_HANDLES.length + ' handles');
-    safe('renderShop', renderShop);
-    safe('evergreen', renderEvergreen);
+    safe('renderShop', renderShop);   // paintShop() inside it calls renderEvergreen
     safe('renderCollage', renderCollage);
     safe('feature', ensureFeature);
     safe('deep link', openDeepLink);
@@ -719,15 +808,12 @@
     alert('Sorry, the cart could not be updated. Please try again.');
   }
 
-  // Stamp every cart with where it came from. These attributes ride through to
-  // the Shopify ORDER and the abandoned-checkout record, which is the only
-  // DURABLE way to tell this storefront's traffic from Dr. Jaban's Online Store,
-  // and the only way to attribute a sale to the landing page that produced it.
-  // A discount code cannot do that job: it stops the moment a sale ends, and a
-  // Jaban shopper who types the code by hand looks identical.
-  // Keys are underscore-prefixed so Shopify keeps them off the customer's order
-  // confirmation; they stay queryable through the Admin API. Set once at cart
-  // CREATION - first touch, not last.
+  // Stamps every cart with where it came from. These ride through to the
+  // Shopify ORDER and the abandoned-checkout record, and are the only DURABLE
+  // way to tell this storefront's traffic from Dr. Jaban's Online Store - a
+  // discount code cannot, since it dies with the sale. Underscore-prefixed so
+  // Shopify keeps them off the customer's confirmation. Set once at cart
+  // CREATION: first touch, not last.
   function cartAttrs() {
     var path = (window.location.pathname || '/').toLowerCase().replace(/\/+$/, '') || '/';
     return [{ key: '_bb_source', value: 'biohacking-bombshell-webflow' },
@@ -957,13 +1043,25 @@
       }
     }
 
+    // Either "clear search" button - the one in the results heading and the one
+    // in the empty state.
+    if (t.closest('.bb-sr-clear')) { ev.preventDefault(); clearSearch(); return; }
+
     // Category chips scroll rather than jump, and the fixed promo bar means a
     // raw anchor would park the heading underneath it.
     var chip = t.closest('[data-bb-cat]');
     if (chip) {
+      ev.preventDefault();
+      // While a search is showing, the category sections are not in the DOM, so
+      // the chip has nothing to scroll to. Clear the search first, which repaints
+      // the categories, THEN scroll to the one that was clicked.
+      if (searchQuery) {
+        var input = $('bb-q');
+        if (input) { input.value = ''; }
+        setQuery('');
+      }
       var sec = $('bb-cat-' + chip.getAttribute('data-bb-cat'));
       if (sec) {
-        ev.preventDefault();
         var bar = $('bb-promo');
         var pad = (bar ? bar.offsetHeight : 0) + 70;
         var y = sec.getBoundingClientRect().top + window.pageYOffset - pad;
