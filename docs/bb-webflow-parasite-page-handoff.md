@@ -2175,3 +2175,113 @@ copy so future diffs stay clean. Both evaluate identically.
   page on focus), `#bb-q-clear`, `#bb-cats.bb-searching .bb-cat-chip`,
   `.bb-sr-clear`, `.bb-sr-empty`.
 - Published to `biohacking-bombshell-estore.webflow.io` on 2026-10-08.
+
+## v41 — one-off links for the bundles (2026-10-12)
+
+Emma: *"We made 1 off links for all the individual products but i dont see them
+for all of the bundles, like gut cleanse and gut reset duo. can you make the
+links for all the individual bundles?"*
+
+### What was actually wrong
+
+Gut Cleanse Bundle and Gut Reset Duo were both in the shop and both had working
+links. The problem was the **sheet**, not those two products.
+
+`docs/exports/biohacking-bombshell-product-links.xlsx` was generated on
+29 September, before v33 made the storefront CellCore-only. It held 272 links
+sorted by brand — Apex Energetics, DesBio, Supreme Nutrition — with the handful
+of CellCore bundles scattered through them and no grouping. Worse: **after v33,
+about 230 of those 272 links no longer opened anything**, because `byHandle` is
+filled only from `ALL_HANDLES` and `openDeepLink()` bailed on anything not in it.
+A dead link renders the plain storefront, silently, so nothing announced it.
+
+Separately, **11 live CellCore kits had no link at all** and could not be given
+one, because v33 deliberately left them off the browsable catalogue.
+
+### The fix: link-only products
+
+`openDeepLink()` now fetches a handle it does not already hold, instead of
+giving up:
+
+```js
+  function openDeepLink() {
+    if (!wantProduct) { return; }
+    var h = wantProduct;
+    wantProduct = null;
+    if (byHandle[h]) { dbg('deep link opening ' + h); openModalByHandle(h); return; }
+    gql('query($h:String!){product(handle:$h){' + PF + '}}', { h: h })
+      .then(function (r) {
+        var p = r.json && r.json.data && r.json.data.product;
+        if (!p || !p.variants.nodes.length) { dbg('deep link not found: ' + h); return; }
+        if (!/cellcore/i.test(p.vendor || '')) { dbg('deep link off-brand: ' + h); return; }
+        byHandle[p.handle] = p;
+        dbg('deep link opening (not browsable) ' + p.handle);
+        openModalByHandle(p.handle);
+      })
+      .catch(function () { dbg('deep link fetch failed: ' + h); });
+  }
+```
+
+This splits two things that used to be one. `CATEGORIES` now decides what the
+shop **browses**; the vendor guard decides what a link can **open**. Emma's
+6 October call to keep the kits out of the category grid stands — they just
+stop being unreachable.
+
+**The vendor guard is the whole safety story.** Without it, this change would
+quietly resurrect ~230 links to Apex, DesBio and Dr Jaban products that are no
+longer sold on this storefront. They must keep falling through to the shop.
+
+**Why on-demand beats adding 11 handles to `CATEGORIES`.** Hand-curating would
+mean verifying each handle in Shopify by hand and re-verifying whenever CellCore
+renames one. The fetch verifies itself: a handle that does not resolve against
+the Biohacking Bombshell channel opens nothing, exactly as before. It also costs
+nothing on a normal page load — the query only fires when `?product=` names
+something outside the catalogue.
+
+`openModalByHandle(p.handle)` uses the handle Shopify returned, not the one in
+the URL, so a Shopify-side handle redirect still opens the right product.
+
+### A real pricing problem, found on the way
+
+**Phase 1, 2 and 3 exist twice in Shopify, at different prices:**
+
+| Step (what the shop sells) | Price | Phase (the duplicate) | Price |
+|---|---|---|---|
+| Step 1 : Energy & Drainage | $274.95 | Phase 1: Energy & Drainage | $274.95 |
+| Step 2: Gut & Immune Support | **$254.95** | Phase 2: Gut & Immune Support | **$344.95** |
+| Step 3: Whole Body Immune Support | **$319.95** | Phase 3: Whole Body Immune Support | **$354.95** |
+
+The `detox` category's handles (`phase-1-energy-drainage` and friends) are the
+**"Step"** products. So the Full Spectrum Detox section currently reads
+"Step 1, Step 2, Step 3, Phase 4a" — mixed naming — and Steps 2 and 3 are $90
+and $35 cheaper than their twins. Raised with Emma; not changed here, because
+which set is authoritative is a merchandising decision, not a code one.
+Phase 4B and Phase 5 are live in Shopify and have never been on the storefront
+at all.
+
+### The regenerated sheet
+
+`docs/exports/biohacking-bombshell-product-links.xlsx` rewritten, two tabs:
+
+- **Bundles & Kits** — 27 rows, every CellCore bundle, kit, duo, Phase and Step,
+  labelled *In the shop — <category>* or *Link only*, with the dedicated landing
+  page where one exists.
+- **All CellCore** — all 57 CellCore products, grouped by category with link-only
+  products last.
+
+Both tabs carry the duplicate-Phase warning. Everything non-CellCore is gone
+from the sheet, because those links no longer work and listing them is worse
+than omitting them.
+
+### The ceiling, again
+Fitting this needed another comment pass: the catalogue header, the search
+block and the six-surfaces list were compressed (no code touched — verified by
+diffing with comments stripped). **v41 ships at 49,925 live characters, 75 under
+the 50,000 cap.** The next change cannot be absorbed this way; see the v39/v40
+options.
+
+### Files
+- `docs/bb-store-footer-code.html` — **v41**, 49,909 masked / 49,925 live.
+- `docs/exports/biohacking-bombshell-product-links.xlsx` — regenerated.
+- No embed change. Published to `biohacking-bombshell-estore.webflow.io` on
+  2026-10-12.
