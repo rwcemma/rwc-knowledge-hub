@@ -1,5 +1,5 @@
 <script>
-/* bb-store v41 - SITE FOOTER custom code. Embeds hold markup + CSS only.
+/* bb-store v42 - SITE FOOTER custom code. Embeds hold markup + CSS only.
    Failures are isolated. ?bbdebug=1 paints a debug panel.
    !! Webflow caps this box at 50,000 chars and v39 hit it. Check the length
    !! before adding. Full history/rationale lives in the repo instead:
@@ -88,10 +88,10 @@
   // is what caused the v27 Starter Kit mismatch. Confirmed 2026-10-08 that the
   // discount covers all 58 live CellCore products, so isSale() can return true.
   //
-  // !! endsAt is 12:37pm Eastern on Oct 14, NOT end of day - an artifact of when
-  // !! the discount was made. Emma knows. If she extends it, re-copy endsAt here
-  // !! or the page keeps selling for hours after the code stops working.
-  var SALE_ENABLED = true;
+  // !! SALE_END below is STALE. FLASHSALE was extended to 2026-10-15T03:30:00Z
+  // !! and is now EXPIRED (verified in Shopify 2026-10-15). Re-read the discount
+  // !! and copy its endsAt verbatim before setting SALE_ENABLED back to true.
+  var SALE_ENABLED = false;
   var DISCOUNT     = 'FLASHSALE';
   var SALE_PCT     = 0.20;
   var SALE_START   = '2026-10-07T04:30:00Z';
@@ -161,7 +161,7 @@
     return am + ' ' + ad + '-' + (am === bm ? '' : bm + ' ') + ord(Number(bd));
   }
   var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
-  var VERSION = 'v41';
+  var VERSION = 'v42';
 
   // ?product=<shopify-handle> opens that product's modal on load - the shop is
   // one page, so this is what a shareable product link means here. A Shopify
@@ -759,11 +759,11 @@
   });
 
   // ---- The hero banner is NOT built here ----
-  // It is the .bb-hero section's background-image, set in the Designer. v37
-  // built one here too and the page showed the graphic TWICE. DO NOT re-add a
-  // hero element while that style still carries a background-image.
-  // Flagged to Emma: a Designer background-image is not tied to SALE_ENABLED,
-  // so unlike everything else here it will NOT clear itself when the sale ends.
+  // The sale graphic was a Designer background-image on .bb-hero. v37 also built
+  // one here and the page showed it TWICE - never re-add a hero element while
+  // that style carries a background-image. A Designer background is NOT tied to
+  // SALE_ENABLED and does not clear itself: removed by hand 2026-10-15 with the
+  // sale, and the pre-sale text hero unhidden in its place.
 
   function fillCallouts() {
     var off = $('bb-collage-off');

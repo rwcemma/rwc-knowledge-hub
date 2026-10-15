@@ -2285,3 +2285,77 @@ options.
 - `docs/exports/biohacking-bombshell-product-links.xlsx` — regenerated.
 - No embed change. Published to `biohacking-bombshell-estore.webflow.io` on
   2026-10-12.
+
+## v42 — the sale is off (2026-10-15)
+
+Emma: *"our sale is over now so can you reset the page back to what it was
+before the sale?"*
+
+### Verified first
+Per the v31 rule, the discount was read before anything was touched:
+
+```
+codeDiscountNodeByCode(code: "FLASHSALE")
+  status    EXPIRED
+  startsAt  2026-10-07T04:30:00Z
+  endsAt    2026-10-15T03:30:00Z   (11:30pm ET, Oct 14)
+```
+
+**`endsAt` had been extended** from the 12:37pm ET value recorded in v33 — so
+`SALE_END` in the script was stale by about eleven hours and the page stopped
+showing the sale before the code stopped working. Harmless direction (the page
+under-promised rather than over-promised) but it is why the comment above
+`SALE_ENABLED` now says to re-read the discount before reopening. **No Shopify
+discount was created, edited or deleted.**
+
+### One flag
+`SALE_ENABLED = false` clears everything the script draws: promo bar, 20% badges,
+struck prices, the code line under every category and search-results heading, the
+cart-drawer line, the checkout note, `?discount=` on the checkout URL, the code on
+new carts, and the code on a returning shopper's saved cart.
+
+### The hero — what "before the sale" actually meant
+The v31 checklist's three by-hand items no longer describe this page. The collage
+embed was deleted in v38 and the eyebrow/CTA copy is already evergreen. What
+replaced them is one item:
+
+**`.bb-hero` carried the sale graphic as a Designer `background-image`.** Removing
+it alone would have left an *empty* section — the whole text hero had been hidden
+on 2026-10-06 when the graphic took over, and `aspect-ratio: 2000/1125` was
+holding the section open with nothing in it.
+
+So the reset was two halves:
+
+| | Action |
+|---|---|
+| `.bb-hero` style | removed `background-image`, `background-position`, `background-size`, `background-repeat`, `aspect-ratio`, `max-height` |
+| Hero elements | `visibility: true` on `.bb-wrap` `…f475`, the eyebrow embed `95c7e548…`, the H1 `…f46d`, and the subhead `…f46f` |
+
+**The site head CSS did the rest.** `bb-store-head-code.html` has carried
+`.bb-hero{min-height:0 !important;height:auto !important;padding-top:60px
+!important;padding-bottom:60px !important;}` since long before the sale, with
+46px at ≤991px. Once `aspect-ratio` went, those `!important` rules took over and
+the section returned to exactly its pre-sale fold without a single padding value
+being typed. Verified the head code was still live before relying on it.
+
+Restored hero, all pre-existing content:
+- eyebrow — "Practitioner-Grade CellCore" (checked before unhiding; no sale or
+  parasite wording in it)
+- H1 — "Stop chasing symptoms. Start clearing the load." **The page has a visible
+  H1 again**, which closes the SEO gap open since 2026-10-06
+- subhead — the total-load paragraph
+- CTAs — "Shop by Category" and "Learn Why Root Cause Matters"
+
+The flash-sale asset is left in the asset library, not deleted, so the next sale
+can reuse it.
+
+### Not restored
+The hero collage embed `d7a7c63a…` was deleted from the home page in the Designer
+on 2026-10-06 and is gone. `renderCollage()` and `COLLAGE` still exist in the
+script and no-op harmlessly without `#bbp-strip`.
+
+### Files
+- `docs/bb-store-footer-code.html` — **v42**, 49,912 masked / 49,928 live,
+  **72 characters under the cap**.
+- No embed change. `.bb-hero` style and four visibility flags changed in Webflow.
+- Published to `biohacking-bombshell-estore.webflow.io` on 2026-10-15.
