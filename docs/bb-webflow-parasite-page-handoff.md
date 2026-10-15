@@ -2359,3 +2359,60 @@ script and no-op harmlessly without `#bbp-strip`.
   **72 characters under the cap**.
 - No embed change. `.bb-hero` style and four visibility flags changed in Webflow.
 - Published to `biohacking-bombshell-estore.webflow.io` on 2026-10-15.
+
+## v43 — All Products after the categories (2026-10-15)
+
+Emma: *"can you add all the products after the categories section"*
+
+### A pseudo-category, not a new renderer
+
+The whole feature is ten lines, because it reuses the section machinery rather
+than adding a parallel one. `renderShop()` builds `LIVE` from `CATEGORIES`, then
+appends one more entry that is not a real category:
+
+```js
+    var all = [];
+    for (i = 0; i < ALL_HANDLES.length; i++) {
+      if (byHandle[ALL_HANDLES[i]]) { all.push(byHandle[ALL_HANDLES[i]]); }
+    }
+    all.sort(function (a, b) { return a.title.localeCompare(b.title); });
+    if (all.length) {
+      LIVE.push({ cat: { key: 'all', name: 'All Products',
+                         blurb: 'Every formula in the shop, A to Z.' },
+                  items: all });
+    }
+```
+
+Everything downstream reads `LIVE`, so the section inherits for free: a chip in
+the nav row, the heading and blurb, the grid, the "Back to categories" link, the
+discount line when a sale is on, and correct behaviour while searching (the
+results view replaces the whole container, so All Products is simply not in the
+DOM mid-search). Nothing else in the file changed.
+
+**Built from `byHandle`, not from `ALL_HANDLES` directly**, so the section lists
+what actually loaded. A handle that fails to resolve is missing from All Products
+exactly as it is missing from its category — the two can never disagree.
+
+**De-duplication is free.** `ALL_HANDLES` is already unique, so products that sit
+in two categories on purpose (Advanced TUDCA in Drainage and Gut, BioToxin Binder
+in Binders and Gut, CT-Zyme in Gut and Inflammatory) appear once. Tested against
+the real 37 titles: categories sum to 40 placements, All Products holds 37 rows,
+zero duplicates.
+
+Sorted A–Z by title rather than left in catalogue order, because the point of the
+section is to find a named product without knowing its category.
+
+### The ceiling, a third time
+Fitting ten lines cost five comment blocks. The hero, deep-link, category-nav,
+evergreen and featured-page comments were all compressed (−653 chars) to pay for
++654 of code. **v43 ships at 49,929 — 71 characters spare.**
+
+This is no longer sustainable. The next feature has nothing left to trim; every
+remaining comment is either a load-bearing warning or already compressed. See the
+options in v39/v40 — **hosting the script externally is now the only one that
+buys real room**, and the Netlify and Vercel connectors in this workspace make it
+a short job.
+
+### Files
+- `docs/bb-store-footer-code.html` — **v43**, 49,913 masked / 49,929 live.
+- No embed, style or element change. Published 2026-10-15.
