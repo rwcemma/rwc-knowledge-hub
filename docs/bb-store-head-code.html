@@ -3,15 +3,35 @@
    Kept here (site head custom code) rather than in Designer styles so it is
    editable via the Data API. */
 .bb-hero{min-height:0 !important;height:auto !important;padding-top:60px !important;padding-bottom:60px !important;}
+/* Hero scrim. The hero text is white (.bb-h1 #fff), pale lavender (.bb-hero-p
+   #f4ecf7) and pale pink (the eyebrow embed), all built for a dark hero. The
+   brand photo behind it is light, so without this overlay the headline is
+   unreadable. Darkest on the left where the text sits, clearing to the right so
+   the photo still reads. If the photo is ever swapped for a dark one, drop the
+   opacities rather than deleting the rule - some scrim keeps text legible over
+   any image. The z-index pair is what keeps the overlay behind the copy. */
+.bb-hero{position:relative;}
+.bb-hero::before{content:"";position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none;
+  background:linear-gradient(100deg,rgba(28,20,44,.90) 0%,rgba(52,38,79,.78) 42%,rgba(165,44,116,.40) 100%);}
+.bb-hero > *{position:relative;z-index:1;}
 /* Push the remaining CTA further away from the Para product cards. */
 .bb-cta{margin-top:46px !important;}
 @media screen and (max-width:991px){
   .bb-hero{padding-top:46px !important;padding-bottom:46px !important;}
+  /* Narrow screens crop the photo hard, so the scrim goes flat and darker
+     rather than directional - the text spans the full width here. */
+  .bb-hero::before{background:linear-gradient(180deg,rgba(28,20,44,.86),rgba(52,38,79,.80));}
   .bb-cta{margin-top:34px !important;}
 }
-/* Featured store grid: auto-fit so any product count lays out cleanly
-   instead of leaving a lone card on its own row. */
 /* NOTE: do not add a #bb-store grid rule here. The store embed owns that layout
    including its mobile breakpoints, and an !important rule here would override
    them. */
 </style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-X2ZLPE1G6P"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-X2ZLPE1G6P');
+</script>

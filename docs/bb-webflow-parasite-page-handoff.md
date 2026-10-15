@@ -2416,3 +2416,91 @@ a short job.
 ### Files
 - `docs/bb-store-footer-code.html` — **v43**, 49,913 masked / 49,929 live.
 - No embed, style or element change. Published 2026-10-15.
+
+## v44 — the hero photo, and All Products becomes the whole store (2026-10-15)
+
+Two asks: *"add her previous hero banner back in"* and *"can you add all the
+products after the categories section"*, then, mid-build, *"for 'all products'
+it should not just include cellcore. include everything that is on the shopify
+store"*.
+
+### The hero banner
+
+There was no previous banner to restore. The asset library holds exactly two
+images: the expired flash-sale graphic, and a 2026-08-19 brand photo that no
+style has ever referenced (confirmed by querying every style with a
+`background-image`). Rather than guess, the choice went back to Emma, who picked
+the brand photo.
+
+It needed two things the flash-sale graphic did not:
+
+**A crop.** The photo is roughly square and the hero is a wide band, so it is
+`background-size: cover` at `50% 35%` — biased upward to keep Allyssa in frame
+rather than centring on the desk.
+
+**A scrim.** `.bb-h1` is `#fff`, `.bb-hero-p` is `#f4ecf7`, the eyebrow embed is
+`#ffd7ec` — every word of the hero is near-white, written for the dark hero the
+section used to have. The brand photo is pale, so dropped in raw it would have
+left the headline invisible. A `.bb-hero::before` gradient now sits between the
+photo and the copy: dark left where the text is, clearing to the right so the
+photo still reads, and flat-dark below 991px where the text spans full width.
+It lives in **site head custom code**, not Designer styles, because that is
+where the `.bb-hero` overrides already live and it is editable through the API.
+
+### All Products: the whole sales channel
+
+"The shopify store" means the **Biohacking Bombshell sales channel** — the
+Storefront token is scoped to it, so the page cannot reach anything that channel
+does not carry, whatever the query asks for. Measured in Shopify: **336 active
+products, 10 of them $0 placeholders, so 326 render.**
+
+The nine categories above it are untouched and still CellCore-only. Only this
+one section is wide.
+
+**Mechanism.** `loadAll()` pages `products(first:100, after:)` until exhausted,
+then `pool()` returns that catalogue — or the curated handles, if it has not
+landed yet, so the section and the search are never empty. Three details matter:
+
+- **Light field set.** `PL` drops `descriptionHtml` and the image gallery, which
+  across 326 products would be megabytes. `openModalByHandle()` already fetches
+  both on demand when `descriptionHtml` is `undefined`, so a non-curated product
+  loads its description the moment someone opens it.
+- **Curated products are not clobbered.** The bulk fetch only writes
+  `byHandle[h]` when nothing is there, so the 37 curated products keep the full
+  record `loadProducts()` already gave them.
+- **It runs after first paint.** The categories render from the fast 4-chunk
+  fetch, then the catalogue lands and `renderShop()` runs again. A failure in
+  `loadAll()` is caught and leaves the curated shop exactly as it was.
+
+`sellable()` drops $0 rows and anything with no buyable variant. **Brand is
+deliberately not filtered** — that is the whole point of the change. Images in
+`card()` are now `loading="lazy"`, without which 326 cards would fetch every
+image at once on a phone.
+
+Search now covers the full catalogue too, since it draws from `pool()`.
+
+### Consequences worth knowing
+- **67 of the 336 are vendor "Dr Jaban Moore - Store"** — about a fifth of the
+  grid is Dr. Jaban-branded stock on Allyssa's storefront. That follows from
+  "everything on the shopify store", and is a brand decision, not a code one.
+- The deep-link guard was `/cellcore/i` on vendor; that contradicted a shop that
+  now sells the whole channel, so it is `sellable()` now.
+- A future sale must re-check discount **coverage**: FLASHSALE covered CellCore
+  only, and `isSale()` still returns true unconditionally.
+
+### The 50,000 ceiling, resolved for now
+v43 shipped with 71 characters spare and this change needed ~3,500. Comments
+were 24.5% of the file (12,214 chars), and the header has pointed at this
+document since v39, so the rationale moved here and a keep-list of load-bearing
+warnings stayed inline: the handle checklist, the `products(query:"handle:")`
+trap, the SYNONYMS disease rule, the search-input placement, the hero
+background-image rule, cart first-touch, and the sale-values rule.
+
+**v44 ships at 44,055 live — 5,945 characters spare**, the most headroom since
+v38. The next feature does not need a rescue plan.
+
+### Files
+- `docs/bb-store-footer-code.html` — **v44**.
+- `docs/bb-store-head-code.html` — hero scrim added.
+- `.bb-hero` style: brand photo, `cover`, `50% 35%`.
+- Published 2026-10-15.
