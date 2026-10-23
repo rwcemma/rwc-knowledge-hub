@@ -1,0 +1,438 @@
+<script>
+/* Aegis Black Friday 2026 storefront (af-bf v1).
+   Products and prices load live from the Synergized Supplements Shopify store
+   (myshopify domain dr-jaban-moore-store) through the Storefront API, using the
+   same Buy Button token as the Biohacking Bombshell storefront.
+   Checkout happens on the Synergized checkout. Append ?bfdebug=1 to see a log. */
+(function () {
+  // ---------- SETTINGS: edit these, nothing below ----------
+  var DOMAIN = 'dr-jaban-moore-store.myshopify.com';
+  var TOKEN  = 'TOKENPLACEHOLDER'; // Storefront (Buy Button) token. Same one Allyssa's page uses.
+  var API    = 'https://' + DOMAIN + '/api/2026-07/graphql.json';
+
+  // [SALE START] / [SALE END]. Provisional values from the spec. Central time (CST, UTC-6).
+  var SALE_START = '2026-11-27T00:00:00-06:00';
+  var SALE_END   = '2026-11-30T23:59:59-06:00';
+
+  // [CODE]. Leave '' until the discount exists in Shopify.
+  var DISCOUNT = '';
+  // [OFFER DETAILS]. Percent off used for the struck-through display price, e.g. 20.
+  // 0 = show regular prices only, with a visible [SALE PRICE] placeholder.
+  var SALE_PCT = 0;
+
+  var UTM = 'utm_source=webflow&utm_medium=landing-page&utm_campaign=black-friday-2026';
+
+  // One-liners are LOCKED copy from the spec. Do not change.
+  var PRODUCTS = [
+    { id: 'calmaf',    handles: ['calm'], name: 'CalmAF', line: 'Calm and alert, never sedated.', phase: 'Regulate', fmt: 'Oral strip, 30/tin' },
+    { id: 'clearaf',   handles: ['clearaf'], name: 'ClearAF', line: 'Balance, not boost.', phase: 'Regulate', fmt: 'Oral strip, 30/tin' },
+    { id: 'edge',      handles: ['elemental-edge'], name: 'Elemental Edge', line: "Your body's missing link.", phase: 'Recalibrate', fmt: '120 capsules' },
+    { id: 'rebalance', handles: ['rebalance-previously-called-post-pill-ease'], name: 'ReBalance♀', line: 'Four levers, one scoop.', phase: 'Recalibrate', fmt: 'Powder', note: 'Formulated for women.' },
+    { id: 'nanoglut',  handles: ['nanoglut-b'], name: 'NanoGlut+B', line: 'Glutathione that actually arrives.', phase: 'Recalibrate · Release', fmt: 'Liquid pump' },
+    { id: 'tudca',     handles: ['tudca-max'], name: 'TUDCA Max', line: 'Support your liver. Support your life.', phase: 'Release', fmt: '60 capsules' },
+    { id: 'ttb',       handles: ['total-tox-binder', 'total-tox-binder-copy'], fmts: ['Powder', 'Capsules'], name: 'Total Tox Binder', line: 'Mobilizing is the easy part. This is what catches it.', phase: 'Release', fmt: 'Powder' }
+  ];
+
+  // Kits do not exist as Shopify products. Each kit adds its formulas to the cart
+  // as separate lines; the kit price shown is the live sum of those formulas.
+  var KITS = [
+    { id: 'regulate', name: 'Regulate Kit', label: 'Month 1', line: 'Calm the alarm.', contents: 'CalmAF + ClearAF', btn: 'Shop Regulate',
+      items: [['calm', 1], ['clearaf', 1]] },
+    { id: 'recalibrate', name: 'Recalibrate Kit', label: 'Month 2', line: 'Refill the tank.', contents: 'Elemental Edge + ReBalance♀ + NanoGlut+B', btn: 'Shop Recalibrate',
+      note: 'ReBalance♀ is formulated for women.',
+      items: [['elemental-edge', 1], ['rebalance-previously-called-post-pill-ease', 1], ['nanoglut-b', 1]] },
+    { id: 'release', name: 'Release Kit', label: 'Month 3', line: 'Open, fuel, bind.', contents: 'TUDCA Max + NanoGlut+B + Total Tox Binder', btn: 'Shop Release',
+      items: [['tudca-max', 1], ['nanoglut-b', 1], ['total-tox-binder', 1]] },
+    { id: 'full', full: true, name: 'The Full Sequence: Months 1 to 3', label: 'Months 1 to 3', btn: 'Shop the Full Sequence',
+      body: "All three months, in order. This is the whole plan, at the lowest price I'll offer on it all year.",
+      confirm: '[CONFIRM: the "lowest price all year" statement is true]',
+      items: [['calm', 1], ['clearaf', 1], ['elemental-edge', 1], ['rebalance-previously-called-post-pill-ease', 1], ['nanoglut-b', 2], ['tudca-max', 1], ['total-tox-binder', 1]] }
+  ];
+  // ---------- end of settings ----------
+
+  var DEBUG = /[?&]bfdebug=1/.test(location.search);
+  var LOG = [];
+  var CART_KEY = 'afBfCartId';
+  var byHandle = {};
+  var cartId = null;
+  try { cartId = localStorage.getItem(CART_KEY) || null; } catch (e) {}
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function money(n) { return '$' + Number(n).toFixed(2); }
+  function dbg(msg) {
+    LOG.push(msg);
+    if (window.console) { console.log('[af-bf] ' + msg); }
+    if (!DEBUG) { return; }
+    var p = $('bf-debug');
+    if (!p) { p = document.createElement('div'); p.id = 'bf-debug'; document.body.appendChild(p); }
+    p.textContent = LOG.join('\n');
+  }
+  function safe(label, fn) { try { fn(); } catch (e) { dbg(label + ' failed: ' + (e && e.message ? e.message : e)); } }
+
+  function windowState() {
+    var now = Date.now();
+    if (now < Date.parse(SALE_START)) { return 'before'; }
+    if (now > Date.parse(SALE_END)) { return 'ended'; }
+    return 'live';
+  }
+  var STATE = windowState();
+  function codeOn() { return !!DISCOUNT && STATE !== 'ended'; }
+  function pctOn() { return SALE_PCT > 0 && STATE !== 'ended'; }
+
+  function gql(query, variables) {
+    return fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Shopify-Storefront-Access-Token': TOKEN },
+      body: JSON.stringify({ query: query, variables: variables || {} })
+    }).then(function (r) {
+      return r.text().then(function (t) {
+        var j = null; try { j = JSON.parse(t); } catch (e) {}
+        if (!r.ok) { dbg('HTTP ' + r.status + ': ' + t.slice(0, 300)); }
+        if (j && j.errors) { dbg('GraphQL errors: ' + JSON.stringify(j.errors).slice(0, 300)); }
+        return { status: r.status, json: j, raw: t };
+      });
+    });
+  }
+
+  // ---------- countdown ----------
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function paintCountdowns() {
+    STATE = windowState();
+    var els = document.querySelectorAll('.bf-countdown');
+    var target = STATE === 'before' ? Date.parse(SALE_START) : Date.parse(SALE_END);
+    var left = Math.max(0, target - Date.now());
+    var d = Math.floor(left / 864e5), h = Math.floor(left / 36e5) % 24,
+        m = Math.floor(left / 6e4) % 60, s = Math.floor(left / 1e3) % 60;
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i];
+      if (STATE === 'ended') { el.style.display = 'none'; continue; }
+      el.innerHTML = '<span class="bf-cd-lab">' + (STATE === 'before' ? 'Starts in' : 'Ends in') + '</span>' +
+        '<span class="bf-cd-unit" aria-hidden="true"><b>' + d + '</b><i>d</i></span>' +
+        '<span class="bf-cd-unit" aria-hidden="true"><b>' + pad(h) + '</b><i>h</i></span>' +
+        '<span class="bf-cd-unit" aria-hidden="true"><b>' + pad(m) + '</b><i>m</i></span>' +
+        '<span class="bf-cd-unit" aria-hidden="true"><b>' + pad(s) + '</b><i>s</i></span>' +
+        '<span class="bf-sr">' + (STATE === 'before' ? 'Sale starts ' : 'Sale ends ') +
+          new Date(target).toLocaleString('en-US', { timeZone: 'America/Chicago', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + ' Central</span>';
+    }
+    if (STATE === 'ended') {
+      var bt = document.querySelector('[data-copy-id="BAR-TEXT"]');
+      if (bt && !bt.getAttribute('data-ended')) {
+        bt.setAttribute('data-ended', '1');
+        bt.setAttribute('data-copy-id', 'BAR-ENDED');
+        bt.textContent = 'The sale is over. The order still matters.';
+      }
+    }
+  }
+
+  // ---------- pricing ----------
+  function variantOf(handle) {
+    var p = byHandle[handle];
+    return p && p.variants && p.variants.nodes[0];
+  }
+  function priceBlock(regular) {
+    if (pctOn()) {
+      var sale = Math.round(regular * (100 - SALE_PCT)) / 100;
+      return '<div class="bf-price"><span class="bf-sr">Regular price</span><span class="bf-was">' + money(regular) +
+             '</span><span class="bf-sr">Sale price</span><span class="bf-now">' + money(sale) + '</span></div>';
+    }
+    return '<div class="bf-price"><span class="bf-sr">Regular price</span><span class="bf-reg">' + money(regular) +
+           '</span><span class="bf-ph-inline">[SALE PRICE]</span></div>';
+  }
+  function codeLine() {
+    if (codeOn()) { return '<p class="bf-code">Code <b>' + esc(DISCOUNT) + '</b> is applied in your cart.</p>'; }
+    return '<p class="bf-code"><span class="bf-ph-inline">[CODE]</span></p>';
+  }
+
+  // ---------- rendering ----------
+  function imgsFor(items) {
+    var seen = {}, out = '';
+    items.forEach(function (it) {
+      var p = byHandle[it[0]];
+      if (!p || seen[it[0]] || !p.featuredImage) { return; }
+      seen[it[0]] = 1;
+      out += '<img src="' + esc(p.featuredImage.url) + '" alt="" loading="lazy">';
+    });
+    return out;
+  }
+  function kitInfo(k) {
+    var total = 0, missing = [], soldOut = [];
+    k.items.forEach(function (it) {
+      var v = variantOf(it[0]);
+      if (!v) { missing.push(it[0]); return; }
+      total += Number(v.price.amount) * it[1];
+      if (v.availableForSale === false) { soldOut.push(byHandle[it[0]].title.split(' (')[0]); }
+    });
+    return { total: total, missing: missing, soldOut: soldOut };
+  }
+
+  function renderKits() {
+    var box = $('bf-kits');
+    if (!box) { dbg('no #bf-kits'); return; }
+    box.innerHTML = KITS.map(function (k) {
+      var info = kitInfo(k);
+      var ok = !info.missing.length && !info.soldOut.length;
+      var body = k.full
+        ? '<p class="bf-card-p" data-copy-id="KITS-FULL-BODY">' + esc(k.body) + ' <span class="bf-ph-inline">' + esc(k.confirm) + '</span></p>'
+        : '<p class="bf-card-line">' + esc(k.line) + '</p><p class="bf-card-p">' + esc(k.contents) + '</p>';
+      return '<div class="bf-card' + (k.full ? ' bf-card-full' : '') + '" data-bf-kit="' + k.id + '">' +
+        '<div class="bf-card-imgs">' + imgsFor(k.items) + '</div>' +
+        '<div class="bf-card-body" style="display:flex;flex-direction:column;flex:1">' +
+          '<span class="bf-pill">' + esc(k.label) + '</span>' +
+          '<h3 class="bf-card-h">' + esc(k.name) + '</h3>' + body +
+          (k.note ? '<p class="bf-card-note">' + esc(k.note) + '</p>' : '') +
+          '<div class="bf-card-spacer"></div>' +
+          (info.missing.length ? '<p class="bf-oos">Unavailable right now.</p>' : priceBlock(info.total)) +
+          codeLine() +
+          (info.soldOut.length ? '<p class="bf-oos">' + esc(info.soldOut.join(', ')) + ' is sold out.</p>' : '') +
+          '<button type="button" class="bf-add" data-bf-addkit="' + k.id + '"' + (ok ? '' : ' disabled') + '>' +
+            (ok ? esc(k.btn) : 'Sold out') + '</button>' +
+        '</div></div>';
+    }).join('');
+  }
+
+  function productCard(P) {
+    var sel = P.sel || 0;
+    var handle = P.handles[sel];
+    var p = byHandle[handle], v = variantOf(handle);
+    if (!p || !v) { return ''; }
+    var img = p.featuredImage ? '<img src="' + esc(p.featuredImage.url) + '" alt="' + esc(P.name + ' ' + (P.fmts ? P.fmts[sel] : P.fmt).toLowerCase()) + '" loading="lazy">' : '';
+    var fmt = P.fmts
+      ? '<div class="bf-fmt" role="group" aria-label="Format">' + P.fmts.map(function (f, i) {
+          return '<button type="button" data-bf-fmt="' + P.id + '" data-i="' + i + '" aria-pressed="' + (i === sel) + '">' + esc(f) + '</button>';
+        }).join('') + '</div>'
+      : '<p class="bf-p-fmt">' + esc(P.fmt) + '</p>';
+    var ok = v.availableForSale !== false;
+    return '<div class="bf-card" data-bf-prod="' + P.id + '">' +
+      '<div class="bf-p-img">' + img + '</div>' +
+      '<span class="bf-pill">' + esc(P.phase) + '</span>' +
+      '<h3 class="bf-p-h">' + esc(P.name) + '</h3>' +
+      '<p class="bf-card-p">' + esc(P.line) + '</p>' + fmt +
+      (P.note ? '<p class="bf-card-note">' + esc(P.note) + '</p>' : '') +
+      '<div class="bf-card-spacer"></div>' +
+      priceBlock(Number(v.price.amount)) + codeLine() +
+      '<button type="button" class="bf-add" data-bf-add="' + esc(handle) + '"' + (ok ? '' : ' disabled') + '>' +
+        (ok ? 'Shop' : 'Sold out') + '</button></div>';
+  }
+  function renderProducts() {
+    var box = $('bf-products');
+    if (!box) { dbg('no #bf-products'); return; }
+    box.innerHTML = PRODUCTS.map(productCard).join('') ||
+      '<p class="bf-loading">Formulas are unavailable right now. Please check back soon.</p>';
+  }
+
+  function renderHeroMedia() {
+    var box = $('bf-hero-media');
+    if (!box) { return; }
+    var cards = KITS.filter(function (k) { return !k.full; }).map(function (k) {
+      return '<a class="bf-trio-card" href="#kits"><div class="bf-trio-imgs">' + imgsFor(k.items) + '</div>' +
+             '<div class="bf-trio-k">' + esc(k.label) + '</div><div class="bf-trio-n">' + esc(k.name.replace(' Kit', '')) + '</div></a>';
+    }).join('');
+    box.innerHTML = '<div class="bf-trio">' + cards + '</div>';
+  }
+
+  // ---------- load products ----------
+  function allHandles() {
+    var seen = {}, out = [];
+    PRODUCTS.forEach(function (P) { P.handles.forEach(function (h) { if (!seen[h]) { seen[h] = 1; out.push(h); } }); });
+    return out;
+  }
+  function loadProducts() {
+    var hs = allHandles();
+    var decls = hs.map(function (h, i) { return '$h' + i + ':String!'; }).join(',');
+    var fields = hs.map(function (h, i) {
+      return 'p' + i + ':product(handle:$h' + i + '){handle title featuredImage{url} variants(first:1){nodes{id availableForSale price{amount currencyCode}}}}';
+    }).join(' ');
+    var vars = {};
+    hs.forEach(function (h, i) { vars['h' + i] = h; });
+    return gql('query(' + decls + '){' + fields + '}', vars).then(function (r) {
+      var d = r.json && r.json.data;
+      if (!d) { throw new Error('no data (HTTP ' + r.status + ')'); }
+      var n = 0;
+      hs.forEach(function (h, i) { if (d['p' + i]) { byHandle[h] = d['p' + i]; n++; } else { dbg('handle not visible: ' + h); } });
+      dbg('loaded ' + n + ' of ' + hs.length + ' products');
+      return n;
+    });
+  }
+
+  // ---------- cart ----------
+  var CART_FIELDS = 'id checkoutUrl totalQuantity discountCodes{code applicable} cost{subtotalAmount{amount currencyCode}} lines(first:50){nodes{id quantity merchandise{... on ProductVariant{id price{amount currencyCode} product{title featuredImage{url}}}}}}';
+
+  function mountCart() {
+    if ($('bf-cart-drawer')) { return; }
+    var wrap = document.createElement('div');
+    wrap.innerHTML =
+      '<button type="button" id="bf-cart-toggle" aria-controls="bf-cart-drawer" aria-label="Open cart">Cart <span id="bf-cart-count">0</span></button>' +
+      '<div id="bf-cart-backdrop"></div>' +
+      '<aside id="bf-cart-drawer" role="dialog" aria-modal="true" aria-label="Your cart">' +
+        '<div class="bf-cart-head"><h2>Your cart</h2><button type="button" id="bf-cart-close" aria-label="Close cart">&times;</button></div>' +
+        '<div id="bf-cart-lines"><p style="color:#7a8ab0;text-align:center;padding:20px 0">Your cart is empty.</p></div>' +
+        '<div class="bf-cart-foot"><p id="bf-cart-code" class="bf-cart-code" style="display:none"></p>' +
+          '<p class="bf-cart-sub"><span>Subtotal</span><span id="bf-cart-subtotal">$0.00</span></p>' +
+          '<button type="button" id="bf-checkout" disabled>Checkout</button>' +
+          '<p class="bf-cart-fine">Secure checkout on Synergized Supplements, Dr. Jaban’s store.</p></div>' +
+      '</aside>';
+    while (wrap.firstChild) { document.body.appendChild(wrap.firstChild); }
+  }
+  function cls(id, name, on) { var el = $(id); if (el) { el.classList[on ? 'add' : 'remove'](name); } }
+  var lastFocus = null;
+  function openCart() { lastFocus = document.activeElement; cls('bf-cart-drawer', 'open', true); cls('bf-cart-backdrop', 'open', true); var c = $('bf-cart-close'); if (c) { c.focus(); } }
+  function closeCart() { cls('bf-cart-drawer', 'open', false); cls('bf-cart-backdrop', 'open', false); if (lastFocus && lastFocus.focus) { lastFocus.focus(); } }
+
+  function cartAttrs() {
+    return [{ key: '_af_source', value: 'drjabanmoore-webflow-black-friday' },
+            { key: '_af_landing_page', value: location.pathname || '/' },
+            { key: '_utm_campaign', value: 'black-friday-2026' }];
+  }
+  function checkoutHref(cart) {
+    if (!cart || !cart.checkoutUrl) { return ''; }
+    var u = cart.checkoutUrl + (cart.checkoutUrl.indexOf('?') === -1 ? '?' : '&') + UTM;
+    if (codeOn()) { u += '&discount=' + encodeURIComponent(DISCOUNT); }
+    return u;
+  }
+  function renderCart(cart) {
+    var count = cart ? cart.totalQuantity : 0;
+    var cnt = $('bf-cart-count'); if (cnt) { cnt.textContent = count; }
+    var box = $('bf-cart-lines');
+    if (box) {
+      var lines = (cart && cart.lines.nodes) || [];
+      box.innerHTML = lines.length ? lines.map(function (l) {
+        var m = l.merchandise, img = m.product.featuredImage ? m.product.featuredImage.url : '';
+        return '<div class="bf-line"><img src="' + esc(img) + '" alt=""><div class="bf-ln">' + esc(m.product.title.split(' (')[0]) +
+          '<br><span class="bf-lp">' + money(m.price.amount) + '</span><div class="bf-qty">' +
+          '<button type="button" class="qb" data-line="' + esc(l.id) + '" data-qty="' + (l.quantity - 1) + '" aria-label="Decrease quantity">&minus;</button>' +
+          '<span>' + l.quantity + '</span>' +
+          '<button type="button" class="qb" data-line="' + esc(l.id) + '" data-qty="' + (l.quantity + 1) + '" aria-label="Increase quantity">+</button>' +
+          '<button type="button" class="rm" data-line="' + esc(l.id) + '">Remove</button></div></div></div>';
+      }).join('') : '<p style="color:#7a8ab0;text-align:center;padding:20px 0">Your cart is empty.</p>';
+    }
+    var sub = $('bf-cart-subtotal'); if (sub) { sub.textContent = cart ? money(cart.cost.subtotalAmount.amount) : '$0.00'; }
+    var code = $('bf-cart-code');
+    if (code) {
+      if (!codeOn()) { code.style.display = 'none'; }
+      else {
+        var live = ((cart && cart.discountCodes) || []).some(function (c) { return c.applicable && String(c.code).toUpperCase() === DISCOUNT.toUpperCase(); });
+        code.style.display = '';
+        code.className = 'bf-cart-code' + (live ? ' on' : '');
+        code.innerHTML = live ? '&#10003; Code <b>' + esc(DISCOUNT) + '</b> is on your cart.'
+          : (STATE === 'before' ? 'Code <b>' + esc(DISCOUNT) + '</b> starts working when the sale opens.'
+                                : 'Enter code <b>' + esc(DISCOUNT) + '</b> at checkout.');
+      }
+    }
+    var btn = $('bf-checkout');
+    if (btn) {
+      btn.disabled = !cart || count === 0;
+      btn.onclick = function () { var u = checkoutHref(cart); if (u) { window.location.href = u; } };
+    }
+  }
+  function cartFail(e) {
+    dbg('cart error: ' + (e && e.message ? e.message : e));
+    alert('Sorry, the cart could not be updated. Please try again.');
+  }
+  function setBusy(on) { cls('bf-cart-drawer', 'busy', on); }
+  function addLines(lines, btn) {
+    if (btn) { btn.classList.add('busy'); }
+    function done() { if (btn) { btn.classList.remove('busy'); } }
+    if (!cartId) {
+      return gql('mutation($lines:[CartLineInput!]!,$codes:[String!],$attrs:[AttributeInput!]){cartCreate(input:{lines:$lines,discountCodes:$codes,attributes:$attrs}){cart{' + CART_FIELDS + '} userErrors{message}}}',
+        { lines: lines, codes: codeOn() ? [DISCOUNT] : [], attrs: cartAttrs() })
+        .then(function (r) {
+          done();
+          var c = r.json && r.json.data && r.json.data.cartCreate && r.json.data.cartCreate.cart;
+          if (!c) { return cartFail(r.raw); }
+          cartId = c.id;
+          try { localStorage.setItem(CART_KEY, cartId); } catch (e) {}
+          renderCart(c); openCart();
+        }).catch(function (e) { done(); cartFail(e); });
+    }
+    return gql('mutation($id:ID!,$lines:[CartLineInput!]!){cartLinesAdd(cartId:$id,lines:$lines){cart{' + CART_FIELDS + '} userErrors{message}}}',
+      { id: cartId, lines: lines })
+      .then(function (r) {
+        var c = r.json && r.json.data && r.json.data.cartLinesAdd && r.json.data.cartLinesAdd.cart;
+        if (!c) {
+          done();
+          cartId = null;
+          try { localStorage.removeItem(CART_KEY); } catch (e) {}
+          return addLines(lines, btn);
+        }
+        done(); renderCart(c); openCart();
+      }).catch(function (e) { done(); cartFail(e); });
+  }
+  function updateLine(lineId, qty) {
+    setBusy(true);
+    var q = qty < 1
+      ? gql('mutation($id:ID!,$ids:[ID!]!){cartLinesRemove(cartId:$id,lineIds:$ids){cart{' + CART_FIELDS + '}}}', { id: cartId, ids: [lineId] })
+      : gql('mutation($id:ID!,$lines:[CartLineUpdateInput!]!){cartLinesUpdate(cartId:$id,lines:$lines){cart{' + CART_FIELDS + '}}}', { id: cartId, lines: [{ id: lineId, quantity: qty }] });
+    q.then(function (r) {
+      setBusy(false);
+      var d = r.json && r.json.data, c = d && (d.cartLinesRemove || d.cartLinesUpdate);
+      if (c && c.cart) { renderCart(c.cart); }
+    }).catch(function (e) { setBusy(false); cartFail(e); });
+  }
+  function restoreCart() {
+    if (!cartId) { return; }
+    gql('mutation($id:ID!,$codes:[String!]){cartDiscountCodesUpdate(cartId:$id,discountCodes:$codes){cart{' + CART_FIELDS + '}}}',
+      { id: cartId, codes: codeOn() ? [DISCOUNT] : [] })
+      .then(function (r) {
+        var d = r.json && r.json.data && r.json.data.cartDiscountCodesUpdate;
+        if (d && d.cart) { renderCart(d.cart); }
+        else { cartId = null; try { localStorage.removeItem(CART_KEY); } catch (e) {} }
+      }).catch(function () {});
+  }
+
+  // ---------- events ----------
+  document.addEventListener('click', function (ev) {
+    var t = ev.target;
+    if (!t || !t.closest) { return; }
+    if (t.closest('#bf-cart-toggle')) { openCart(); return; }
+    if (t.closest('#bf-cart-close') || t.id === 'bf-cart-backdrop') { closeCart(); return; }
+    var qb = t.closest('.qb');
+    if (qb) { ev.preventDefault(); updateLine(qb.getAttribute('data-line'), parseInt(qb.getAttribute('data-qty'), 10)); return; }
+    var rm = t.closest('#bf-cart-drawer .rm');
+    if (rm) { ev.preventDefault(); updateLine(rm.getAttribute('data-line'), 0); return; }
+    var fb = t.closest('[data-bf-fmt]');
+    if (fb) {
+      var P = PRODUCTS.filter(function (x) { return x.id === fb.getAttribute('data-bf-fmt'); })[0];
+      if (P) { P.sel = parseInt(fb.getAttribute('data-i'), 10) || 0; safe('products', renderProducts);
+        var again = document.querySelector('[data-bf-fmt="' + P.id + '"][data-i="' + P.sel + '"]'); if (again) { again.focus(); } }
+      return;
+    }
+    var kb = t.closest('[data-bf-addkit]');
+    if (kb && !kb.disabled) {
+      var K = KITS.filter(function (x) { return x.id === kb.getAttribute('data-bf-addkit'); })[0];
+      if (!K) { return; }
+      var lines = K.items.map(function (it) { var v = variantOf(it[0]); return v ? { merchandiseId: v.id, quantity: it[1] } : null; }).filter(Boolean);
+      dbg('add kit ' + K.id + ' (' + lines.length + ' lines)');
+      if (lines.length === K.items.length) { addLines(lines, kb); }
+      return;
+    }
+    var pb = t.closest('[data-bf-add]');
+    if (pb && !pb.disabled) {
+      var v = variantOf(pb.getAttribute('data-bf-add'));
+      dbg('add ' + pb.getAttribute('data-bf-add'));
+      if (v) { addLines([{ merchandiseId: v.id, quantity: 1 }], pb); }
+    }
+  });
+  document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') { closeCart(); } });
+
+  // ---------- boot ----------
+  function boot() {
+    safe('countdown', paintCountdowns);
+    setInterval(function () { safe('countdown', paintCountdowns); }, 1000);
+    safe('cart mount', mountCart);
+    if (TOKEN === 'TOKENPLACEHOLDER') { dbg('TOKEN not set'); }
+    loadProducts().then(function () {
+      safe('kits', renderKits);
+      safe('products', renderProducts);
+      safe('hero', renderHeroMedia);
+    }).catch(function (e) {
+      dbg('product load failed: ' + (e && e.message ? e.message : e));
+      ['bf-kits', 'bf-products'].forEach(function (id) {
+        var b = $(id); if (b) { b.innerHTML = '<p class="bf-loading">The shop is temporarily unavailable. Please refresh in a minute.</p>'; }
+      });
+    });
+    restoreCart();
+  }
+  if (document.readyState !== 'loading') { boot(); } else { document.addEventListener('DOMContentLoaded', boot); }
+})();
+</script>
