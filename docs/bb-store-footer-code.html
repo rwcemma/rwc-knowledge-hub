@@ -1,5 +1,5 @@
 <script>
-/* bb-store v44 - SITE FOOTER custom code. Embeds hold markup + CSS only.
+/* bb-store v45 - SITE FOOTER custom code. Embeds hold markup + CSS only.
    Failures are isolated. ?bbdebug=1 paints a debug panel.
    !! Webflow caps this box at 50,000 chars and v39 hit it. Check the length
    !! before adding. Full history/rationale lives in the repo instead:
@@ -9,8 +9,10 @@
   var TOKEN   = 'TOKENPLACEHOLDER';
   var API     = 'https://' + DOMAIN + '/api/2026-07/graphql.json';
 
-  // These nine categories are what the shop BROWSES, and stay CellCore-only.
-  // The All Products section below them is the WHOLE sales channel - see pool().
+  // These nine categories are what the shop BROWSES. The All Products section
+  // below them is the WHOLE sales channel - see pool(). Categories were
+  // CellCore-only until 2026-10-27, when Emma put Instant Hydration in
+  // Foundation Support; that is the one deliberate exception.
   // BEFORE ADDING A HANDLE here, check in Shopify that it is ACTIVE, vendor
   // "Cellcore Biosciences", published to the "Biohacking Bombshell" channel,
   // and in the live discount. A bad handle fails silently.
@@ -49,7 +51,7 @@
       handles: ['s-tro', 'metabolic-activator'] },
     { key: 'foundation', name: 'Foundation Support',
       blurb: 'Daily cellular groundwork.',
-      handles: ['bc-atp'] }
+      handles: ['bc-atp', 'instant-hydration-premium-electrolyte-drink-mix-30-count'] }
   ];
 
   var ALL_HANDLES = (function () {
@@ -127,7 +129,7 @@
     return am + ' ' + ad + '-' + (am === bm ? '' : bm + ' ') + ord(Number(bd));
   }
   var DEBUG   = /[?&]bbdebug=1/.test(window.location.search);
-  var VERSION = 'v44';
+  var VERSION = 'v45';
 
   var wantProduct = (function () {
     var m = /[?&]product=([^&#]+)/.exec(window.location.search);
@@ -534,11 +536,20 @@
     return page(null);
   }
 
-  // The shared catalogue carries $0 placeholders and rows with no buyable
-  // variant. Those are dropped; BRAND is deliberately not filtered.
+  // What the shop will show at all. Drops $0 placeholders and rows with no
+  // buyable variant, and - Emma, 2026-10-27 - anything with "jaban" in its
+  // TITLE: Dr. Jaban's own courses, protocols and merch do not belong on
+  // Allyssa's storefront.
+  //
+  // Matched on TITLE, not vendor, because that is what was asked and the two
+  // differ: of 338 products on the channel, 35 name him in the title and 67
+  // carry the "Dr Jaban Moore - Store" vendor. The other 32 are unbranded
+  // stock that reads as ordinary catalogue. Switch to vendor here if those
+  // should go too. BRAND is otherwise not filtered.
   function sellable(p) {
     var v = p && p.variants && p.variants.nodes && p.variants.nodes[0];
-    return !!(v && Number(v.price.amount) > 0);
+    if (!v || !(Number(v.price.amount) > 0)) { return false; }
+    return String(p.title || '').toLowerCase().indexOf('jaban') === -1;
   }
 
   function loadProducts() {
