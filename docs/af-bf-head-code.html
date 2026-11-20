@@ -1,9 +1,9 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="googlebot" content="noindex, nofollow">
 <style>
-/* Aegis Black Friday 2026 (af-bf v1). Styles for the parts the footer script renders. */
+/* Aegis Black Friday 2026 (af-bf v2). Styles for the parts the footer script renders. */
 html{scroll-behavior:smooth}
-#kits,#three-rs,#formulas,#faq{scroll-margin-top:64px}
+#best-sellers,#full-line,#why-aegis,#doctors{scroll-margin-top:64px}
 .bf-sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .bf-cd-unit{display:inline-flex;align-items:baseline;gap:2px}
 .bf-cd-unit b{font-weight:800;color:#00c4cc}
@@ -107,4 +107,31 @@ html{scroll-behavior:smooth}
 #bf-cart-toggle{right:14px;bottom:14px}
 }
 @media screen and (max-width:478px){.bf-product-grid{grid-template-columns:1fr!important}}
+/* v2: retail cards + Learn more pop-ups */
+.bf-badge{position:absolute;top:14px;right:14px;z-index:1;padding:5px 11px;border-radius:50px;background:#ff8d28;color:#040e68;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.bf-eyebrow{margin:0 0 6px;color:#00979c;font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.bf-btn-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.bf-btn-pair .bf-add{margin-top:0;padding:14px 10px;font-size:14px}
+.bf-more{padding:14px 10px;border:1.5px solid rgba(13,20,64,.22);border-radius:14px;background:#fff;color:#0d1440;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.bf-more:hover{border-color:#0d1440;background:rgba(13,20,64,.04)}
+.bf-more:focus-visible,#bf-pop-close:focus-visible{outline:3px solid #00c4cc;outline-offset:3px}
+#bf-pop-backdrop{position:fixed;inset:0;z-index:9993;background:rgba(4,14,104,.5);opacity:0;pointer-events:none;transition:opacity .2s}
+#bf-pop-backdrop.open{opacity:1;pointer-events:auto}
+#bf-pop{position:fixed;left:50%;top:50%;z-index:9994;width:min(560px,calc(100vw - 32px));max-height:min(86vh,760px);overflow:auto;border-radius:18px;background:#fff;box-shadow:0 30px 80px rgba(4,14,104,.35);transform:translate(-50%,-48%);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
+#bf-pop.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%)}
+#bf-pop-body{display:grid;gap:14px;padding:28px 28px 24px}
+.bf-pop-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.bf-pop-top h3{margin:0;color:#0d1440;font-size:24px;line-height:1.15;font-weight:800;letter-spacing:-.02em}
+#bf-pop-close{flex:none;width:36px;height:36px;border:0;border-radius:50%;background:#f4f6fb;color:#0d1440;font-size:22px;line-height:1;cursor:pointer}
+.bf-pop-open{margin:0;color:#2a3a6e;font-size:15px;line-height:1.7}
+.bf-pop-blk b{display:block;margin-bottom:2px;color:#0d1440;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.bf-pop-blk p{margin:0;color:#2a3a6e;font-size:14.5px;line-height:1.7}
+.bf-pop-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:4px;padding-top:16px;border-top:1px solid #e2e7f0}
+.bf-pop-foot .bf-price{margin:0}
+.bf-pop-add{width:auto;margin-top:0;padding:14px 28px}
+html.bf-noscroll{overflow:hidden}
+@media screen and (max-width:991px){.bf-why-grid{grid-template-columns:repeat(2,1fr)!important}}
+@media screen and (max-width:478px){.bf-why-grid{grid-template-columns:1fr!important}#bf-pop-body{padding:22px 20px}}
+@media (prefers-reduced-motion:reduce){#bf-pop,#bf-pop-backdrop{transition:none}}
 </style>
+

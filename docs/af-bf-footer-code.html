@@ -1,52 +1,96 @@
 <script>
-/* Aegis Black Friday 2026 storefront (af-bf v1).
+/* Aegis Black Friday 2026 storefront (af-bf v2: retail copy, Nov 2026).
    Products and prices load live from the Synergized Supplements Shopify store
-   (myshopify domain dr-jaban-moore-store) through the Storefront API, using the
-   same Buy Button token as the Biohacking Bombshell storefront.
+   (myshopify domain dr-jaban-moore-store) through the Storefront API.
    Checkout happens on the Synergized checkout. Append ?bfdebug=1 to see a log. */
 (function () {
-  // ---------- SETTINGS: edit these, nothing below ----------
+  // ---------- SETTINGS ----------
   var DOMAIN = 'dr-jaban-moore-store.myshopify.com';
-  var TOKEN  = 'TOKENPLACEHOLDER'; // Storefront (Buy Button) token. Same one Allyssa's page uses.
+  var TOKEN  = 'TOKENPLACEHOLDER'; // public Storefront token
   var API    = 'https://' + DOMAIN + '/api/2026-07/graphql.json';
 
-  // [SALE START] / [SALE END]. Provisional values from the spec. Central time (CST, UTC-6).
+  // Sale window, Central time (CST, UTC-6).
   var SALE_START = '2026-11-27T00:00:00-06:00';
   var SALE_END   = '2026-11-30T23:59:59-06:00';
 
-  // [CODE]. Leave '' until the discount exists in Shopify.
-  var DISCOUNT = '';
-  // [OFFER DETAILS]. Percent off used for the struck-through display price, e.g. 20.
-  // 0 = show regular prices only, with a visible [SALE PRICE] placeholder.
-  var SALE_PCT = 0;
+  // The 20% discount. Sale prices only show once ONE of these is set,
+  // so the page never advertises a price checkout won't honor.
+  var DISCOUNT = '';            // discount CODE from Shopify, e.g. 'BLACKFRIDAY20'
+  var AUTO_DISCOUNT = false;    // true if Shopify applies it automatically (no code)
+  var SALE_PCT = 20;
 
   var UTM = 'utm_source=webflow&utm_medium=landing-page&utm_campaign=black-friday-2026';
 
-  // One-liners are LOCKED copy from the spec. Do not change.
+  // Copy from "Aegis Black Friday Retail Page" doc.
   var PRODUCTS = [
-    { id: 'calmaf',    handles: ['calm'], name: 'CalmAF', line: 'Calm and alert, never sedated.', phase: 'Regulate', fmt: 'Oral strip, 30/tin' },
-    { id: 'clearaf',   handles: ['clearaf'], name: 'ClearAF', line: 'Balance, not boost.', phase: 'Regulate', fmt: 'Oral strip, 30/tin' },
-    { id: 'edge',      handles: ['elemental-edge'], name: 'Elemental Edge', line: "Your body's missing link.", phase: 'Recalibrate', fmt: '120 capsules' },
-    { id: 'rebalance', handles: ['rebalance-previously-called-post-pill-ease'], name: 'ReBalance♀', line: 'Four levers, one scoop.', phase: 'Recalibrate', fmt: 'Powder', note: 'Formulated for women.' },
-    { id: 'nanoglut',  handles: ['nanoglut-b'], name: 'NanoGlut+B', line: 'Glutathione that actually arrives.', phase: 'Recalibrate · Release', fmt: 'Liquid pump' },
-    { id: 'tudca',     handles: ['tudca-max'], name: 'TUDCA Max', line: 'Support your liver. Support your life.', phase: 'Release', fmt: '60 capsules' },
-    { id: 'ttb',       handles: ['total-tox-binder', 'total-tox-binder-copy'], fmts: ['Powder', 'Capsules'], name: 'Total Tox Binder', line: 'Mobilizing is the easy part. This is what catches it.', phase: 'Release', fmt: 'Powder' }
-  ];
-
-  // Kits do not exist as Shopify products. Each kit adds its formulas to the cart
-  // as separate lines; the kit price shown is the live sum of those formulas.
-  var KITS = [
-    { id: 'regulate', name: 'Regulate Kit', label: 'Month 1', line: 'Calm the alarm.', contents: 'CalmAF + ClearAF', btn: 'Shop Regulate',
-      items: [['calm', 1], ['clearaf', 1]] },
-    { id: 'recalibrate', name: 'Recalibrate Kit', label: 'Month 2', line: 'Refill the tank.', contents: 'Elemental Edge + ReBalance♀ + NanoGlut+B', btn: 'Shop Recalibrate',
-      note: 'ReBalance♀ is formulated for women.',
-      items: [['elemental-edge', 1], ['rebalance-previously-called-post-pill-ease', 1], ['nanoglut-b', 1]] },
-    { id: 'release', name: 'Release Kit', label: 'Month 3', line: 'Open, fuel, bind.', contents: 'TUDCA Max + NanoGlut+B + Total Tox Binder', btn: 'Shop Release',
-      items: [['tudca-max', 1], ['nanoglut-b', 1], ['total-tox-binder', 1]] },
-    { id: 'full', full: true, name: 'The Full Sequence: Months 1 to 3', label: 'Months 1 to 3', btn: 'Shop the Full Sequence',
-      body: "All three months, in order. This is the whole plan, at the lowest price I'll offer on it all year.",
-      confirm: '[CONFIRM: the "lowest price all year" statement is true]',
-      items: [['calm', 1], ['clearaf', 1], ['elemental-edge', 1], ['rebalance-previously-called-post-pill-ease', 1], ['nanoglut-b', 2], ['tudca-max', 1], ['total-tox-binder', 1]] }
+    { id: 'calmaf', group: 'best', handles: ['calm'], name: 'CalmAF', badge: 'Most Popular',
+      eyebrow: 'For relaxed focus',
+      desc: 'Calm, relaxed, and sharp at the same time. This strip melts on your tongue to quiet anxious thoughts and pull your focus back where you want it, with no drowsiness. Feel the difference in 15 minutes.',
+      pop: { h: 'Relaxed focus in 15 minutes',
+        open: 'CalmAF is for the moments you need to be settled and sharp at once. It quiets anxious, racing thoughts and brings your focus back to the task in front of you, without making you drowsy. The strip dissolves in about 30 seconds and absorbs through the lining of your mouth, skipping digestion, so most people feel the difference within 15 minutes.',
+        blocks: [
+          ["What's inside", 'Zembrin, from the South African plant Sceletium tortuosum, and Zynamite, from mango leaf. Both are patented ingredients with published clinical studies behind them.'],
+          ['When people reach for it', 'Before a presentation or a flight. During the slump at 3 in the afternoon. When they wake at night and their mind is already running.'],
+          ['How to take it', '1 strip a day, or as needed. Let it dissolve without chewing. 30 strips per tin.'],
+          ['Good to know', 'AF stands for Aegis Formulas. If you take an antidepressant, talk to your doctor first, since Zembrin can interact with SSRIs and similar medications.']] } },
+    { id: 'edge', group: 'best', handles: ['elemental-edge'], name: 'Elemental Edge',
+      eyebrow: 'Our most impactful formula',
+      desc: 'Most people are low on minerals, and it shows up as restless sleep, scattered focus, flagging energy and an immune system that catches everything going around. Elemental Edge restores them at clinical doses you can feel. For most people, this one product makes the most difference.',
+      pop: { h: 'Our most impactful formula',
+        open: "An estimated 85% of people are low on minerals, and stress burns through whatever is left. It shows up everywhere: sleep that doesn't restore you, focus that drifts, energy that crashes by midafternoon, an immune system that catches everything going around. Elemental Edge restores those minerals at doses designed to correct a shortfall. That's why, for most people, it's the formula that changes the most.",
+        blocks: [
+          ["What's inside", '12 vitamins and minerals, including magnesium glycinate, zinc and selenium, plus boron and shilajit. Shilajit’s fulvic acid helps carry nutrients into your cells.'],
+          ["Why it's different", 'The ratios are built for a stressed nervous system. Trace mineral drops contain amounts too small to measure. This is doctor-level dosing in 1 formula.'],
+          ['How to take it', 'Always with a full meal. Start with 1 capsule and work up to 4 a day, no more than 2 at once. On an empty stomach the zinc and folate can cause nausea. Keep it 2 hours away from prescription medication.']] } },
+    { id: 'rebalance', group: 'best', handles: ['rebalance-previously-called-post-pill-ease'], name: 'ReBalance',
+      eyebrow: "For women's hormone balance",
+      desc: 'When hormones swing, everything swings with them: your mood, your sleep, your patience with the people you love. ReBalance brings vitex, maca, rhodiola and key minerals into 1 daily drink to help women feel like themselves again. The first thing most women notice is the difference in sleep quality. It can also help men with high estrogen.',
+      pop: { h: 'Steadier days and deeper sleep, made for women',
+        open: 'Hormones are messengers. When they shift, your mood and your sleep follow. Dr. Jess built ReBalance for the pattern she sees most often in women: too much estrogen relative to progesterone, often with histamine in the mix. It gives women support while the deeper work happens.',
+        blocks: [
+          ["What's inside", 'B6, B12, pantothenic acid, magnesium malate and zinc glycinate, with beet, turmeric, chasteberry, rhodiola, wild yam, blue vervain and maca.'],
+          ['What women notice', 'Sleep that leaves them actually rested, and calmer moods through the month.'],
+          ['How to take it', '1 scoop in 6 to 10 oz of water, hot or cold, with food. It tastes like an Arnold Palmer. Plenty of women make it a 10-minute ritual of their own. 30 servings per tub.'],
+          ['Good to know', 'Not for use during pregnancy or breastfeeding. If you also take NanoGlut+B or another B complex, ask your practitioner about timing.']] } },
+    { id: 'clearaf', group: 'more', handles: ['clearaf'], name: 'ClearAF',
+      eyebrow: "For fast relief from what's in the air",
+      desc: 'Are you sensitive to pollen, smoke, mold, or chemical smells that hit the moment you walk into a room? ClearAF dissolves on your tongue and helps your body reset and feel clear fast. Feel the difference in 15 minutes.',
+      pop: { h: 'Feel the difference in 15 minutes',
+        open: 'Pollen season, wildfire smoke, a damp basement, a hotel room that reeks of cleaning chemicals. When your body overreacts to what’s around you, put a ClearAF strip on your tongue. It dissolves in seconds, no water or pills, and most people feel their system reset within 15 minutes.',
+        blocks: [
+          ["What's inside", 'GMI, an immune-balancing protein from Ganoderma mushrooms in the reishi family, with 8000 IU of vitamin D3 and vitamin K2 (MK-7). The D3 and K2 work alongside the GMI and support healthy calcium use.'],
+          ['How to take it', '1 strip daily, or as needed. During rough stretches, Dr. Jess uses 1 in the morning and 1 at night. 30 strips per tin.'],
+          ['Good to know', "It's also an easy way to keep vitamin D up, since the strip delivers it through your mouth. Talk to your practitioner if you're pregnant, nursing or managing a medical condition."]] } },
+    { id: 'nanoglut', group: 'more', handles: ['nanoglut-b'], name: 'NanoGlut+B',
+      eyebrow: 'For the afternoon slump',
+      desc: "Glutathione, the body's master antioxidant, in a liposomal liquid your body can absorb, paired with active B vitamins. A few pumps under the tongue keep the 3 p.m. crash from taking over your afternoon.",
+      pop: { h: 'Glutathione that actually gets in',
+        open: "Glutathione is the body's master antioxidant and a key player in how your liver clears toxins. It's also fragile: stomach acid breaks most of it down. NanoGlut+B wraps the glutathione itself in nano-sized liposomes and delivers it as a liquid you hold under your tongue.",
+        blocks: [
+          ["Why it's different", 'Some formulas call themselves liposomal when only 1 minor ingredient is. In NanoGlut+B, the glutathione is the liposomal part. It comes with active (methylated) B vitamins plus vitamins C and E, in a glycerin base with no alcohol.'],
+          ['What people notice', 'Energy that holds through the afternoon.'],
+          ['How to take it', '4 pumps twice a day, or 8 pumps once, held under the tongue for 30 seconds. Take it with food at first. 30 servings per bottle.'],
+          ['Good to know', "If you're sensitive to methylated B vitamins, start with 1 or 2 pumps and build slowly."]] } },
+    { id: 'tudca', group: 'more', handles: ['tudca-max'], name: 'TUDCA Max',
+      eyebrow: 'For digestion and liver support',
+      desc: 'TUDCA, milk thistle, NAC and shilajit in 1 capsule, to keep digestion running smooth and your brain strong.',
+      pop: { h: 'Keep bile moving',
+        open: 'Bile breaks down the fats in your food and carries waste out of your body. Think of it like engine oil: over time it gets thick and dirty, and digestion and detox slow down with it. TUDCA Max supports healthy bile flow and liver function. The benefits reach well past digestion: TUDCA helps protect brain and nerve cells, supports mitochondrial energy and a healthy inflammatory response, and helps the liver clear excess histamine.',
+        blocks: [
+          ["What's inside", 'TUDCA, a bile acid that keeps bile flowing and protects liver and brain cells. NAC, the building block your body uses to make glutathione. Milk thistle, which supports and protects liver cells. Shilajit, whose fulvic acid helps carry nutrients deeper into your cells.'],
+          ["Why it's different", 'Most TUDCA products stop at TUDCA and NAC. Adding milk thistle lets 1 capsule replace 3 separate products, and in clinic people tolerate it more easily.'],
+          ['How to take it', '1 capsule twice a day with a meal that includes healthy fats, before 4 p.m.'],
+          ['Good to know', 'Especially supportive if you no longer have a gallbladder, since your liver now has to make bile on demand. Avoid during pregnancy or nursing.']] } },
+    { id: 'ttb', group: 'more', handles: ['total-tox-binder', 'total-tox-binder-copy'], fmts: ['Powder', 'Capsules'], name: 'Total Tox Binder',
+      eyebrow: 'For clearing out',
+      desc: 'A binder catches what your body releases so it leaves instead of being reabsorbed. 5 whole-food ingredients, nothing else on the label, in powder or capsule.',
+      pop: { h: 'So what leaves stays gone',
+        open: 'Your body releases toxins every day. A binder catches them in your gut so they leave with your next bowel movement, instead of being reabsorbed. Total Tox Binder supports that process for environmental pollutants, mold byproducts and heavy metals.',
+        blocks: [
+          ["What's inside", 'Organic chlorella, psyllium husk, cilantro, shilajit and humic acid. Other ingredients: none.'],
+          ["Why it's different", "It's a complete binder. Other protocols rotate through 3 separate binders, each for a different job; Total Tox Binder covers mold toxins, environmental chemicals and metals in 1 formula. The capsule holds exactly the same formula as the powder, with no fillers needed to make it fit. 1 scoop equals 4 capsules. Open a capsule and swish it to reach your mouth and throat."],
+          ['How to take it', '1 scoop in 6 to 8 oz of water, 1 to 2 times a day on an empty stomach. Start with half a serving. Drink it right away, because the psyllium thickens. It tastes green and earthy.'],
+          ['Good to know', 'Keep it 2 hours away from medications. Talk to your practitioner before using it during pregnancy or breastfeeding.']] } }
   ];
   // ---------- end of settings ----------
 
@@ -78,7 +122,7 @@
   }
   var STATE = windowState();
   function codeOn() { return !!DISCOUNT && STATE !== 'ended'; }
-  function pctOn() { return SALE_PCT > 0 && STATE !== 'ended'; }
+  function pctOn() { return SALE_PCT > 0 && (!!DISCOUNT || AUTO_DISCOUNT) && STATE !== 'ended'; }
 
   function gql(query, variables) {
     return fetch(API, {
@@ -119,13 +163,12 @@
       var bt = document.querySelector('[data-copy-id="BAR-TEXT"]');
       if (bt && !bt.getAttribute('data-ended')) {
         bt.setAttribute('data-ended', '1');
-        bt.setAttribute('data-copy-id', 'BAR-ENDED');
-        bt.textContent = 'The sale is over. The order still matters.';
+        bt.textContent = 'The Black Friday sale has ended.';
       }
     }
   }
 
-  // ---------- pricing ----------
+  // ---------- products ----------
   function variantOf(handle) {
     var p = byHandle[handle];
     return p && p.variants && p.variants.nodes[0];
@@ -136,102 +179,75 @@
       return '<div class="bf-price"><span class="bf-sr">Regular price</span><span class="bf-was">' + money(regular) +
              '</span><span class="bf-sr">Sale price</span><span class="bf-now">' + money(sale) + '</span></div>';
     }
-    return '<div class="bf-price"><span class="bf-sr">Regular price</span><span class="bf-reg">' + money(regular) +
-           '</span><span class="bf-ph-inline">[SALE PRICE]</span></div>';
+    return '<div class="bf-price"><span class="bf-reg">' + money(regular) + '</span></div>';
   }
-  function codeLine() {
-    if (codeOn()) { return '<p class="bf-code">Code <b>' + esc(DISCOUNT) + '</b> is applied in your cart.</p>'; }
-    return '<p class="bf-code"><span class="bf-ph-inline">[CODE]</span></p>';
+  function curHandle(P) { return P.handles[P.sel || 0]; }
+  function addBtn(P, cls) {
+    var h = curHandle(P), v = variantOf(h), ok = v && v.availableForSale !== false;
+    return '<button type="button" class="' + cls + '" data-bf-add="' + esc(h) + '"' + (ok ? '' : ' disabled') + '>' +
+           (ok ? 'Add to cart' : 'Sold out') + '</button>';
   }
-
-  // ---------- rendering ----------
-  function imgsFor(items) {
-    var seen = {}, out = '';
-    items.forEach(function (it) {
-      var p = byHandle[it[0]];
-      if (!p || seen[it[0]] || !p.featuredImage) { return; }
-      seen[it[0]] = 1;
-      out += '<img src="' + esc(p.featuredImage.url) + '" alt="" loading="lazy">';
-    });
-    return out;
-  }
-  function kitInfo(k) {
-    var total = 0, missing = [], soldOut = [];
-    k.items.forEach(function (it) {
-      var v = variantOf(it[0]);
-      if (!v) { missing.push(it[0]); return; }
-      total += Number(v.price.amount) * it[1];
-      if (v.availableForSale === false) { soldOut.push(byHandle[it[0]].title.split(' (')[0]); }
-    });
-    return { total: total, missing: missing, soldOut: soldOut };
-  }
-
-  function renderKits() {
-    var box = $('bf-kits');
-    if (!box) { dbg('no #bf-kits'); return; }
-    box.innerHTML = KITS.map(function (k) {
-      var info = kitInfo(k);
-      var ok = !info.missing.length && !info.soldOut.length;
-      var body = k.full
-        ? '<p class="bf-card-p" data-copy-id="KITS-FULL-BODY">' + esc(k.body) + ' <span class="bf-ph-inline">' + esc(k.confirm) + '</span></p>'
-        : '<p class="bf-card-line">' + esc(k.line) + '</p><p class="bf-card-p">' + esc(k.contents) + '</p>';
-      return '<div class="bf-card' + (k.full ? ' bf-card-full' : '') + '" data-bf-kit="' + k.id + '">' +
-        '<div class="bf-card-imgs">' + imgsFor(k.items) + '</div>' +
-        '<div class="bf-card-body" style="display:flex;flex-direction:column;flex:1">' +
-          '<span class="bf-pill">' + esc(k.label) + '</span>' +
-          '<h3 class="bf-card-h">' + esc(k.name) + '</h3>' + body +
-          (k.note ? '<p class="bf-card-note">' + esc(k.note) + '</p>' : '') +
-          '<div class="bf-card-spacer"></div>' +
-          (info.missing.length ? '<p class="bf-oos">Unavailable right now.</p>' : priceBlock(info.total)) +
-          codeLine() +
-          (info.soldOut.length ? '<p class="bf-oos">' + esc(info.soldOut.join(', ')) + ' is sold out.</p>' : '') +
-          '<button type="button" class="bf-add" data-bf-addkit="' + k.id + '"' + (ok ? '' : ' disabled') + '>' +
-            (ok ? esc(k.btn) : 'Sold out') + '</button>' +
-        '</div></div>';
-    }).join('');
-  }
-
   function productCard(P) {
-    var sel = P.sel || 0;
-    var handle = P.handles[sel];
-    var p = byHandle[handle], v = variantOf(handle);
+    var handle = curHandle(P), p = byHandle[handle], v = variantOf(handle);
     if (!p || !v) { return ''; }
-    var img = p.featuredImage ? '<img src="' + esc(p.featuredImage.url) + '" alt="' + esc(P.name + ' ' + (P.fmts ? P.fmts[sel] : P.fmt).toLowerCase()) + '" loading="lazy">' : '';
+    var sel = P.sel || 0;
+    var img = p.featuredImage ? '<img src="' + esc(p.featuredImage.url) + '" alt="' + esc(P.name) + '" loading="lazy">' : '';
     var fmt = P.fmts
       ? '<div class="bf-fmt" role="group" aria-label="Format">' + P.fmts.map(function (f, i) {
           return '<button type="button" data-bf-fmt="' + P.id + '" data-i="' + i + '" aria-pressed="' + (i === sel) + '">' + esc(f) + '</button>';
-        }).join('') + '</div>'
-      : '<p class="bf-p-fmt">' + esc(P.fmt) + '</p>';
-    var ok = v.availableForSale !== false;
+        }).join('') + '</div>' : '';
     return '<div class="bf-card" data-bf-prod="' + P.id + '">' +
+      (P.badge ? '<span class="bf-badge">' + esc(P.badge) + '</span>' : '') +
       '<div class="bf-p-img">' + img + '</div>' +
-      '<span class="bf-pill">' + esc(P.phase) + '</span>' +
+      '<p class="bf-eyebrow">' + esc(P.eyebrow) + '</p>' +
       '<h3 class="bf-p-h">' + esc(P.name) + '</h3>' +
-      '<p class="bf-card-p">' + esc(P.line) + '</p>' + fmt +
-      (P.note ? '<p class="bf-card-note">' + esc(P.note) + '</p>' : '') +
+      '<p class="bf-card-p">' + esc(P.desc) + '</p>' + fmt +
       '<div class="bf-card-spacer"></div>' +
-      priceBlock(Number(v.price.amount)) + codeLine() +
-      '<button type="button" class="bf-add" data-bf-add="' + esc(handle) + '"' + (ok ? '' : ' disabled') + '>' +
-        (ok ? 'Shop' : 'Sold out') + '</button></div>';
+      priceBlock(Number(v.price.amount)) +
+      '<div class="bf-btn-pair"><button type="button" class="bf-more" data-bf-pop="' + P.id + '">Learn more</button>' +
+        addBtn(P, 'bf-add') + '</div></div>';
   }
-  function renderProducts() {
-    var box = $('bf-products');
-    if (!box) { dbg('no #bf-products'); return; }
-    box.innerHTML = PRODUCTS.map(productCard).join('') ||
-      '<p class="bf-loading">Formulas are unavailable right now. Please check back soon.</p>';
+  function renderGroup(group, boxId) {
+    var box = $(boxId);
+    if (!box) { dbg('no #' + boxId); return; }
+    box.innerHTML = PRODUCTS.filter(function (P) { return P.group === group; }).map(productCard).join('') ||
+      '<p class="bf-loading">Products are unavailable right now. Please check back soon.</p>';
+  }
+  function renderAll() { safe('best', function () { renderGroup('best', 'bf-best'); }); safe('more', function () { renderGroup('more', 'bf-more'); }); }
+
+  // ---------- pop-ups ----------
+  function mountPop() {
+    if ($('bf-pop')) { return; }
+    var d = document.createElement('div');
+    d.innerHTML = '<div id="bf-pop-backdrop"></div><div id="bf-pop" role="dialog" aria-modal="true" aria-labelledby="bf-pop-h"><div id="bf-pop-body"></div></div>';
+    while (d.firstChild) { document.body.appendChild(d.firstChild); }
+  }
+  var popFocus = null, popId = null;
+  function openPop(id) {
+    var P = PRODUCTS.filter(function (x) { return x.id === id; })[0];
+    var body = $('bf-pop-body');
+    if (!P || !body) { return; }
+    popId = id;
+    var v = variantOf(curHandle(P));
+    body.innerHTML = '<div class="bf-pop-top"><div><p class="bf-eyebrow">' + esc(P.name) + '</p><h3 id="bf-pop-h">' + esc(P.pop.h) + '</h3></div>' +
+      '<button type="button" id="bf-pop-close" aria-label="Close">&times;</button></div>' +
+      '<p class="bf-pop-open">' + esc(P.pop.open) + '</p>' +
+      P.pop.blocks.map(function (b) { return '<div class="bf-pop-blk"><b>' + esc(b[0]) + '</b><p>' + esc(b[1]) + '</p></div>'; }).join('') +
+      '<div class="bf-pop-foot">' + (v ? priceBlock(Number(v.price.amount)) : '') + addBtn(P, 'bf-add bf-pop-add') + '</div>';
+    popFocus = document.activeElement;
+    $('bf-pop').classList.add('open'); $('bf-pop-backdrop').classList.add('open');
+    document.documentElement.classList.add('bf-noscroll');
+    var c = $('bf-pop-close'); if (c) { c.focus(); }
+  }
+  function closePop() {
+    var p = $('bf-pop'); if (!p || !p.classList.contains('open')) { return; }
+    p.classList.remove('open'); $('bf-pop-backdrop').classList.remove('open');
+    document.documentElement.classList.remove('bf-noscroll');
+    popId = null;
+    if (popFocus && popFocus.focus) { popFocus.focus(); }
   }
 
-  function renderHeroMedia() {
-    var box = $('bf-hero-media');
-    if (!box) { return; }
-    var cards = KITS.filter(function (k) { return !k.full; }).map(function (k) {
-      return '<a class="bf-trio-card" href="#kits"><div class="bf-trio-imgs">' + imgsFor(k.items) + '</div>' +
-             '<div class="bf-trio-k">' + esc(k.label) + '</div><div class="bf-trio-n">' + esc(k.name.replace(' Kit', '')) + '</div></a>';
-    }).join('');
-    box.innerHTML = '<div class="bf-trio">' + cards + '</div>';
-  }
-
-  // ---------- load products ----------
+  // ---------- load ----------
   function allHandles() {
     var seen = {}, out = [];
     PRODUCTS.forEach(function (P) { P.handles.forEach(function (h) { if (!seen[h]) { seen[h] = 1; out.push(h); } }); });
@@ -333,16 +349,16 @@
   function addLines(lines, btn) {
     if (btn) { btn.classList.add('busy'); }
     function done() { if (btn) { btn.classList.remove('busy'); } }
+    function opened(c) { done(); closePop(); renderCart(c); openCart(); }
     if (!cartId) {
       return gql('mutation($lines:[CartLineInput!]!,$codes:[String!],$attrs:[AttributeInput!]){cartCreate(input:{lines:$lines,discountCodes:$codes,attributes:$attrs}){cart{' + CART_FIELDS + '} userErrors{message}}}',
         { lines: lines, codes: codeOn() ? [DISCOUNT] : [], attrs: cartAttrs() })
         .then(function (r) {
-          done();
           var c = r.json && r.json.data && r.json.data.cartCreate && r.json.data.cartCreate.cart;
-          if (!c) { return cartFail(r.raw); }
+          if (!c) { done(); return cartFail(r.raw); }
           cartId = c.id;
           try { localStorage.setItem(CART_KEY, cartId); } catch (e) {}
-          renderCart(c); openCart();
+          opened(c);
         }).catch(function (e) { done(); cartFail(e); });
     }
     return gql('mutation($id:ID!,$lines:[CartLineInput!]!){cartLinesAdd(cartId:$id,lines:$lines){cart{' + CART_FIELDS + '} userErrors{message}}}',
@@ -355,7 +371,7 @@
           try { localStorage.removeItem(CART_KEY); } catch (e) {}
           return addLines(lines, btn);
         }
-        done(); renderCart(c); openCart();
+        opened(c);
       }).catch(function (e) { done(); cartFail(e); });
   }
   function updateLine(lineId, qty) {
@@ -386,6 +402,9 @@
     if (!t || !t.closest) { return; }
     if (t.closest('#bf-cart-toggle')) { openCart(); return; }
     if (t.closest('#bf-cart-close') || t.id === 'bf-cart-backdrop') { closeCart(); return; }
+    if (t.closest('#bf-pop-close') || t.id === 'bf-pop-backdrop') { closePop(); return; }
+    var pop = t.closest('[data-bf-pop]');
+    if (pop) { ev.preventDefault(); openPop(pop.getAttribute('data-bf-pop')); return; }
     var qb = t.closest('.qb');
     if (qb) { ev.preventDefault(); updateLine(qb.getAttribute('data-line'), parseInt(qb.getAttribute('data-qty'), 10)); return; }
     var rm = t.closest('#bf-cart-drawer .rm');
@@ -393,17 +412,8 @@
     var fb = t.closest('[data-bf-fmt]');
     if (fb) {
       var P = PRODUCTS.filter(function (x) { return x.id === fb.getAttribute('data-bf-fmt'); })[0];
-      if (P) { P.sel = parseInt(fb.getAttribute('data-i'), 10) || 0; safe('products', renderProducts);
+      if (P) { P.sel = parseInt(fb.getAttribute('data-i'), 10) || 0; renderAll();
         var again = document.querySelector('[data-bf-fmt="' + P.id + '"][data-i="' + P.sel + '"]'); if (again) { again.focus(); } }
-      return;
-    }
-    var kb = t.closest('[data-bf-addkit]');
-    if (kb && !kb.disabled) {
-      var K = KITS.filter(function (x) { return x.id === kb.getAttribute('data-bf-addkit'); })[0];
-      if (!K) { return; }
-      var lines = K.items.map(function (it) { var v = variantOf(it[0]); return v ? { merchandiseId: v.id, quantity: it[1] } : null; }).filter(Boolean);
-      dbg('add kit ' + K.id + ' (' + lines.length + ' lines)');
-      if (lines.length === K.items.length) { addLines(lines, kb); }
       return;
     }
     var pb = t.closest('[data-bf-add]');
@@ -413,21 +423,17 @@
       if (v) { addLines([{ merchandiseId: v.id, quantity: 1 }], pb); }
     }
   });
-  document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') { closeCart(); } });
+  document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') { closePop(); closeCart(); } });
 
   // ---------- boot ----------
   function boot() {
     safe('countdown', paintCountdowns);
     setInterval(function () { safe('countdown', paintCountdowns); }, 1000);
     safe('cart mount', mountCart);
-    if (TOKEN === 'TOKENPLACEHOLDER') { dbg('TOKEN not set'); }
-    loadProducts().then(function () {
-      safe('kits', renderKits);
-      safe('products', renderProducts);
-      safe('hero', renderHeroMedia);
-    }).catch(function (e) {
+    safe('pop mount', mountPop);
+    loadProducts().then(function () { renderAll(); }).catch(function (e) {
       dbg('product load failed: ' + (e && e.message ? e.message : e));
-      ['bf-kits', 'bf-products'].forEach(function (id) {
+      ['bf-best', 'bf-more'].forEach(function (id) {
         var b = $(id); if (b) { b.innerHTML = '<p class="bf-loading">The shop is temporarily unavailable. Please refresh in a minute.</p>'; }
       });
     });
